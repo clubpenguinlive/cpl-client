@@ -58,6 +58,12 @@ export default class PostcardIconLoader extends BaseLoader {
             return
         }
 
+        this.memory.register(
+            key,
+            () => this.staleCheck(postcard),
+            () => this.unload(key)
+        )
+
         const index = this.pageIds.indexOf(postcard)
         const postcardItem = this.postcardItems[index]
 
@@ -89,6 +95,16 @@ export default class PostcardIconLoader extends BaseLoader {
         postcardItem.stopSpinner()
 
         postcardItem.error.visible = true
+    }
+
+    staleCheck(postcardId) {
+        const activePostcardIds = this.postcardItems.map(item => item.id)
+
+        return !activePostcardIds.includes(postcardId)
+    }
+
+    unload(key) {
+        this.memory.unloadTexture(key)
     }
 
 }
