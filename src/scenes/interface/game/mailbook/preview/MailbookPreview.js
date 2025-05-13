@@ -145,6 +145,7 @@ export default class MailbookPreview extends BaseContainer {
 
     close() {
         this.checkDestroyCurrent()
+        this.id = null
 
         super.close()
     }
