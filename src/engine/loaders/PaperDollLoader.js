@@ -89,7 +89,13 @@ export default class PaperDollLoader extends BaseLoader {
     }
 
     onFileComplete(itemId, key, slot, isBack = false) {
-        if (!this.paperDoll.visible || !this.textureExists(key)) {
+        if (!this.textureExists(key)) {
+            return
+        }
+
+        this.memory.register(key)
+
+        if (!this.paperDoll.visible) {
             return
         }
 
@@ -98,12 +104,6 @@ export default class PaperDollLoader extends BaseLoader {
         }
 
         let item = this.paperDoll.items[slot]
-
-        this.memory.register(
-            key,
-            staleCheck.bind(this.memory, itemId),
-            unload.bind(this.memory, key)
-        )
 
         if (isBack) {
             this.addBack(key, slot, item)
@@ -228,20 +228,4 @@ export default class PaperDollLoader extends BaseLoader {
         return this.paperDoll.list.filter(item => item.isBack)
     }
 
-}
-
-function staleCheck(itemId) {
-    for (const paperDoll of this.interface.paperDolls) {
-        const items = Object.values(paperDoll.items).map(item => item.id)
-
-        if (items.includes(itemId)) {
-            return false
-        }
-    }
-
-    return true
-}
-
-function unload(key) {
-    this.unloadTexture(key)
 }

@@ -29,11 +29,7 @@ export default class PostcardLoader extends BaseLoader  {
             return
         }
 
-        this.memory.register(
-            key,
-            () => this.staleCheck(postcardId),
-            () => this.unload(key)
-        )
+        this.memory.register(key)
 
         let postcardClass = null
 
@@ -47,18 +43,6 @@ export default class PostcardLoader extends BaseLoader  {
         }
 
         callback(postcardClass)
-    }
-
-    staleCheck(postcardId) {
-        const mailActive = this.interface.main.mail.currentCard?.postcardId === postcardId
-
-        const previewActive = this.interface.main.mailbook.mailbookPreview.id === postcardId
-
-        return !mailActive && !previewActive
-    }
-
-    unload(key) {
-        this.memory.unloadTexture(key)
     }
 
 }
