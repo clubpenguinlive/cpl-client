@@ -6,6 +6,7 @@ const cleanupDelay = 10000
 export default class MemoryManager extends BaseScene {
 
     registered = {}
+    usedTextures = new Set()
 
     create() {
         this.time.addEvent({
@@ -16,13 +17,37 @@ export default class MemoryManager extends BaseScene {
     }
 
     cleanup() {
+        this.collectUsedTextures()
+
         for (const key in this.registered) {
             this.cleanupCheck(key, this.registered[key])
         }
     }
 
+    collectUsedTextures() {
+        this.usedTextures.clear()
+
+        for (const scene of this.scene.manager.scenes) {
+            for (const child of scene.children.list) {
+                this.collectTexturesFromChild(child)
+            }
+        }
+    }
+
+    collectTexturesFromChild(child) {
+        if (child.texture) {
+            this.usedTextures.add(child.texture.key)
+        }
+
+        if (child.list && Array.isArray(child.list)) {
+            for (const subChild of child.list) {
+                this.collectTexturesFromChild(subChild)
+            }
+        }
+    }
+
     cleanupCheck(key, asset) {
-        const setStale = asset.staleCheck()
+        const setStale = !this.usedTextures.has(key)
 
         if (!setStale) {
             return
@@ -36,7 +61,7 @@ export default class MemoryManager extends BaseScene {
         }
     }
 
-    register(key, staleCheck, unload) {
+    register(key, unload = () => this.unloadTexture(key)) {
         if (key in this.registered) {
             this.registered[key].stale = false
             return
@@ -44,7 +69,6 @@ export default class MemoryManager extends BaseScene {
 
         this.registered[key] = {
             stale: false,
-            staleCheck,
             unload
         }
     }
