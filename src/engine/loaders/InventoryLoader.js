@@ -74,6 +74,12 @@ export default class InventoryLoader extends BaseLoader {
     }
 
     onFileComplete(key, item) {
+        if (!this.textureExists(key)) {
+            return
+        }
+
+        this.memory.register(key)
+
         this.addIcon(item, key)
     }
 
