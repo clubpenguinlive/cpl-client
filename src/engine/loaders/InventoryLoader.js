@@ -84,8 +84,6 @@ export default class InventoryLoader extends BaseLoader {
     }
 
     onLoadError(file) {
-        super.onLoadError(file)
-
         let item = this.getKeyId(file.key)
 
         this.addIcon(item, 'main', 'x-icon')

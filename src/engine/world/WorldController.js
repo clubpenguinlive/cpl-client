@@ -16,8 +16,6 @@ export default class WorldController extends BaseScene {
 
         this.secretFramesCache = {}
 
-        this.globalLoadQueue = {}
-
         this.worldTimeZone = 'America/Los_Angeles'
     }
 

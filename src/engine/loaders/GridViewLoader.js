@@ -98,8 +98,6 @@ export default class GridViewLoader extends BaseLoader {
     }
 
     onLoadError(file) {
-        super.onLoadError(file)
-
         if (!this.gridView.visible) {
             return
         }
