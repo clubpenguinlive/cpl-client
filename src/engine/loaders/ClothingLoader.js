@@ -1,6 +1,5 @@
 import BaseLoader from './BaseLoader'
 
-import PenguinSpriteFactory from './PenguinSpriteFactory'
 import SecretFramesLoader from './SecretFramesLoader'
 
 import adjustRedemptionItem from '@engine/world/penguin/frames/adjustRedemptionItem'
@@ -8,44 +7,22 @@ import adjustRedemptionItem from '@engine/world/penguin/frames/adjustRedemptionI
 
 export default class ClothingLoader extends BaseLoader {
 
-    constructor(penguin) {
-        super(penguin.room)
+    constructor(scene) {
+        super(scene)
 
-        this.penguin = penguin
-
-        this.equipped = this.penguin.equipped
+        this.maxParallelDownloads = 6
 
         this.baseURL = '/assets/media/clothing/sprites/'
         this.keyPrefix = 'clothing/sprites/'
 
-        this.framesLoader = new SecretFramesLoader(penguin.room)
+        this.framesLoader = new SecretFramesLoader(scene)
     }
 
-    loadItems() {
-        for (let slot in this.equipped) {
-            let item = this.equipped[slot]
-
-            if (item.id > 0) {
-                this.loadItem(item.id, slot)
-            }
-        }
-
-        this.start()
-    }
-
-    loadItem(item, slot) {
-        if (item == 0) {
-            return this.removeItem(slot)
-        }
-
-        if (this.equipped[slot].sprite) {
-            this.removeItem(slot)
-        }
-
-        let key = this.getKey(item)
+    loadItem(item, slot, callback) {
+        const key = this.getKey(item)
 
         if (this.checkComplete('json', key, () => {
-            this.onFileComplete(item, key, slot)
+            this.onFileComplete(item, key, slot, callback)
         })) {
             return
         }
@@ -53,62 +30,29 @@ export default class ClothingLoader extends BaseLoader {
         this.multiatlas(key, `${item}.json`)
     }
 
-    onFileComplete(item, key, slot) {
+    onFileComplete(item, key, slot, callback) {
         if (!this.textureExists(key)) {
             return
         }
 
         this.memory.register(key)
 
-        let check = adjustRedemptionItem(item)
+        const check = adjustRedemptionItem(item)
 
         // Checks secret frames
-        let secretFrames = this.crumbs.itemsToFrames[check]
+        const secretFrames = this.crumbs.itemsToFrames[check]
 
         if (secretFrames) {
-            return this.loadSecretFrames(secretFrames, slot, item)
+            return this.loadSecretFrames(secretFrames, slot, item, callback)
         }
 
-        this.addItem(slot, item)
+        callback(slot, item)
     }
 
-    loadSecretFrames(secretFrames, slot, item) {
+    loadSecretFrames(secretFrames, slot, item, callback) {
         this.framesLoader.loadFrames(item, secretFrames, () => {
-            this.addItem(slot, item)
+            callback(slot, item)
         })
-    }
-
-    addItem(slot, item) {
-        let equipped = this.equipped[slot]
-
-        if (item != equipped.id) {
-            return
-        }
-
-        let key = this.getKey(item)
-
-        if (equipped.sprite) {
-            this.removeItem(slot)
-        }
-
-        // depth + 1 to ensure items are loaded on top of penguin body
-        equipped.sprite = PenguinSpriteFactory.create(this.penguin, key, equipped.depth + 1)
-
-        this.penguin.sort('depth')
-        this.penguin.playFrame(this.penguin.frame)
-    }
-
-    removeItem(slot) {
-        let item = this.equipped[slot]
-
-        if (!item || !item.sprite) {
-            return
-        }
-
-        item.sprite.destroy()
-        item.sprite = null
-
-        this.penguin.playFrame(this.penguin.frame)
     }
 
 }

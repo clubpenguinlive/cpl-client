@@ -1,8 +1,8 @@
 import BaseContainer from '@scenes/base/BaseContainer'
 
-import ClothingLoader from '@engine/loaders/ClothingLoader'
 import PathEngine from './pathfinding/PathEngine'
 import PenguinItems from './PenguinItems'
+import PenguinSpriteFactory from '../../loaders/PenguinSpriteFactory'
 
 import adjustRedemptionItem from './frames/adjustRedemptionItem'
 
@@ -17,7 +17,7 @@ export default class Penguin extends BaseContainer {
         this.room = room
 
         this.items = new PenguinItems(this)
-        this.clothingLoader = new ClothingLoader(this)
+        this.clothingLoader = this.world.clothingLoader
 
         this.bodySprite
         this.penguinSprite
@@ -101,27 +101,85 @@ export default class Penguin extends BaseContainer {
 
     load() {
         this.penguinLoader.loadPenguin(this)
-        this.clothingLoader.loadItems()
+        this.loadItems()
 
         this.room.add.existing(this)
     }
 
-    update(item, slot) {
-        this.items.setItem(item, slot)
+    loadItems() {
+        for (const slot in this.equipped) {
+            const item = this.equipped[slot]
+
+            if (item.id > 0) {
+                this.loadItem(item.id, slot)
+            }
+        }
+
+        this.clothingLoader.start()
+    }
+
+    loadItem(itemId, slot) {
+        if (itemId === 0) {
+            this.removeItem(slot)
+            return
+        }
+
+        if (this.equipped[slot].sprite) {
+            this.removeItem(slot)
+        }
+
+        this.clothingLoader.loadItem(itemId, slot, () => this.addItem(slot, itemId))
+    }
+
+    addItem(slot, itemId) {
+        const equipped = this.equipped[slot]
+
+        if (itemId !== equipped.id) {
+            return
+        }
+
+        const key = this.clothingLoader.getKey(itemId)
+
+        if (equipped.sprite) {
+            this.removeItem(slot)
+        }
+
+        // depth + 1 to ensure items are loaded on top of penguin body
+        equipped.sprite = PenguinSpriteFactory.create(this, key, equipped.depth + 1)
+
+        this.sort('depth')
+        this.playFrame(this.frame)
+    }
+
+    removeItem(slot) {
+        const item = this.equipped[slot]
+
+        if (!item || !item.sprite) {
+            return
+        }
+
+        item.sprite.destroy()
+        item.sprite = null
+
+        this.playFrame(this.frame)
+    }
+
+    update(itemId, slot) {
+        this.items.setItem(itemId, slot)
 
         if (slot == 'color' && this.bodySprite) {
-            this.bodySprite.tint = this.world.getColor(item)
+            this.bodySprite.tint = this.world.getColor(itemId)
         }
 
         // Load item sprite
         if (slot in this.equipped) {
-            this.clothingLoader.loadItem(item, slot)
+            this.loadItem(itemId, slot)
             this.clothingLoader.start()
         }
 
         // Load item paper, only if card is active
         if (this.playerCard.visible && this.playerCard.id == this.id) {
-            this.paperDollLoader.loadItem(item, slot)
+            this.paperDollLoader.loadItem(itemId, slot)
             this.paperDollLoader.start()
         }
     }

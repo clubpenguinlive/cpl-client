@@ -11,8 +11,13 @@ export default class WorldController extends BaseScene {
     constructor(key) {
         super(key)
 
-        this.client
-        this.room
+        this.client = null
+        this.room = null
+
+        this.penguinFactory = null
+        this.roomFactory = null
+
+        this.clothingLoader = null
 
         this.secretFramesCache = {}
 
@@ -22,6 +27,8 @@ export default class WorldController extends BaseScene {
     create() {
         this.penguinFactory = new PenguinFactory(this)
         this.roomFactory = new RoomFactory(this)
+
+        this.clothingLoader = new ClothingLoader(this)
     }
 
     setClient(args) {
