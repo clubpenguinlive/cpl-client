@@ -195,7 +195,7 @@ export default class RuffleController extends BaseScene {
 
     close() {
         setTimeout(() => {
-            this.player.pause()
+            this.player.remove()
         }, 100)
 
         this.container.visible = false
