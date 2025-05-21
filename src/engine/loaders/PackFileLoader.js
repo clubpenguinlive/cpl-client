@@ -9,6 +9,7 @@ export default class PackFileLoader extends BaseLoader {
         this.loadingPacks = []
 
         this.on('filecomplete', () => this.checkLoadingPacks())
+        this.on('complete', () => this.checkLoadingPacks())
     }
 
     loadPack(key, url, callback) {
@@ -69,6 +70,9 @@ export default class PackFileLoader extends BaseLoader {
 
             switch (file.type) {
                 case 'animation':
+                    exists = this.animationsExists(file.key)
+                    break
+
                 case 'json':
                     exists = this.jsonExists(file.key)
                     break
@@ -83,6 +87,26 @@ export default class PackFileLoader extends BaseLoader {
             }
 
             if (!exists) {
+                return false
+            }
+        }
+
+        return true
+    }
+
+    animationsExists(key) {
+        if (!this.jsonExists(key)) {
+            return false
+        }
+
+        const anims = this.scene.cache.json.get(key)?.anims
+
+        if (!Array.isArray(anims)) {
+            return false
+        }
+
+        for (const anim of anims) {
+            if (!this.scene.anims.exists(anim.key)) {
                 return false
             }
         }
