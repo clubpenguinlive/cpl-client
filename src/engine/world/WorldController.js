@@ -1,6 +1,7 @@
 import BaseScene from '@scenes/base/BaseScene'
 
 import ClientController from './penguin/ClientController'
+import ClothingLoader from '@engine/loaders/ClothingLoader'
 import PenguinFactory from './penguin/PenguinFactory'
 import RoomFactory from './room/RoomFactory'
 import RoomScene from '@scenes/rooms/RoomScene'
