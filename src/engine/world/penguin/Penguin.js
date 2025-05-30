@@ -75,10 +75,6 @@ export default class Penguin extends BaseContainer {
         return this.world.penguinFactory.penguinLoader
     }
 
-    get paperDollLoader() {
-        return this.playerCard.paperDoll.paperDollLoader
-    }
-
     get textures() {
         return this.room.textures
     }
@@ -179,8 +175,7 @@ export default class Penguin extends BaseContainer {
 
         // Load item paper, only if card is active
         if (this.playerCard.visible && this.playerCard.id == this.id) {
-            this.paperDollLoader.loadItem(itemId, slot)
-            this.paperDollLoader.start()
+            this.playerCard.paperDoll.loadItem(itemId, slot)
         }
     }
 

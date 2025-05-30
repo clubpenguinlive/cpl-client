@@ -5,6 +5,7 @@ import Hint from '@scenes/interface/game/hint/Hint'
 import MetricsManager from './metrics/MetricsManager'
 import PromptController from './prompt/PromptController'
 import WidgetManager from './widget/WidgetManager'
+import PaperDollLoader from '@engine/loaders/PaperDollLoader'
 
 
 const Status = Phaser.Scenes
@@ -29,8 +30,7 @@ export default class InterfaceController extends BaseScene {
         // Last scene interacted with
         this.lastScene
 
-        // Active paperdolls
-        this.paperDolls = []
+        this.paperDollLoader = new PaperDollLoader(this)
     }
 
     get loading() {
@@ -188,14 +188,6 @@ export default class InterfaceController extends BaseScene {
                 book.setCoins(coins)
             }
         })
-    }
-
-    addPaperDoll(paperDoll) {
-        this.paperDolls.push(paperDoll)
-    }
-
-    removePaperDoll(paperDoll) {
-        this.paperDolls = this.paperDolls.filter(i => i !== paperDoll)
     }
 
     getColor(id) {
