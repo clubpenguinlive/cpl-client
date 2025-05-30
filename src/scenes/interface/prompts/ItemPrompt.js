@@ -1,6 +1,3 @@
-import ItemPromptLoader from '@engine/loaders/ItemPromptLoader'
-
-
 /* START OF COMPILED CODE */
 
 import BaseContainer from "../../base/BaseContainer";
@@ -71,8 +68,6 @@ export default class ItemPrompt extends BaseContainer {
         /* START-USER-CTR-CODE */
 
         this.text.setWordWrapWidth(616, true)
-
-        this.loader = new ItemPromptLoader(scene, this)
 
         /* END-USER-CTR-CODE */
     }
