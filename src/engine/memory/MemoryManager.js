@@ -1,4 +1,5 @@
 import BaseScene from '@scenes/base/BaseScene'
+import TextureTracker from './tracker/TextureTracker'
 
 
 const cleanupDelay = 10000
@@ -6,7 +7,8 @@ const cleanupDelay = 10000
 export default class MemoryManager extends BaseScene {
 
     registered = {}
-    usedTextures = new Set()
+
+    textureTracker = new TextureTracker()
 
     create() {
         this.time.addEvent({
@@ -24,30 +26,12 @@ export default class MemoryManager extends BaseScene {
         }
     }
 
-    collectUsedTextures() {
-        this.usedTextures.clear()
-
-        for (const scene of this.scene.manager.scenes) {
-            for (const child of scene.children.list) {
-                this.collectTexturesFromChild(child)
-            }
-        }
-    }
-
-    collectTexturesFromChild(child) {
-        if (child.texture) {
-            this.usedTextures.add(child.texture.key)
-        }
-
-        if (child.list && Array.isArray(child.list)) {
-            for (const subChild of child.list) {
-                this.collectTexturesFromChild(subChild)
-            }
-        }
+    trackGameObject(gameObject) {
+        this.textureTracker.track(gameObject)
     }
 
     cleanupCheck(key, asset) {
-        const setStale = !this.usedTextures.has(key)
+        const setStale = !this.textureTracker.isTextureUsed(key)
 
         if (!setStale) {
             return
