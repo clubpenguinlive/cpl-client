@@ -1,4 +1,6 @@
 import BaseScene from '@scenes/base/BaseScene'
+
+import AnimTracker from './tracker/AnimTracker'
 import TextureTracker from './tracker/TextureTracker'
 
 
@@ -8,9 +10,13 @@ export default class MemoryManager extends BaseScene {
 
     registered = {}
 
+    animTracker = new AnimTracker()
     textureTracker = new TextureTracker()
 
     create() {
+        this.anims.on('add', (_, anim) => this.trackAnim(anim))
+        this.anims.on('remove', (_, anim) => this.untrackAnim(anim))
+
         this.time.addEvent({
             delay: cleanupDelay,
             callback: () => this.cleanup(),
@@ -24,6 +30,14 @@ export default class MemoryManager extends BaseScene {
         for (const key in this.registered) {
             this.cleanupCheck(key, this.registered[key])
         }
+    }
+
+    trackAnim(anim) {
+        this.animTracker.track(anim)
+    }
+
+    untrackAnim(anim) {
+        this.animTracker.untrack(anim)
     }
 
     trackGameObject(gameObject) {
@@ -125,18 +139,15 @@ export default class MemoryManager extends BaseScene {
     }
 
     unloadTextureAnims(textureKey) {
-        const anims = this.anims.anims.getArray()
+        const textureAnims = this.animTracker.getTextureAnims(textureKey)
 
-        for (const anim of anims) {
-            const usesTexture = anim.frames.some(frame =>
-                frame.textureKey === textureKey
-            )
+        if (!textureAnims) {
+            return
+        }
 
-            if (usesTexture) {
-                this.anims.remove(anim.key)
-            }
+        for (const animKey of textureAnims) {
+            this.anims.remove(animKey)
         }
     }
 
 }
-
