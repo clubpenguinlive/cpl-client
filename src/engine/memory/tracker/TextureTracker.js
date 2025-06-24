@@ -29,7 +29,10 @@ export default class TextureTracker {
 
         this.addTextureObject(key, gameObject)
 
-        gameObject.once('destroy', () => this.untrack(gameObject))
+        // Add destroy event on first track
+        if (!prevKey) {
+            gameObject.once('destroy', () => this.untrack(gameObject))
+        }
     }
 
     addTextureObject(key, gameObject) {
