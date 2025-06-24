@@ -102,7 +102,7 @@ export default class MemoryManager extends BaseScene {
                     this.unloadAnimFile(file.key)
                     break
 
-                case 'audio:':
+                case 'audio':
                     break
 
                 case 'json':
