@@ -1,3 +1,5 @@
+import './patches/patches'
+
 import Boot from '@engine/boot/Boot'
 import InterfaceController from '@engine/interface/InterfaceController'
 import MemoryManager from '@engine/memory/MemoryManager'
