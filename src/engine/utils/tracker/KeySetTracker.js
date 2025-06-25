@@ -27,4 +27,12 @@ export default class KeySetTracker {
         }
     }
 
+    get(key) {
+        return this.map.get(key)
+    }
+
+    has(key) {
+        return this.map.has(key)
+    }
+
 }
