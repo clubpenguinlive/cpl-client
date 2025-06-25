@@ -4,7 +4,7 @@ import AnimTracker from './tracker/AnimTracker'
 import TextureTracker from './tracker/TextureTracker'
 
 
-const cleanupDelay = 10000
+const cleanupDelay = 2500
 
 export default class MemoryManager extends BaseScene {
 
