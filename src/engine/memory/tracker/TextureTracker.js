@@ -1,66 +1,40 @@
-export default class TextureTracker {
+import KeySetTracker from '@engine/utils/tracker/KeySetTracker'
+
+
+export default class TextureTracker extends KeySetTracker {
 
     // Active game objects mapped to their current texture key
-    objectTextures = new Map()
-
-    // Used texture keys mapped to all game objects using them
-    textureObjects = new Map()
+    objectToTexture = new Map()
 
     track(gameObject) {
-        this.setObjectTexture(gameObject, gameObject.texture.key)
-    }
+        const textureKey = gameObject.texture.key
+        const isFirstTrack = !this.objectToTexture.has(gameObject)
 
-    untrack(gameObject) {
-        const key = this.objectTextures.get(gameObject)
+        this.setObjectTexture(gameObject, textureKey)
 
-        this.deleteTextureObject(key, gameObject)
+        this.add(textureKey, gameObject)
 
-        this.objectTextures.delete(gameObject)
-    }
-
-    setObjectTexture(gameObject, key) {
-        const prevKey = this.objectTextures.get(gameObject)
-
-        if (prevKey) {
-            this.deleteTextureObject(prevKey, gameObject)
-        }
-
-        this.objectTextures.set(gameObject, key)
-
-        this.addTextureObject(key, gameObject)
-
-        // Add destroy event on first track
-        if (!prevKey) {
+        if (isFirstTrack) {
             gameObject.once('destroy', () => this.untrack(gameObject))
         }
     }
 
-    addTextureObject(key, gameObject) {
-        if (!this.textureObjects.has(key)) {
-            this.textureObjects.set(key, new Set())
-        }
+    untrack(gameObject) {
+        const textureKey = this.objectToTexture.get(gameObject)
 
-        const textureSet = this.textureObjects.get(key)
+        this.remove(textureKey, gameObject)
 
-        textureSet.add(gameObject)
+        this.objectToTexture.delete(gameObject)
     }
 
-    deleteTextureObject(key, gameObject) {
-        const textureSet = this.textureObjects.get(key)
+    setObjectTexture(gameObject, textureKey) {
+        const prevKey = this.objectToTexture.get(gameObject)
 
-        if (!textureSet) {
-            return
+        if (prevKey) {
+            this.remove(prevKey, gameObject)
         }
 
-        textureSet.delete(gameObject)
-
-        if (textureSet.size === 0) {
-            this.textureObjects.delete(key)
-        }
-    }
-
-    isTextureUsed(key) {
-        return this.textureObjects.has(key)
+        this.objectToTexture.set(gameObject, textureKey)
     }
 
 }

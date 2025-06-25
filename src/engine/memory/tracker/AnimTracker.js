@@ -1,44 +1,21 @@
-export default class AnimTracker {
+import KeySetTracker from '@engine/utils/tracker/KeySetTracker'
 
-    textureAnims = new Map()
+
+export default class AnimTracker extends KeySetTracker {
 
     track(anim) {
         const usedTextures = this.getUsedTextures(anim)
 
-        for (const key of usedTextures) {
-            this.addTextureAnim(key, anim.key)
+        for (const textureKey of usedTextures) {
+            this.add(textureKey, anim.key)
         }
     }
 
     untrack(anim) {
         const usedTextures = this.getUsedTextures(anim)
 
-        for (const key of usedTextures) {
-            this.removeTextureAnim(key, anim.key)
-        }
-    }
-
-    addTextureAnim(textureKey, animKey) {
-        if (!this.textureAnims.has(textureKey)) {
-            this.textureAnims.set(textureKey, new Set())
-        }
-
-        const textureSet = this.textureAnims.get(textureKey)
-
-        textureSet.add(animKey)
-    }
-
-    removeTextureAnim(textureKey, animKey) {
-        const textureSet = this.textureAnims.get(textureKey)
-
-        if (!textureSet) {
-            return
-        }
-
-        textureSet.delete(animKey)
-
-        if (textureSet.size === 0) {
-            this.textureAnims.delete(textureKey)
+        for (const textureKey of usedTextures) {
+            this.remove(textureKey, anim.key)
         }
     }
 
@@ -46,10 +23,6 @@ export default class AnimTracker {
         return new Set(anim.frames.map(frame =>
             frame.textureKey
         ))
-    }
-
-    getTextureAnims(textureKey) {
-        return this.textureAnims.get(textureKey)
     }
 
 }

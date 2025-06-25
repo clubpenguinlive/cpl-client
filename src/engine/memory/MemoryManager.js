@@ -45,7 +45,7 @@ export default class MemoryManager extends BaseScene {
     }
 
     cleanupCheck(key, asset) {
-        const setStale = !this.textureTracker.isTextureUsed(key)
+        const setStale = !this.textureTracker.has(key)
 
         if (!setStale) {
             return
@@ -139,13 +139,13 @@ export default class MemoryManager extends BaseScene {
     }
 
     unloadTextureAnims(textureKey) {
-        const textureAnims = this.animTracker.getTextureAnims(textureKey)
+        const textureAnimKeys = this.animTracker.get(textureKey)
 
-        if (!textureAnims) {
+        if (!textureAnimKeys) {
             return
         }
 
-        for (const animKey of textureAnims) {
+        for (const animKey of textureAnimKeys) {
             this.anims.remove(animKey)
         }
     }
