@@ -25,11 +25,44 @@ export default class MemoryManager extends BaseScene {
     }
 
     cleanup() {
-        this.collectUsedTextures()
-
         for (const key in this.registered) {
             this.cleanupCheck(key, this.registered[key])
         }
+    }
+
+    cleanupCheck(key, asset) {
+        if (!asset.staleCheck()) {
+            return
+        }
+
+        if (asset.stale) {
+            asset.unload()
+            delete this.registered[key]
+
+        } else {
+            asset.stale = true
+        }
+    }
+
+    register(
+        key,
+        staleCheck = () => !this.textureTracker.has(key),
+        unload = () => this.unloadTexture(key)
+    ) {
+        if (key in this.registered) {
+            this.registered[key].stale = false
+            return
+        }
+
+        this.registered[key] = {
+            stale: false,
+            staleCheck,
+            unload
+        }
+    }
+
+    trackGameObject(gameObject) {
+        this.textureTracker.track(gameObject)
     }
 
     trackAnim(anim) {
@@ -38,37 +71,6 @@ export default class MemoryManager extends BaseScene {
 
     untrackAnim(anim) {
         this.animTracker.untrack(anim)
-    }
-
-    trackGameObject(gameObject) {
-        this.textureTracker.track(gameObject)
-    }
-
-    cleanupCheck(key, asset) {
-        const setStale = !this.textureTracker.has(key)
-
-        if (!setStale) {
-            return
-        }
-
-        if (asset.stale) {
-            asset.unload()
-            delete this.registered[key]
-        } else {
-            asset.stale = true
-        }
-    }
-
-    register(key, unload = () => this.unloadTexture(key)) {
-        if (key in this.registered) {
-            this.registered[key].stale = false
-            return
-        }
-
-        this.registered[key] = {
-            stale: false,
-            unload
-        }
     }
 
     unloadPack(key) {
