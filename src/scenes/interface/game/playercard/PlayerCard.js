@@ -336,6 +336,8 @@ export default class PlayerCard extends BaseWidget {
         this.resetButtons()
         this.updateBadge()
 
+        this.inventory.reset()
+
         this.stopSpinner()
     }
 
