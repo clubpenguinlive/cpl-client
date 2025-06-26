@@ -31,7 +31,7 @@ export default class MemoryManager extends BaseScene {
     }
 
     cleanupCheck(key, asset) {
-        if (!asset.staleCheck()) {
+        if (asset.isActive()) {
             return
         }
 
@@ -46,7 +46,7 @@ export default class MemoryManager extends BaseScene {
 
     register(
         key,
-        staleCheck = () => !this.textureTracker.has(key),
+        isActive = () => this.textureTracker.has(key),
         unload = () => this.unloadTexture(key)
     ) {
         if (key in this.registered) {
@@ -56,7 +56,7 @@ export default class MemoryManager extends BaseScene {
 
         this.registered[key] = {
             stale: false,
-            staleCheck,
+            isActive,
             unload
         }
     }
