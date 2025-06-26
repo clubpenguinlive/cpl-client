@@ -84,6 +84,12 @@ export default class ItemPrompt extends BaseContainer {
         this.promptIcon.loadIcon(loadConfig)
     }
 
+    close() {
+        this.promptIcon.reset()
+
+        super.close()
+    }
+
     showItem(id) {
         if (this.inventoryIncludes(id)) {
             return this.interface.prompt.showError('You already have this item.')
