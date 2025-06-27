@@ -2,7 +2,6 @@ import BaseScene from '@scenes/base/BaseScene'
 
 import drawFrame from './frame/drawFrame'
 import Hint from '@scenes/interface/game/hint/Hint'
-import MetricsManager from './metrics/MetricsManager'
 import PromptController from './prompt/PromptController'
 import WidgetManager from './widget/WidgetManager'
 import PaperDollLoader from '@engine/loaders/PaperDollLoader'
@@ -11,8 +10,6 @@ import PaperDollLoader from '@engine/loaders/PaperDollLoader'
 const Status = Phaser.Scenes
 
 export default class InterfaceController extends BaseScene {
-
-    metricsManager = new MetricsManager()
 
     goingToSleep = new Set()
 
