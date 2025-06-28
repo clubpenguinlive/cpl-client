@@ -157,14 +157,20 @@ export default class RoomScene extends BaseUnloadableScene {
     }
 
     stop() {
-        this.events.once('destroy', () =>
-            this.world.interface.unloadWidgets()
-        )
-
         this.interface.main.snowballFactory.clearBalls()
         this.soundManager.stopAllButMusic()
 
         this.scene.remove()
+    }
+
+    onDestroy() {
+        super.onDestroy()
+
+        this.world.interface.unloadWidgets()
+
+        if (this.music) {
+            this.memory.unloadAudio(this.music)
+        }
     }
 
     getWaiting(id) {
