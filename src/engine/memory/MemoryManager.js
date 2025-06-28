@@ -105,6 +105,7 @@ export default class MemoryManager extends BaseScene {
                     break
 
                 case 'audio':
+                    this.unloadAudio(file.key)
                     break
 
                 case 'json':
@@ -129,6 +130,10 @@ export default class MemoryManager extends BaseScene {
         }
 
         this.unloadJson(key)
+    }
+
+    unloadAudio(key) {
+        this.cache.audio.remove(key)
     }
 
     unloadJson(key) {
