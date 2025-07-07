@@ -124,7 +124,7 @@ export default class Penguin extends BaseContainer {
             this.removeItem(slot)
         }
 
-        this.clothingLoader.loadItem(itemId, slot, () => this.addItem(slot, itemId))
+        this.clothingLoader.loadItem(itemId, () => this.addItem(slot, itemId))
     }
 
     addItem(slot, itemId) {

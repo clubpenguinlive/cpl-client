@@ -1,5 +1,6 @@
 import BaseLoader from './BaseLoader'
 
+import ItemSoundLoader from './ItemSoundLoader'
 import SecretFramesLoader from './SecretFramesLoader'
 
 import adjustRedemptionItem from '@engine/world/penguin/frames/adjustRedemptionItem'
@@ -10,49 +11,76 @@ export default class ClothingLoader extends BaseLoader {
     constructor(scene) {
         super(scene)
 
-        this.maxParallelDownloads = 6
+        this.maxParallelDownloads = 10
 
         this.baseURL = '/assets/media/clothing/sprites/'
         this.keyPrefix = 'clothing/sprites/'
 
+        this.soundLoader = new ItemSoundLoader(scene)
         this.framesLoader = new SecretFramesLoader(scene)
     }
 
-    loadItem(item, slot, callback) {
-        const key = this.getKey(item)
+    loadItem(itemId, callback) {
+        const key = this.getKey(itemId)
 
         if (this.checkComplete('json', key, () => {
-            this.onFileComplete(item, key, slot, callback)
+            this.onFileComplete(itemId, key, callback)
         })) {
             return
         }
 
-        this.multiatlas(key, `${item}.json`)
+        this.multiatlas(key, `${itemId}.json`)
     }
 
-    onFileComplete(item, key, slot, callback) {
+    onFileComplete(itemId, key, callback) {
         if (!this.textureExists(key)) {
             return
         }
 
-        this.memory.register(key)
-
-        const check = adjustRedemptionItem(item)
-
-        // Checks secret frames
-        const secretFrames = this.crumbs.itemsToFrames[check]
-
-        if (secretFrames) {
-            return this.loadSecretFrames(secretFrames, slot, item, callback)
-        }
-
-        callback(slot, item)
+        this.loadExtras(itemId, () => {
+            this.memory.register(key)
+            callback()
+        })
     }
 
-    loadSecretFrames(secretFrames, slot, item, callback) {
-        this.framesLoader.loadFrames(item, secretFrames, () => {
-            callback(slot, item)
-        })
+    loadExtras(itemId, callback) {
+        const adjustedId = adjustRedemptionItem(itemId)
+
+        const secretFrames = this.crumbs.itemsToFrames[adjustedId]
+        const sound = this.crumbs.sounds.items[adjustedId]?.sound
+
+        let remaining = 0
+
+        const checkComplete = () => {
+            if (remaining < 1) {
+                callback()
+            }
+        }
+
+        const onExtraComplete = () => {
+            remaining--
+            checkComplete()
+        }
+
+        if (secretFrames) {
+            remaining++
+            this.loadSecretFrames(itemId, secretFrames, onExtraComplete)
+        }
+
+        if (sound) {
+            remaining++
+            this.loadSound(sound, onExtraComplete)
+        }
+
+        checkComplete()
+    }
+
+    loadSecretFrames(itemId, secretFrames, callback) {
+        this.framesLoader.loadFrames(itemId, secretFrames, callback)
+    }
+
+    loadSound(sound, callback) {
+        this.soundLoader.loadSound(sound, callback)
     }
 
 }

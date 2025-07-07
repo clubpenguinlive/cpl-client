@@ -9,16 +9,17 @@ export default class SecretFramesLoader extends BaseLoader {
         this.baseURL = '/assets/media/penguin/actions/'
         this.keyPrefix = 'secret_frames/'
 
-        // Track current items loading
+        // Track current loading items
         this.currentItems = {}
     }
 
     loadFrames(itemId, frames, callback) {
         if (itemId in this.currentItems) {
+            this.addItemCallback(itemId, callback)
             return
         }
 
-        this.currentItems[itemId] = { remaining: frames.length, callback: callback }
+        this.trackItem(itemId, frames.length, callback)
 
         for (let frame of frames) {
             this.loadFrame(frame, itemId)
@@ -44,9 +45,30 @@ export default class SecretFramesLoader extends BaseLoader {
 
         if (this.currentItems[itemId].remaining < 1) {
             // All frames loaded for item
-            this.currentItems[itemId].callback()
+            this.runCallbacks(itemId)
 
             delete this.currentItems[itemId]
+        }
+    }
+
+    trackItem(itemId, framesCount, callback) {
+        this.currentItems[itemId] = {
+            remaining: framesCount,
+            callbacks: [callback]
+        }
+    }
+
+    addItemCallback(itemId, callback) {
+        if (!(itemId in this.currentItems)) {
+            return
+        }
+
+        this.currentItems[itemId].callbacks.push(callback)
+    }
+
+    runCallbacks(itemId) {
+        for (const callback of this.currentItems[itemId].callbacks) {
+            callback()
         }
     }
 

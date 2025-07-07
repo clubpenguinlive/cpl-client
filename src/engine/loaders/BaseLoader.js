@@ -27,15 +27,15 @@ export default class BaseLoader extends Phaser.Loader.LoaderPlugin {
     }
 
     getKey(...args) {
-        let key = args.join('')
-        let prefix = this.keyPrefix || ''
+        const key = args.join('')
+        const prefix = this.keyPrefix || ''
 
         return `${prefix}${key}`
     }
 
     getKeyId(key) {
-        let split = key.split('/')
-        let last = split[split.length - 1]
+        const split = key.split('/')
+        const last = split[split.length - 1]
 
         return parseInt(last)
     }
@@ -45,18 +45,20 @@ export default class BaseLoader extends Phaser.Loader.LoaderPlugin {
     }
 
     checkComplete(type, key, callback = () => {}) {
-        if (this.textureExists(key)) {
+        if (this.loaderFileExists(key)) {
             callback()
             return true
         }
 
-        let event = `filecomplete-${type}-${key}`
+        const event = `filecomplete-${type}-${key}`
 
-        this.once(event, () =>
-            callback()
-        )
+        this.once(event, callback)
 
         return false
+    }
+
+    loaderFileExists(key) {
+        return this.textureExists(key)
     }
 
     textureExists(key) {
