@@ -184,7 +184,7 @@ export default class Penguin extends BaseContainer {
     }
 
     move(x, y) {
-        let path = PathEngine.getPath(this, { x: x, y: y })
+        const path = PathEngine.getPath(this, { x: x, y: y })
 
         if (path) {
             this.addMoveTween(path)
@@ -205,7 +205,7 @@ export default class Penguin extends BaseContainer {
         }
 
         // Get correct frame id
-        let frame = ([25, 26].includes(_frame))
+        const frame = ([25, 26].includes(_frame))
             ? this.getSecretFrame(_frame)
             : _frame
 
@@ -218,7 +218,7 @@ export default class Penguin extends BaseContainer {
     }
 
     createAnims(frame, isSecretFrame) {
-        let penguinTexture = (isSecretFrame)
+        const penguinTexture = (isSecretFrame)
             ? `secret_frames/${frame}`
             : 'penguin'
 
@@ -251,9 +251,9 @@ export default class Penguin extends BaseContainer {
             animation = this.checkAnimItems(animation, textureKey)
         }
 
-        let frames = this.generateFrames(textureKey, frame, prefix, animation)
+        const frames = this.generateFrames(textureKey, frame, prefix, animation)
 
-        let anim = this.anims.create({
+        const anim = this.anims.create({
             key: key,
             frames: frames,
             frameRate: 24,
@@ -268,10 +268,10 @@ export default class Penguin extends BaseContainer {
     }
 
     checkAnimItems(animation, textureKey) {
-        let check = adjustRedemptionItem(textureKey.split('/').pop())
+        const check = adjustRedemptionItem(textureKey.split('/').pop())
 
-        for (let item in animation.items) {
-            let secretCheck = adjustRedemptionItem(item)
+        for (const item in animation.items) {
+            const secretCheck = adjustRedemptionItem(item)
 
             if (check == secretCheck) {
                 return animation.items[item]
@@ -282,14 +282,14 @@ export default class Penguin extends BaseContainer {
     }
 
     generateFrames(textureKey, frame, prefix, animation) {
-        let frames = Phaser.Utils.Array.NumberArray(animation.start || 1, animation.end)
+        const frames = Phaser.Utils.Array.NumberArray(animation.start || 1, animation.end)
 
-        let config = {
+        const config = {
             prefix: `${prefix}${frame}_`,
             frames: frames
         }
 
-        let textureFrames = this.textures.get(textureKey).getFrameNames(false)
+        const textureFrames = this.textures.get(textureKey).getFrameNames(false)
 
         // Filter out null frames
         config.frames = config.frames.filter((i) => {
@@ -300,14 +300,14 @@ export default class Penguin extends BaseContainer {
     }
 
     createChains(key, textureKey, frame, prefix, config) {
-        let chainKeys = []
+        const chainKeys = []
 
         for (let i = 0; i < config.length; i++) {
-            let chain = config[i]
+            const chain = config[i]
 
-            let chainKey = `${key}/chain_${i + 1}`
+            const chainKey = `${key}/chain_${i + 1}`
 
-            frames = this.generateFrames(textureKey, frame, prefix, chain)
+            const frames = this.generateFrames(textureKey, frame, prefix, chain)
 
             this.anims.create({
                 key: chainKey,
@@ -326,8 +326,8 @@ export default class Penguin extends BaseContainer {
         this.playAnim(this.bodySprite, `penguin_body_${frame}`)
         this.playAnim(this.penguinSprite, `penguin_${frame}`)
 
-        for (let sprite of this.equippedSprites) {
-            let key = `${sprite.texture.key}_${frame}`
+        for (const sprite of this.equippedSprites) {
+            const key = `${sprite.texture.key}_${frame}`
 
             this.playAnim(sprite, key)
         }
@@ -344,7 +344,7 @@ export default class Penguin extends BaseContainer {
         // Reset current chain queue
         sprite.chain()
 
-        let anim = this.anims.get(key)
+        const anim = this.anims.get(key)
 
         if (anim.chainKeys) {
             this.playChain(sprite, anim)
@@ -352,9 +352,9 @@ export default class Penguin extends BaseContainer {
     }
 
     playChain(sprite, anim) {
-        let keys = anim.chainKeys
+        const keys = anim.chainKeys
 
-        for (let key of keys) {
+        for (const key of keys) {
             if (this.checkAnim(key)) {
                 sprite.chain(key)
             }
@@ -362,19 +362,19 @@ export default class Penguin extends BaseContainer {
     }
 
     checkAnim(key) {
-        let animation = this.anims.get(key)
+        const animation = this.anims.get(key)
         return animation && animation.frames.length > 0
     }
 
     getSecretFrame(frame) {
-        let equipped = this.items.equippedFlat
-        let frameString = this.getSecretFrameString(frame, equipped)
+        const equipped = this.items.equippedFlat
+        const frameString = this.getSecretFrameString(frame, equipped)
 
         if (this.secretFramesCache[frameString]) {
             return this.secretFramesCache[frameString]
         }
 
-        for (let secret of this.crumbs.secret_frames[frame]) {
+        for (const secret of this.crumbs.secret_frames[frame]) {
             if (this.checkSecretFrames(equipped, secret)) {
 
                 this.secretFramesCache[frameString] = secret.secret_frame
@@ -387,9 +387,9 @@ export default class Penguin extends BaseContainer {
     }
 
     checkSecretFrames(equipped, secret) {
-        for (let item in equipped) {
-            let check = adjustRedemptionItem(equipped[item])
-            let secretCheck = adjustRedemptionItem(secret[item])
+        for (const item in equipped) {
+            const check = adjustRedemptionItem(equipped[item])
+            const secretCheck = adjustRedemptionItem(secret[item])
 
             if (check != secretCheck) {
                 return false
@@ -405,9 +405,9 @@ export default class Penguin extends BaseContainer {
     }
 
     getSecretFrameString(frame, equipped) {
-        let slots = this.items.slots.filter(slot => slot in equipped)
+        const slots = this.items.slots.filter(slot => slot in equipped)
 
-        let items = slots.map(slot => adjustRedemptionItem(equipped[slot]))
+        const items = slots.map(slot => adjustRedemptionItem(equipped[slot]))
 
         return `${frame},${items.toString()}`
     }
