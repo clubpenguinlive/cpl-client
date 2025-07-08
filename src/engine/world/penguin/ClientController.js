@@ -37,9 +37,6 @@ export default class ClientController {
         // If expecting emote key combo
         this.emoteKeyPressed = false
 
-        this.lastBalloon = Date.now()
-        this.throttleDelay = 100
-
         // Input
         this.keys = this.crumbs.quick_keys.keys
         this.emotes = this.crumbs.quick_keys.emotes
@@ -74,18 +71,6 @@ export default class ClientController {
 
     get input() {
         return this.interface.main.input
-    }
-
-    get isBalloonThrottled() {
-        let time = Date.now()
-
-        if (time - this.lastBalloon < this.throttleDelay) {
-            return true
-        }
-
-        this.lastBalloon = time
-
-        return false
     }
 
     get isModerator() {
@@ -228,7 +213,7 @@ export default class ClientController {
     }
 
     sendEmote(emote) {
-        if (!this.visible || this.isBalloonThrottled) {
+        if (!this.visible) {
             return
         }
 
@@ -237,7 +222,7 @@ export default class ClientController {
     }
 
     sendSafe(safe) {
-        if (!this.visible || this.isBalloonThrottled) {
+        if (!this.visible) {
             return
         }
 
