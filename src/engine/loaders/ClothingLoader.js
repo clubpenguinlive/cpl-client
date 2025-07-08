@@ -23,9 +23,9 @@ export default class ClothingLoader extends BaseLoader {
     loadItem(itemId, callback) {
         const key = this.getKey(itemId)
 
-        if (this.checkComplete('json', key, () => {
+        if (this.checkComplete('json', key, () =>
             this.onFileComplete(itemId, key, callback)
-        })) {
+        )) {
             return
         }
 
@@ -63,8 +63,8 @@ export default class ClothingLoader extends BaseLoader {
         }
 
         if (secretFrames) {
-            remaining++
-            this.loadSecretFrames(itemId, secretFrames, onExtraComplete)
+            remaining += secretFrames.length
+            this.loadSecretFrames(secretFrames, onExtraComplete)
         }
 
         if (sound) {
@@ -75,8 +75,8 @@ export default class ClothingLoader extends BaseLoader {
         checkComplete()
     }
 
-    loadSecretFrames(itemId, secretFrames, callback) {
-        this.framesLoader.loadFrames(itemId, secretFrames, callback)
+    loadSecretFrames(secretFrames, callback) {
+        this.framesLoader.loadFrames(secretFrames, callback)
     }
 
     loadSound(sound, callback) {
