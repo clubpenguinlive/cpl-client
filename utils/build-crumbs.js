@@ -24,6 +24,7 @@ const crumbFiles = [
     'rooms',
     'safe_messages',
     'secret_frames',
+    'sounds',
     'strings',
     'tour_messages',
     'tour_quiz',
