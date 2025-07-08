@@ -43,6 +43,8 @@ export default class Penguin extends BaseContainer {
         // Function that is called after move completes, used to set a frame after move etc
         this.afterMove
 
+        this.soundCallbacks = new Map()
+
         this.load()
     }
 
@@ -154,6 +156,8 @@ export default class Penguin extends BaseContainer {
             return
         }
 
+        this.removeSoundEvents(item.sprite)
+
         item.sprite.destroy()
         item.sprite = null
 
@@ -221,18 +225,24 @@ export default class Penguin extends BaseContainer {
         this.createAnim(`penguin_body_${frame}`, penguinTexture, frame, 'body/')
         this.createAnim(`penguin_${frame}`, penguinTexture, frame, 'penguin/')
 
-        for (let sprite of this.equippedSprites) {
-            this.createAnim(`${sprite.texture.key}_${frame}`, sprite.texture.key, frame, '', true)
+        for (const { id, sprite } of Object.values(this.items.equipped)) {
+            if (!id || !sprite) {
+                continue
+            }
+
+            const anim = this.createAnim(`${sprite.texture.key}_${frame}`, sprite.texture.key, frame, '', true)
+
+            this.checkAttachSound(frame, id, sprite, anim)
         }
     }
 
     createAnim(key, textureKey, frame, prefix = '', checkItem = false) {
         if (this.anims.exists(key)) {
-            return
+            return this.anims.get(key)
         }
 
         if (!this.textures.exists(textureKey)) {
-            return
+            return null
         }
 
         let animation = this.crumbs.penguin[frame]
@@ -253,6 +263,8 @@ export default class Penguin extends BaseContainer {
         if (animation.chain) {
             anim.chainKeys = this.createChains(key, textureKey, frame, prefix, animation.chain)
         }
+
+        return anim
     }
 
     checkAnimItems(animation, textureKey) {
@@ -398,6 +410,64 @@ export default class Penguin extends BaseContainer {
         let items = slots.map(slot => adjustRedemptionItem(equipped[slot]))
 
         return `${frame},${items.toString()}`
+    }
+
+    checkAttachSound(frame, itemId, sprite, anim) {
+        if (!anim) {
+            return
+        }
+
+        // Remove previous events if they exist
+        this.removeSoundEvents(sprite)
+
+        const adjustedId = adjustRedemptionItem(itemId)
+
+        const sound = this.crumbs.sounds.items[adjustedId]
+
+        if (sound?.frame === frame) {
+            this.attachSound(sprite, sound, anim)
+        }
+    }
+
+    attachSound(sprite, sound, targetAnim) {
+        if (!sprite) {
+            return
+        }
+
+        const startFrame = sound.startFrame || 1
+
+        const callback = (anim, { index }) => {
+            if (anim === targetAnim && index === startFrame) {
+                this.playItemSound(sound)
+                this.removeSoundEvents(sprite)
+            }
+        }
+
+        this.addSoundEvents(sprite, callback)
+    }
+
+    addSoundEvents(sprite, callback) {
+        sprite.on('animationstart', callback)
+        sprite.on('animationupdate', callback)
+
+        this.soundCallbacks.set(sprite, callback)
+    }
+
+    removeSoundEvents(sprite) {
+        const callback = this.soundCallbacks.get(sprite)
+
+        if (!callback) {
+            return
+        }
+
+        sprite.off('animationstart', callback)
+        sprite.off('animationupdate', callback)
+
+        this.soundCallbacks.delete(sprite)
+    }
+
+    playItemSound({ sound }) {
+        this.soundManager.play(`sounds/items/${sound}`)
     }
 
     /*========== Tweening ==========*/
