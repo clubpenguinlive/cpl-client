@@ -32,21 +32,24 @@ let config = {
         devMiddleware: {
             writeToDisk: true
         },
-        proxy: {
-            '/world/login': {
+        proxy: [
+            {
+                context: '/world/login',
                 target: 'http://localhost:6111',
                 pathRewrite: { '^/world/login': '' },
                 ws: true
             },
-
-            '/world/blizzard': {
+            {
+                context: '/world/blizzard',
                 target: 'http://localhost:6112',
                 pathRewrite: { '^/world/blizzard': '' },
                 ws: true
             },
-
-            '/create/scripts/php': 'http://localhost:80'
-        },
+            {
+                context: '/create/scripts/php',
+                target: 'http://localhost:80',
+            }
+        ],
         client: {
             overlay: false
         },
