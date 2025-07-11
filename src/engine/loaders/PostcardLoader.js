@@ -29,8 +29,6 @@ export default class PostcardLoader extends BaseLoader  {
             return
         }
 
-        this.memory.register(key)
-
         let postcardClass = null
 
         try {
@@ -41,6 +39,8 @@ export default class PostcardLoader extends BaseLoader  {
         } catch (error) {
             console.error(error)
         }
+
+        this.memory.register(key)
 
         callback(postcardClass)
     }
