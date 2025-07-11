@@ -191,9 +191,11 @@ export default class PlayerCard extends BaseWidget {
         }
 
         this.reset()
-        this.setUsername(username)
 
         this.id = playerId
+
+        this.setUsername(username)
+        this.updateButtons()
 
         if (playerId in this.world.room.penguins) {
             this.updatePlayer(this.world.room.penguins[playerId])
@@ -226,7 +228,6 @@ export default class PlayerCard extends BaseWidget {
 
         this.loadDoll(player.items?.flat || player, isClient)
 
-        this.updateButtons()
         this.updateBadge(joinTime)
 
         this.inventorySort.closeMenu()
