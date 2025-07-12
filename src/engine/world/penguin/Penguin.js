@@ -421,24 +421,29 @@ export default class Penguin extends BaseContainer {
         this.removeSoundEvents(sprite)
 
         const adjustedId = adjustRedemptionItem(itemId)
+        const soundKey = this.crumbs.sounds.items[adjustedId]
 
-        const sound = this.crumbs.sounds.items[adjustedId]
+        if (!soundKey) {
+            return
+        }
 
-        if (sound?.frame === frame) {
-            this.attachSound(sprite, sound, anim)
+        const soundConfig = this.crumbs.sounds.itemSounds[soundKey]
+
+        if (soundConfig?.frame === frame) {
+            this.attachSound(sprite, soundKey, soundConfig, anim)
         }
     }
 
-    attachSound(sprite, sound, targetAnim) {
+    attachSound(sprite, soundKey, soundConfig, targetAnim) {
         if (!sprite) {
             return
         }
 
-        const startFrame = sound.startFrame || 1
+        const start = soundConfig.start || 1
 
         const callback = (anim, { index }) => {
-            if (anim === targetAnim && index === startFrame) {
-                this.playItemSound(sound)
+            if (anim === targetAnim && index === start) {
+                this.playItemSound(soundKey)
                 this.removeSoundEvents(sprite)
             }
         }
@@ -466,8 +471,8 @@ export default class Penguin extends BaseContainer {
         this.soundCallbacks.delete(sprite)
     }
 
-    playItemSound({ sound }) {
-        this.soundManager.play(`sounds/items/${sound}`)
+    playItemSound(key) {
+        this.soundManager.play(`sounds/items/${key}`)
     }
 
     /*========== Tweening ==========*/

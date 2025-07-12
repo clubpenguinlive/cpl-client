@@ -47,7 +47,7 @@ export default class ClothingLoader extends BaseLoader {
         const adjustedId = adjustRedemptionItem(itemId)
 
         const secretFrames = this.crumbs.itemsToFrames[adjustedId]
-        const sound = this.crumbs.sounds.items[adjustedId]?.sound
+        const sound = this.crumbs.sounds.items[adjustedId]
 
         let remaining = 0
 
