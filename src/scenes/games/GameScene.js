@@ -44,4 +44,14 @@ export default class GameScene extends BaseUnloadableScene {
         this.scene.remove()
     }
 
+    onDestroy() {
+        super.onDestroy()
+
+        this.world.interface.unloadWidgets()
+
+        if (this.music) {
+            this.memory.unloadAudio(this.music)
+        }
+    }
+
 }
