@@ -115,6 +115,8 @@ export default class WidgetManager extends BaseLayer {
         } else {
             this.add(widget)
         }
+
+        this.events.emit(`create_widget_${key.toLowerCase()}`)
     }
 
     showLoading(text) {
