@@ -1,9 +1,3 @@
-export const preload = {
-    key: 'mancala-pack',
-    url: 'assets/media/games/mancala/mancala-pack.json',
-    loadString: 'mancala'
-}
-
 const maxStoneColor = 5
 const holeSize = 49
 const dropDelay = 168

@@ -1,9 +1,3 @@
-export const preload = {
-    key: 'four-pack',
-    url: 'assets/media/games/four/four-pack.json',
-    loadString: 'four'
-}
-
 /* START OF COMPILED CODE */
 
 import BaseDynamicWidget from "../../base/BaseDynamicWidget";

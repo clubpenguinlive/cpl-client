@@ -1,9 +1,3 @@
-export const preload = {
-    key: 'ninjaprogress-pack',
-    url: 'assets/media/games/ninjaprogress/ninjaprogress-pack.json',
-    loadString: ['loading', 'ninjaprogress']
-}
-
 /* START OF COMPILED CODE */
 
 import BaseDynamicWidget from "../../base/BaseDynamicWidget";

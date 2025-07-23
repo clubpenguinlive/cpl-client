@@ -1,9 +1,3 @@
-export const preload = {
-    key: 'take_tour-pack',
-    url: 'assets/media/interface/game/take_tour/take_tour-pack.json',
-    loadString: 'take_tour'
-}
-
 /* START OF COMPILED CODE */
 
 import BaseDynamicWidget from "../../../base/BaseDynamicWidget";

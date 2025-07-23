@@ -1,9 +1,3 @@
-export const preload = {
-    key: 'agent_quiz-pack',
-    url: 'assets/media/interface/quiz/agent/agent_quiz-pack.json',
-    loadString: 'agent_quiz'
-}
-
 /* START OF COMPILED CODE */
 
 import BaseDynamicWidget from "../../../base/BaseDynamicWidget";

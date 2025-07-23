@@ -1,9 +1,3 @@
-export const preload = {
-    key: 'sensei-pack',
-    url: 'assets/media/games/sensei/sensei-pack.json',
-    loadString: ['loading', 'sensei']
-}
-
 /* START OF COMPILED CODE */
 
 import BaseDynamicWidget from "../../../base/BaseDynamicWidget";

@@ -1,9 +1,3 @@
-export const preload = {
-    key: 'ninjabelts-pack',
-    url: 'assets/media/interface/instructions/ninjabelts/ninjabelts-pack.json',
-    loadString: ['loading', 'ninjabelts']
-}
-
 /* START OF COMPILED CODE */
 
 import BaseDynamicWidget from "../../../base/BaseDynamicWidget";

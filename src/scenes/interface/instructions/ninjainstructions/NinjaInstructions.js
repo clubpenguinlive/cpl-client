@@ -1,9 +1,3 @@
-export const preload = {
-    key: 'ninjainstructions-pack',
-    url: 'assets/media/interface/instructions/ninjainstructions/ninjainstructions-pack.json',
-    loadString: ['loading', 'ninjainstructions']
-}
-
 /* START OF COMPILED CODE */
 
 import BaseDynamicWidget from "../../../base/BaseDynamicWidget";

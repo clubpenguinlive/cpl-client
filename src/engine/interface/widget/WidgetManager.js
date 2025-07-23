@@ -47,13 +47,16 @@ export default class WidgetManager extends BaseLayer {
 
         this.lastLoadingKey = key
 
-        const widgetClass = await this.loadWidgetClass(key)
+        const { path, preload } = this.crumbs.widgets[key]
+
+        this.showLoading(this.getLoadingMessage(preload?.message))
+
+        const widgetClass = await this.loadWidgetClass(path)
 
         if (!widgetClass) {
             return
         }
 
-        const preload = widgetClass.preload
         const callback = () => this.onWidgetLoaded(key, widgetClass.default, floatingLayer)
 
         if (!preload) {
@@ -64,11 +67,19 @@ export default class WidgetManager extends BaseLayer {
         this.packLoader.loadPack(preload.key, preload.url, () => callback())
     }
 
-    async loadWidgetClass(key) {
-        const { path } = this.crumbs.widgets[key]
+    getLoadingMessage(message) {
+        if (!message) {
+            return this.getString('loading')
+        }
 
-        this.showLoading('Loading')
+        if (Array.isArray(message)) {
+            return this.getString(...message)
+        } else {
+            return this.getString(message)
+        }
+    }
 
+    async loadWidgetClass(path) {
         try {
             const widgetClass = await (import(
                 /* webpackInclude: /\.js$/ */

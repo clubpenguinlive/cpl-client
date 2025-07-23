@@ -1,9 +1,3 @@
-export const preload = {
-    key: 'map-pack',
-    url: 'assets/media/interface/game/map/map-pack.json',
-    loadString: ['loading', 'map']
-}
-
 /* START OF COMPILED CODE */
 
 import BaseDynamicWidget from "../../../base/BaseDynamicWidget";

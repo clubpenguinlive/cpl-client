@@ -1,9 +1,3 @@
-export const preload = {
-    key: 'missions-pack',
-    url: 'assets/media/interface/game/missions/missions-pack.json',
-    loadString: ['loading', 'missions']
-}
-
 /* START OF COMPILED CODE */
 
 import BaseDynamicWidget from "../../../base/BaseDynamicWidget";
