@@ -49,7 +49,7 @@ export default class WidgetManager extends BaseLayer {
 
         const { path, preload } = this.crumbs.widgets[key]
 
-        this.showLoading(this.getLoadingMessage(preload?.message))
+        this.showLoading(this.getString(key))
 
         const widgetClass = await this.loadWidgetClass(path)
 
@@ -65,18 +65,6 @@ export default class WidgetManager extends BaseLayer {
         }
 
         this.packLoader.loadPack(preload.key, preload.url, () => callback())
-    }
-
-    getLoadingMessage(message) {
-        if (!message) {
-            return this.getString('loading')
-        }
-
-        if (Array.isArray(message)) {
-            return this.getString(...message)
-        } else {
-            return this.getString(message)
-        }
     }
 
     async loadWidgetClass(path) {
