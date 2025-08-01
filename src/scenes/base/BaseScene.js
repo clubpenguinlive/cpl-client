@@ -30,11 +30,11 @@ export default class BaseScene extends Phaser.Scene {
     }
 
     playMusic(key) {
-        this.soundManager.playMusic(key)
+        this.soundManager?.playMusic(key)
     }
 
     stopMusic() {
-        this.soundManager.stopMusic()
+        this.soundManager?.stopMusic()
     }
 
 }
