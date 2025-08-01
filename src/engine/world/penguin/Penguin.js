@@ -130,6 +130,10 @@ export default class Penguin extends BaseContainer {
     }
 
     addItem(slot, itemId) {
+        if (!this.active) {
+            return
+        }
+
         const equipped = this.equipped[slot]
 
         if (itemId !== equipped.id) {
