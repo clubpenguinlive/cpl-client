@@ -304,6 +304,14 @@ export default class ClientController {
         this.network.send('join_igloo', { igloo: id, x: 0, y: 0 })
     }
 
+    sendJoinGame(id) {
+        if (this.activeSeat) {
+            return this.interface.prompt.showError('Please exit your game before leaving the room')
+        }
+
+        this.network.send('join_room', { room: id, x: 0, y: 0 })
+    }
+
     sendJoinTable(id) {
         this.network.send('join_table', { table: id })
     }

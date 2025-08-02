@@ -25,8 +25,6 @@ export default class RuffleController extends BaseScene {
         this.player = null
         this.container = null
 
-        this.isActive = false
-
         this.path = ''
 
         // Object accessed from Flash ExternalInterface
@@ -153,7 +151,7 @@ export default class RuffleController extends BaseScene {
     }
 
     update() {
-        if (this.isActive && this.interface.prompt.isPromptVisible) {
+        if (this.interface.prompt.isPromptVisible) {
             // Lower DOM container depth so that prompt is above Ruffle content
             this.sendToBack()
         } else {
@@ -161,13 +159,11 @@ export default class RuffleController extends BaseScene {
         }
     }
 
-    bootGame(game) {
-        const gamePath = game.path || `${game.key}/bootstrap.swf`
+    bootGame(path, music) {
+        this.path = `${gamesPath}${path}`
+        this.music = music || 0
 
-        this.path = `${gamesPath}${gamePath}`
-        this.music = game.music || 0
-
-        this.boot()
+        this.events.once('update', () => this.boot())
     }
 
     boot() {
@@ -175,8 +171,6 @@ export default class RuffleController extends BaseScene {
 
         this.player = ruffle.createPlayer()
         this.container.setElement(this.player, this.playerStyle)
-
-        this.isActive = true
 
         this.player.load({
             url: `${basePath}boot.swf`,
@@ -193,18 +187,22 @@ export default class RuffleController extends BaseScene {
         })
     }
 
-    close() {
-        setTimeout(() => {
-            this.player.remove()
-        }, 100)
+    stop() {
+        this.events.off('update')
 
-        this.container.visible = false
-        this.isActive = false
+        this.path = null
+        this.music = null
 
-        this.stopMusic()
+        this.removePlayer()
         this.resetDepth()
+        this.stopMusic()
 
-        this.scene.sleep()
+        this.scene.stop()
+    }
+
+    removePlayer() {
+        this.player?.remove()
+        this.player = null
     }
 
     resetDepth() {

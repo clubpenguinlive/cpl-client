@@ -30,10 +30,10 @@ export default class IglooScene extends RoomScene {
     }
 
     init(data) {
-        super.init({ id: data.args.igloo })
+        super.init({ id: data.igloo, users: data.users })
 
-        this.args = data.args
-        this.music = data.args.music
+        this.args = data
+        this.music = data.music
 
         this.loader = new FurnitureLoader(this)
         this.petLoader = new IglooPetLoader(this)

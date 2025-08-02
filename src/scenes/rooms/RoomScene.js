@@ -28,10 +28,13 @@ export default class RoomScene extends BaseUnloadableScene {
         return this.world.client
     }
 
-    init({ id }) {
+    init({ id, users }) {
         super.init()
 
         this.id = id
+        this.waiting = users
+
+        this.events.once('create', () => this.addPenguins())
     }
 
     create() {
@@ -70,6 +73,10 @@ export default class RoomScene extends BaseUnloadableScene {
         for (let child of this.sort) {
             child.depth = child.y
         }
+    }
+
+    addPenguins() {
+        this.penguins = this.world.createPenguins(this.waiting, this)
     }
 
     addPenguin(id, penguin) {
@@ -157,7 +164,7 @@ export default class RoomScene extends BaseUnloadableScene {
     }
 
     stop() {
-        this.interface.main.snowballFactory.clearBalls()
+        this.interface?.main?.snowballFactory?.clearBalls()
         this.soundManager.stopAllButMusic()
 
         this.scene.remove()
@@ -252,7 +259,7 @@ export default class RoomScene extends BaseUnloadableScene {
         let text = this.getString(`${this.crumbs.games[id].key}_prompt`)
 
         this.interface.prompt.showWindow(text, 'dual', () => {
-            this.world.client.sendJoinRoom(id, '')
+            this.world.client.sendJoinGame(id)
 
             this.interface.prompt.window.visible = false
         })

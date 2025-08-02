@@ -3,8 +3,7 @@ import BaseScene from '@scenes/base/BaseScene'
 import ClientController from './penguin/ClientController'
 import ClothingLoader from '@engine/loaders/ClothingLoader'
 import PenguinFactory from './penguin/PenguinFactory'
-import RoomFactory from './room/RoomFactory'
-import RoomScene from '@scenes/rooms/RoomScene'
+import RoomManager from './room/RoomManager'
 
 
 export default class WorldController extends BaseScene {
@@ -13,22 +12,25 @@ export default class WorldController extends BaseScene {
         super(key)
 
         this.client = null
-        this.room = null
 
+        this.rooms = null
         this.penguinFactory = null
-        this.roomFactory = null
-
         this.clothingLoader = null
+
+        this.lastRoom = null
 
         this.secretFramesCache = {}
 
         this.worldTimeZone = 'America/Los_Angeles'
     }
 
-    create() {
-        this.penguinFactory = new PenguinFactory(this)
-        this.roomFactory = new RoomFactory(this)
+    get room() {
+        return this.rooms.room
+    }
 
+    create() {
+        this.rooms = new RoomManager(this)
+        this.penguinFactory = new PenguinFactory(this)
         this.clothingLoader = new ClothingLoader(this)
     }
 
@@ -36,28 +38,29 @@ export default class WorldController extends BaseScene {
         this.client = new ClientController(this, args)
     }
 
-    joinRoom(args) {
-        if (!this.room) {
-            return this.createRoom(args)
-        }
-
-        this.room.events.once('destroy', () => this.createRoom(args))
-        this.room.stop()
+    joinRoom(roomId, users) {
+        this.updateLastRoom()
+        this.rooms.joinRoom(roomId, users)
     }
 
-    async createRoom(args) {
-        this.room = await this.roomFactory.create(args)
+    joinIgloo(args) {
+        this.updateLastRoom()
+        this.rooms.joinIgloo(args)
+    }
 
-        if (this.room instanceof RoomScene) {
+    joinGameRoom(gameId) {
+        this.updateLastRoom()
+        this.rooms.joinGameRoom(gameId)
+    }
+
+    updateLastRoom() {
+        if (this.room?.id in this.crumbs.rooms) {
             this.lastRoom = this.room.id
-
-            this.room.waiting = args.users
-            this.room.events.once('create', () => this.addPenguins())
         }
     }
 
-    addPenguins() {
-        this.room.penguins = this.penguinFactory.createPenguins(this.room.waiting, this.room)
+    createPenguins(penguins, room) {
+        return this.penguinFactory.createPenguins(penguins, room)
     }
 
     addPenguin(user) {
@@ -67,7 +70,8 @@ export default class WorldController extends BaseScene {
         }
 
         if (!(user.id in this.room.penguins)) {
-            let penguin = this.penguinFactory.createPenguin(user, this.room)
+            const penguin = this.penguinFactory.createPenguin(user, this.room)
+
             this.room.addPenguin(user.id, penguin)
         }
     }
@@ -93,17 +97,20 @@ export default class WorldController extends BaseScene {
     }
 
     isBuddy(id) {
-        let buddiesFlat = this.client.buddies.map(buddy => buddy.id)
+        const buddiesFlat = this.client.buddies.map(buddy => buddy.id)
+
         return buddiesFlat.includes(id)
     }
 
     isIgnore(id) {
-        let ignoresFlat = this.client.ignores.map(ignore => ignore.id)
+        const ignoresFlat = this.client.ignores.map(ignore => ignore.id)
+
         return ignoresFlat.includes(id)
     }
 
     isOnline(id) {
-        let buddy = this.client.buddies.find(obj => obj.id == id)
+        const buddy = this.client.buddies.find(obj => obj.id == id)
+
         return buddy.online
     }
 
