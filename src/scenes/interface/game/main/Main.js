@@ -457,15 +457,7 @@ export default class Main extends BaseScene {
         this.interface.prompt.hideAll()
 
         for (let item of this.hideOnSleep) {
-            item.visible = false
-        }
-
-        for (let widget in this.interface.loadedWidgets) {
-            widget = this.interface.loadedWidgets[widget]
-
-            if (widget.visible) {
-                widget.close()
-            }
+            item.close()
         }
     }
 
@@ -475,12 +467,8 @@ export default class Main extends BaseScene {
 
     setupWidgets() {
         for (let widget of this.widgetLayer.list) {
-            this.setupWidget(widget)
+            widget.floatingLayer = this.widgetLayer
         }
-    }
-
-    setupWidget(widget) {
-        widget.widgetLayer = this.widgetLayer
     }
 
     addToWidgetLayer(widget) {
@@ -533,11 +521,11 @@ export default class Main extends BaseScene {
     }
 
     onPlayerClick() {
-        this.playerCard.showCard(this.world.client.id)
+        this.interface.showCard(this.world.client.id, this.world.client.penguin.username)
     }
 
     onBuddyClick() {
-        this.interface.showWidget(this.buddy)
+        this.buddy.show()
     }
 
     onIglooClick() {
@@ -633,7 +621,7 @@ export default class Main extends BaseScene {
     }
 
     onPhoneClick() {
-        this.interface.showWidget(this.phone)
+        this.phone.show()
     }
 
     onMapClick() {

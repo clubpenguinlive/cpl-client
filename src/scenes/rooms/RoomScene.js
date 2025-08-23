@@ -1,7 +1,7 @@
-import BaseScene from '@scenes/base/BaseScene'
+import BaseUnloadableScene from '@scenes/base/BaseUnloadableScene'
 
 
-export default class RoomScene extends BaseScene {
+export default class RoomScene extends BaseUnloadableScene {
 
     constructor(key) {
         super(key)
@@ -28,12 +28,13 @@ export default class RoomScene extends BaseScene {
         return this.world.client
     }
 
-    init(data) {
-        if (!this.id) {
-            this.id = data.id
-        }
-
+    init({ id, users }) {
         super.init()
+
+        this.id = id
+        this.waiting = users
+
+        this.events.once('create', () => this.addPenguins())
     }
 
     create() {
@@ -72,6 +73,10 @@ export default class RoomScene extends BaseScene {
         for (let child of this.sort) {
             child.depth = child.y
         }
+    }
+
+    addPenguins() {
+        this.penguins = this.world.createPenguins(this.waiting, this)
     }
 
     addPenguin(id, penguin) {
@@ -159,9 +164,20 @@ export default class RoomScene extends BaseScene {
     }
 
     stop() {
-        this.interface.main.snowballFactory.clearBalls()
+        this.interface?.main?.snowballFactory?.clearBalls()
         this.soundManager.stopAllButMusic()
-        this.scene.stop()
+
+        this.scene.remove()
+    }
+
+    onDestroy() {
+        super.onDestroy()
+
+        this.world.interface.unloadWidgets()
+
+        if (this.music) {
+            this.memory.unloadAudio(this.music)
+        }
     }
 
     getWaiting(id) {
@@ -234,7 +250,7 @@ export default class RoomScene extends BaseScene {
     }
 
     triggerRoom(id, x, y) {
-        let room = this.crumbs.scenes.rooms[id]
+        let room = this.crumbs.rooms[id]
 
         this.world.client.sendJoinRoom(id, room.key, x, y)
     }
@@ -243,7 +259,7 @@ export default class RoomScene extends BaseScene {
         let text = this.getString(`${this.crumbs.games[id].key}_prompt`)
 
         this.interface.prompt.showWindow(text, 'dual', () => {
-            this.world.client.sendJoinRoom(id, '')
+            this.world.client.sendJoinGame(id)
 
             this.interface.prompt.window.visible = false
         })
