@@ -33,6 +33,17 @@ const LV_X = CARD_X + 250
 const BAR_X = CARD_X + 360, BAR_W = 320
 const BUFF_X = BAR_X + BAR_W + 24
 
+// Trade-in counter: sellable resources (price is mirrored for display only; the server is the
+// authority and re-clamps both price and quantity against actual holdings in Economy.sellResource).
+const SELLABLE = [
+    { key: 'fish',  label: 'Fish',  price: 8,  color: 0x3aa0e0 },
+    { key: 'ore',   label: 'Ore',   price: 10, color: 0x9c7038 },
+    { key: 'shell', label: 'Shell', price: 12, color: 0x2fb3a0 },
+    { key: 'cargo', label: 'Cargo', price: 6,  color: 0x49c25e }
+]
+const CHIP_W = 206, CHIP_H = 60, CHIP_GAP = 18, CHIP_Y = 800
+const CHIPS_X0 = 760 - (SELLABLE.length * CHIP_W + (SELLABLE.length - 1) * CHIP_GAP) / 2
+
 export default class SkillsWidget extends BaseContainer {
 
     constructor(scene) {
@@ -63,10 +74,17 @@ export default class SkillsWidget extends BaseContainer {
 
         this.rows = scene.add.container(0, 0)
         this.add(this.rows)
-        this.resText = scene.add.text(760, 802, '', { fontFamily: FONT, fontSize: '14px', color: C.brown, stroke: '#ffffff', strokeThickness: 3 }).setOrigin(0.5)
-        this.add(this.resText)
 
+        // trade-in counter header + clickable resource chips
+        this.add(scene.add.text(760, 762, 'TRADE-IN COUNTER', { fontFamily: FONT, fontSize: '17px', color: C.blueText }).setOrigin(0.5))
+        this.chips = scene.add.container(0, 0)
+        this.add(this.chips)
+        this.flash = scene.add.text(760, 838, '', { fontFamily: FONT, fontSize: '15px', color: '#2f7a3a', stroke: '#ffffff', strokeThickness: 3 }).setOrigin(0.5)
+        this.add(this.flash)
+
+        this.onSoldBound = (args) => this.onSold(args)
         this.network.events.on('skills', this.onDataBound)
+        this.network.events.on('resource_sold', this.onSoldBound)
         this.network.send('get_skills', {})
     }
 
@@ -102,13 +120,55 @@ export default class SkillsWidget extends BaseContainer {
             this.rows.add(this.scene.add.text(BUFF_X, y + 9, bonus, { fontFamily: FONT, fontSize: '13px', color: C.brown }).setOrigin(0, 0.5))
         })
 
-        const res = args.resources || {}
-        const parts = Object.keys(res).filter(k => res[k] > 0).map(k => k + ' x' + res[k])
-        this.resText.setText(parts.length ? 'Resources (sell to NPC shops):  ' + parts.join('    ') : 'Play minigames to gather resources and level up your skills!')
+        this.held = args.resources || {}
+        this.renderChips()
+    }
+
+    renderChips() {
+        this.chips.removeAll(true)
+
+        SELLABLE.forEach((r, i) => {
+            const have = this.held[r.key] || 0
+            const x = CHIPS_X0 + i * (CHIP_W + CHIP_GAP)
+            const sellable = have > 0
+
+            const g = this.scene.add.graphics()
+            g.fillStyle(sellable ? C.row : C.track, sellable ? 1 : 0.55).fillRoundedRect(x, CHIP_Y - CHIP_H / 2, CHIP_W, CHIP_H, 10)
+            g.lineStyle(2, C.rowLine, 1).strokeRoundedRect(x, CHIP_Y - CHIP_H / 2, CHIP_W, CHIP_H, 10)
+            g.fillStyle(r.color, sellable ? 1 : 0.5).fillRoundedRect(x + 8, CHIP_Y - CHIP_H / 2 + 8, 16, CHIP_H - 16, 5)
+            this.chips.add(g)
+
+            this.chips.add(this.scene.add.text(x + 36, CHIP_Y - 13, r.label + '  x' + have, { fontFamily: FONT, fontSize: '17px', color: sellable ? C.blueText : '#9a8f73' }).setOrigin(0, 0.5))
+            this.chips.add(this.scene.add.text(x + 36, CHIP_Y + 12, sellable ? 'Sell all -> ' + (have * r.price) + 'c' : r.price + 'c each', { fontFamily: FONT, fontSize: '13px', color: sellable ? '#8a5a12' : '#9a8f73' }).setOrigin(0, 0.5))
+
+            if (sellable) {
+                const hit = this.scene.add.rectangle(x + CHIP_W / 2, CHIP_Y, CHIP_W, CHIP_H, 0xffffff, 0.001).setInteractive({ useHandCursor: true })
+                hit.on('pointerdown', () => this.sell(r.key, have))
+                this.chips.add(hit)
+            }
+        })
+    }
+
+    sell(resource, quantity) {
+        // server re-validates price + clamps to real holdings; this is just the trigger
+        this.network.send('sell_resource', { resource: resource, quantity: quantity })
+    }
+
+    onSold(args) {
+        this.held[args.resource] = args.remaining
+        // reflect the new coin total in the HUD (sell_resource uses updateCoins, which doesn't push)
+        this.world.client.coins = args.total
+        this.interface.refreshPlayerCard()
+        this.renderChips()
+        this.flash.setText('Sold ' + args.quantity + ' ' + args.resource + ' for ' + args.coins + ' coins!')
+        this.scene.tweens.killTweensOf(this.flash)
+        this.flash.setAlpha(1)
+        this.scene.tweens.add({ targets: this.flash, alpha: 0, delay: 2200, duration: 600 })
     }
 
     onClose() {
         this.network.events.off('skills', this.onDataBound)
+        this.network.events.off('resource_sold', this.onSoldBound)
         this.interface.removeWidget(this)
         this.destroy()
     }
