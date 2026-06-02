@@ -121,6 +121,11 @@ export default class Start extends BaseScene {
         this.network.connectLogin(true, true, () => {
             this.network.send('token_login', { username: penguin.username, token: token })
         })
+
+        // Stop the Start scene so its (now hidden) START / Create buttons can't be
+        // clicked through to log the player out once they are in the world.
+        this.scene.stop()
+
         return true
     }
 
