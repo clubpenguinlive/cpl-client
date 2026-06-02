@@ -88,14 +88,14 @@ export default class Login extends BaseScene {
         const passwordText = this.add.text(503, 258, "", {});
         passwordText.setOrigin(0, 0.5);
         passwordText.text = "Password:";
-        passwordText.setStyle({ "align": "right", "color": "#000000ff", "fontFamily": "Arial Narrow", "fontSize": "30px" });
+        passwordText.setStyle({ "align": "right", "color": "#000000ff", "fontFamily": "Arial Narrow", "fontSize": "25px" });
         passwordText.setLineSpacing(25);
 
         // usernameText
         const usernameText = this.add.text(448, 200, "", {});
         usernameText.setOrigin(0, 0.5);
-        usernameText.text = "Penguin Name:";
-        usernameText.setStyle({ "align": "right", "color": "#000000ff", "fontFamily": "Arial Narrow", "fontSize": "30px" });
+        usernameText.text = "Email:";
+        usernameText.setStyle({ "align": "right", "color": "#000000ff", "fontFamily": "Arial Narrow", "fontSize": "25px" });
         usernameText.setLineSpacing(25);
 
         // password
@@ -168,6 +168,12 @@ export default class Login extends BaseScene {
         this.waitPrompt.depth = 1
         this.savePrompt.depth = 1
 
+        // Default to "keep me logged in": remember the penguin AND mint a persistent device
+        // token on success, so the next visit auto-logs in (zero-click). The player can
+        // untick either box to opt out. New devices are still protected by the email code.
+        this.checks.enable(this.checks.username)
+        this.checks.enable(this.checks.password)
+
         // Login form
         let style = {
             width: 380,
@@ -175,7 +181,7 @@ export default class Login extends BaseScene {
             padding: '0 6px 0 6px',
             filter: 'none',
             fontFamily: 'Arial',
-            fontSize: 35,
+            fontSize: 28,
             color: '#000'
         }
 
@@ -184,7 +190,7 @@ export default class Login extends BaseScene {
             fontFamily: 'Asterisk'
         }
 
-        this.usernameInput = new TextInput(this, 815, 200, 'text', style, () => this.onLoginSubmit(), 12, false)
+        this.usernameInput = new TextInput(this, 815, 200, 'text', style, () => this.onLoginSubmit(), 254, false)
         this.passwordInput = new TextInput(this, 815, 259, 'password', passwordStyle, () => this.onLoginSubmit(), 128, false)
 
         this.add.existing(this.usernameInput)
@@ -195,9 +201,16 @@ export default class Login extends BaseScene {
     }
 
     onLoginSubmit() {
+        // Enter fires both the scene keydown handler and the TextInput callback; guard against
+        // a double submit (which, on a direct-success login, would mint two device tokens).
+        if (this.submitting) {
+            return
+        }
+
         let username = this.usernameInput.text
         let password = this.passwordInput.text
 
+        this.submitting = true
         this.interface.showLoading(`Logging in ${username}`)
         this.scene.stop()
 

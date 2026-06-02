@@ -51,6 +51,39 @@ export default class SoundManager extends HowlerGlobal  {
         }
     }
 
+    playMusicPlaylist(keys) {
+        if (this.muteMusic || !keys || !keys.length) {
+            return
+        }
+
+        this.stopMusic()
+
+        this.musicPlaylist = keys
+        this.musicPlaylistIndex = 0
+
+        this.playPlaylistTrack()
+    }
+
+    playPlaylistTrack() {
+        if (this.muteMusic || !this.musicPlaylist) {
+            return
+        }
+
+        let key = this.musicPlaylist[this.musicPlaylistIndex % this.musicPlaylist.length]
+
+        let music = this.play(key, {
+            loop: false,
+            onend: () => {
+                this.musicPlaylistIndex += 1
+                this.playPlaylistTrack()
+            }
+        })
+
+        if (music) {
+            this.currentMusic = music
+        }
+    }
+
     stopAll() {
         this.stopAllButMusic()
         this.stopMusic()
@@ -65,8 +98,19 @@ export default class SoundManager extends HowlerGlobal  {
     }
 
     stopMusic() {
+        if (this.musicPlaylist) {
+            for (let key of this.musicPlaylist) {
+                if (this.sounds[key]) {
+                    this.remove(this.sounds[key])
+                }
+            }
+            this.musicPlaylist = null
+        }
+
         if (this.currentMusic) {
-            this.remove(this.currentMusic)
+            if (this.sounds[this.currentMusic.key]) {
+                this.remove(this.currentMusic)
+            }
             this.currentMusic = null
         }
     }

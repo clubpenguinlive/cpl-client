@@ -27,6 +27,7 @@ export default class Sport extends RoomScene {
 
 
         /* START-USER-CTR-CODE */
+        this.music = 'MUS_Evergreen_Fashion_GiftShopAmb'
 
         this.roomTriggers = {
             village: () => this.triggerRoom(200, 1152, 510),

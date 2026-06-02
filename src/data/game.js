@@ -18,6 +18,17 @@ const game = {
     transparent: true,
     roundPixels: true,
 
+    render: {
+        powerPreference: 'high-performance',
+        failIfMajorPerformanceCaveat: false
+    },
+
+    input: {
+        mouse: {
+            preventDefaultMove: false
+        }
+    },
+
     scale: {
         width: width,
         height: height,
@@ -63,6 +74,14 @@ const game = {
             // Override default Phaser audio loader, loads audio for howler.js instead
             Phaser.Loader.FileTypesManager.register('audio', function(key, urls, _, xhrSettings) {
                 return SoundFileFactory.create(this, key, urls, xhrSettings)
+            })
+        },
+        postBoot: (game) => {
+            // Re-fit the canvas when the tab regains focus or moves to another screen (avoids scale/WebGL glitches)
+            document.addEventListener('visibilitychange', () => {
+                if (!document.hidden) {
+                    game.scale.refresh()
+                }
             })
         }
     }

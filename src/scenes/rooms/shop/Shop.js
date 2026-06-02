@@ -19,6 +19,7 @@ export default class Shop extends RoomScene {
 
 
         /* START-USER-CTR-CODE */
+        this.music = 'MUS_Evergreen_Fashion_GiftShopAmb'
 
         this.roomTriggers = {
             'town': () => this.triggerRoom(100, 932, 560),

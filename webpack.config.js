@@ -95,7 +95,7 @@ module.exports = (env, argv) => {
 
     config.output = {
         filename: 'assets/scripts/client/[name].bundle.min.js',
-        chunkFilename: 'assets/scripts/client/[id].bundle.min.js',
+        chunkFilename: 'assets/scripts/client/[id].[contenthash].bundle.min.js',
         path: path.resolve(__dirname, 'dist'),
         clean: true,
     }

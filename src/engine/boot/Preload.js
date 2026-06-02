@@ -4,6 +4,7 @@ import Start from '@scenes/interface/menus/start/Start'
 import Login from '@scenes/interface/menus/login/Login'
 import PenguinSelect from '@scenes/interface/menus/login/penguin_select/PenguinSelect'
 import PenguinLogin from '@scenes/interface/menus/login/penguin_login/PenguinLogin'
+import VerifyCode from '@scenes/interface/menus/login/verify/VerifyCode'
 import Servers from '@scenes/interface/menus/servers/Servers'
 import Main from '@scenes/interface/game/main/Main'
 import IglooEdit from '@scenes/interface/game/iglooedit/IglooEdit'
@@ -26,6 +27,7 @@ export default class Preload extends BaseScene {
         this.scene.add('Login', Login)
         this.scene.add('PenguinSelect', PenguinSelect)
         this.scene.add('PenguinLogin', PenguinLogin)
+        this.scene.add('VerifyCode', VerifyCode)
         this.scene.add('Servers', Servers)
         this.scene.add('Main', Main)
         this.scene.add('IglooEdit', IglooEdit)

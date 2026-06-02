@@ -75,6 +75,12 @@ export default class Servers extends BaseScene {
         let y = 122
         let worlds = Object.entries(this.crumbs.worlds).slice(0, 5).filter(world => !world[1].login)
 
+        // AUTO-JOIN single world (skip the server list). Multiple worlds -> show the list as normal.
+        if (worlds.length === 1) {
+            let [onlyWorld] = worlds[0]
+            return this.onServerClick(onlyWorld, data.username, data.key, (data.populations[onlyWorld] || 1) >= 6)
+        }
+
         for (let [world, config] of worlds) {
             y += 102
 

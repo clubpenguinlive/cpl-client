@@ -39,18 +39,36 @@ export default class WorldController extends BaseScene {
     }
 
     joinRoom(roomId, users) {
+        this.enterFullscreen()
         this.updateLastRoom()
         this.rooms.joinRoom(roomId, users)
     }
 
     joinIgloo(args) {
+        this.enterFullscreen()
         this.updateLastRoom()
         this.rooms.joinIgloo(args)
     }
 
     joinGameRoom(gameId) {
+        this.enterFullscreen()
         this.updateLastRoom()
         this.rooms.joinGameRoom(gameId)
+    }
+
+    // Once the player is actually in a world, hide the website chrome and let the
+    // canvas fill the viewport. The start/login screen stays framed with the nav visible.
+    enterFullscreen() {
+        if (typeof document === 'undefined') {
+            return
+        }
+
+        // Idempotent class add, but refit on EVERY room join. A later room that didn't refit
+        // renders letterboxed/framed even though cpl-playing is set. The deferred refresh
+        // covers the first-join race where the CSS size change hasn't flushed yet.
+        document.body.classList.add('cpl-playing')
+        this.scale.refresh()
+        setTimeout(() => this.scale.refresh(), 60)
     }
 
     updateLastRoom() {

@@ -90,14 +90,67 @@ export default class Network {
     // Handlers
 
     onMessage(message) {
+        // The server sends this just before kicking a duplicate session so we can explain why.
+        if (message.action === 'disconnect_reason') {
+            this.disconnectReason = message.args && message.args.reason
+            return
+        }
         this.handler.handle(message)
     }
 
     onConnectionLost() {
         this.disconnect()
+        this.showConnectionLost(this.disconnectReason)
+        this.disconnectReason = null
+    }
 
-        let prompt = this.game.scene.getScene('InterfaceController').prompt
-        prompt.showError('Connection was lost.\nPlease click to learn more', 'Learn More', () => { })
+    // Reason-aware connection-lost dialog with Reconnect (reload to rejoin) + Learn More (status page).
+    // Rendered as a DOM overlay so it has two real labelled buttons and works even after the socket dies.
+    showConnectionLost(reason) {
+        if (document.getElementById('cpl-disconnect')) {
+            return
+        }
+
+        const duplicate = reason === 'duplicate'
+        const title = duplicate ? 'Logged in somewhere else' : 'Connection lost'
+        const message = duplicate
+            ? 'You logged in from another tab or device. Only one session can be active at a time, so this one was signed out.'
+            : 'Your connection to the server was lost. The server may be restarting for an update, or your internet may have dropped.'
+
+        const overlay = document.createElement('div')
+        overlay.id = 'cpl-disconnect'
+        overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(3,20,45,.74);font-family:Arial,Helvetica,sans-serif'
+
+        const box = document.createElement('div')
+        box.style.cssText = 'background:#fff;color:#0a2a43;max-width:460px;width:90%;border-radius:18px;padding:30px 32px;text-align:center;box-shadow:0 18px 44px rgba(0,0,0,.45)'
+        const h = document.createElement('h2')
+        h.textContent = title
+        h.style.cssText = 'color:#0e5fa8;margin:0 0 12px;font-size:26px'
+        const p = document.createElement('p')
+        p.textContent = message
+        p.style.cssText = 'margin:0 0 24px;font-size:16px;line-height:1.55'
+
+        const row = document.createElement('div')
+        row.style.cssText = 'display:flex;gap:14px;justify-content:center;flex-wrap:wrap'
+        const btn = 'font-family:inherit;font-weight:bold;font-size:17px;padding:13px 26px;border-radius:999px;cursor:pointer;text-decoration:none;border:none;display:inline-block'
+        const reconnect = document.createElement('button')
+        reconnect.textContent = 'Reconnect'
+        reconnect.style.cssText = btn + ';color:#fff;background:linear-gradient(180deg,#41a0e4,#0b58b1);box-shadow:0 4px 0 #083f7e'
+        reconnect.addEventListener('click', () => window.location.reload())
+        const learn = document.createElement('a')
+        learn.textContent = 'Learn More'
+        learn.href = 'https://clubpenguinlive.net/status'
+        learn.target = '_blank'
+        learn.rel = 'noopener'
+        learn.style.cssText = btn + ';color:#0e5fa8;background:#e7f3fc;box-shadow:0 4px 0 #c2def2'
+
+        row.appendChild(reconnect)
+        row.appendChild(learn)
+        box.appendChild(h)
+        box.appendChild(p)
+        box.appendChild(row)
+        overlay.appendChild(box)
+        document.body.appendChild(overlay)
     }
 
     // Saved penguins

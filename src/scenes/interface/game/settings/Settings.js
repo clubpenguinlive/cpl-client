@@ -100,6 +100,7 @@ export default class Settings extends BaseContainer {
         // button (components)
         const buttonButton = new Button(button);
         buttonButton.spriteName = "help-button";
+        buttonButton.callback = () => window.open('/account/', '_blank')
 
         // checkbox (components)
         const checkboxSimpleButton = new SimpleButton(checkbox);
@@ -135,15 +136,15 @@ export default class Settings extends BaseContainer {
 
         this.soundManager.muteMusic = this.checkbox.checked
 
-        let music = this.world.room.music
-        if (!music) {
+        if (this.soundManager.muteMusic) {
+            this.world.room.stopMusic()
             return
         }
 
-        if (this.soundManager.muteMusic) {
-            this.world.room.stopMusic()
-        } else {
-            this.world.room.playMusic(music)
+        if (this.world.room.playlist) {
+            this.soundManager.playMusicPlaylist(this.world.room.playlist)
+        } else if (this.world.room.music) {
+            this.world.room.playMusic(this.world.room.music)
         }
     }
 

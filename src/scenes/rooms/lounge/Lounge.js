@@ -15,6 +15,7 @@ export default class Lounge extends RoomScene {
 
 
         /* START-USER-CTR-CODE */
+        this.playlist = ['club-1', 'club-2', 'club-3', 'club-4']
 
         this.roomTriggers = {
             'dance': () => this.triggerRoom(120, 1200, 792),

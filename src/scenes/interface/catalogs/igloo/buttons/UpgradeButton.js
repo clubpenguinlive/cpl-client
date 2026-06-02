@@ -19,7 +19,7 @@ export default class UpgradeButton extends BaseImage {
         // this (components)
         const thisButton = new Button(this);
         thisButton.spriteName = "upgrade";
-        thisButton.callback = () => this.interface.prompt.showIgloo(this.igloo);
+        thisButton.callback = () => this.onUpgradeClick();
 
         /* START-USER-CTR-CODE */
         /* END-USER-CTR-CODE */
@@ -27,6 +27,20 @@ export default class UpgradeButton extends BaseImage {
 
 
     /* START-USER-CODE */
+
+    // Only let players buy igloos that actually have art/scene (a `path` in crumbs). The catalog
+    // lists several types that were never implemented in this asset set (e.g. Tree House); those
+    // would be bought and then fail to load. Block them with a friendly message instead.
+    onUpgradeClick() {
+        let igloo = this.crumbs.igloos[this.igloo]
+
+        if (!igloo || !igloo.path) {
+            return this.interface.prompt.showError('This igloo isn\'t available yet. Check back soon!', 'Okay', () => {})
+        }
+
+        this.interface.prompt.showIgloo(this.igloo)
+    }
+
     /* END-USER-CODE */
 }
 

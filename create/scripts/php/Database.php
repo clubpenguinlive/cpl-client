@@ -2,10 +2,10 @@
 
     class Database {
 
-        const HOST = '127.0.0.1';
-        const USER = 'root';
-        const PASSWORD = 'password';
-        const DATABASE = 'yukon';
+        const HOST = 'localhost';
+        const USER = 'yukon';
+        const PASSWORD = '***REMOVED***';
+        const DATABASE = 'clubpenguinlive';
 
         function __construct() {
             $this->db = new mysqli(self::HOST, self::USER, self::PASSWORD, self::DATABASE);
@@ -27,15 +27,15 @@
             }
         }
 
-        function insertUser($username, $email, $password) {
+        function insertUser($username, $email, $password, $color = 1) {
             if ($this->userExists($username)) {
                 $this->dieWithMessage('username', 'That username is already taken.');
             }
 
             $password = $this->hashPassword($password);
 
-            $statement = $this->db->prepare('INSERT INTO users (username, email, password) VALUES (?, ?, ?)');
-            $statement->bind_param('sss', $username, $email, $password);
+            $statement = $this->db->prepare('INSERT INTO users (username, email, password, color) VALUES (?, ?, ?, ?)');
+            $statement->bind_param('sssi', $username, $email, $password, $color);
 
             if (!$statement->execute()) {
                 $this->dieWithMessage('username', 'There was an error.');
