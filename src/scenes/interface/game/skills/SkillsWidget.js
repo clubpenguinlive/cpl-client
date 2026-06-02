@@ -1,27 +1,35 @@
 import BaseContainer from '@scenes/base/BaseContainer'
 
 
-// Makes the progression loop visible: the player's 7 skills with level, XP progress bars, total
-// level, the active coin buff per skill (server-validated: +1%/level in gameOver), and gathered
-// resources (sold to NPCs for coins). Data comes from the server (get_skills -> skills); the
-// client never asserts level/xp.
+// "My Skills" panel — the progression loop made visible, styled to match the CP catalog book
+// (cream rounded page, blue binding, gold outlined CCComiccrazy header, CP fonts). Shows each of
+// the 7 skills with level, an XP progress bar, the active coin buff (+1%/level, server-validated),
+// total level, and gathered resources. Server is the source of truth (get_skills -> skills).
+
+const FONT = 'CCComiccrazy'
 
 const SKILLS = [
-    { key: 'fishing',    label: 'Fishing',    resource: 'fish' },
-    { key: 'mining',     label: 'Mining',     resource: 'ore' },
-    { key: 'surfing',    label: 'Surfing',    resource: 'shell' },
-    { key: 'cooking',    label: 'Cooking',    resource: null },
-    { key: 'hauling',    label: 'Hauling',    resource: 'cargo' },
-    { key: 'performing', label: 'Performing', resource: null },
-    { key: 'agent',      label: 'Agent',      resource: null }
+    { key: 'fishing',    label: 'Fishing' },
+    { key: 'mining',     label: 'Mining' },
+    { key: 'surfing',    label: 'Surfing' },
+    { key: 'cooking',    label: 'Cooking' },
+    { key: 'hauling',    label: 'Hauling' },
+    { key: 'performing', label: 'Performing' },
+    { key: 'agent',      label: 'Agent' }
 ]
 
-const ROW_X = 300
-const ROW_W = 920
-const ROW_H = 58
-const ROWS_Y = 300
-const BAR_X = 560
-const BAR_W = 360
+const C = {
+    binding: 0x1c6bb0, bindingDark: 0x12568f, cream: 0xf7eecf, creamLine: 0xd9c290,
+    track: 0xe2d6b0, trackLine: 0xc9b487, fill: 0x49c25e, fillLine: 0x2f8f43,
+    gold: '#ffce3d', goldStroke: '#5a3a12', blueText: '#15568f', brown: '#b8791a',
+    red: 0xe6584d, redDark: 0xb83b30
+}
+
+const ROW_X0 = 270
+const ROW_Y0 = 300
+const ROW_H = 64
+const BAR_X = 600
+const BAR_W = 380
 
 export default class SkillsWidget extends BaseContainer {
 
@@ -31,24 +39,34 @@ export default class SkillsWidget extends BaseContainer {
         this.depth = 100
         this.onDataBound = (args) => this.onData(args)
 
-        const block = scene.add.rectangle(0, 0, 1520, 960, 0x000000, 0.5).setOrigin(0, 0)
-        block.setInteractive()
+        const block = scene.add.rectangle(0, 0, 1520, 960, 0x000000, 0.5).setOrigin(0, 0).setInteractive()
         this.add(block)
 
-        this.add(scene.add.rectangle(760, 480, 1060, 780, 0x0e5fa8).setStrokeStyle(8, 0x093f70))
-        this.add(scene.add.rectangle(760, 500, 1020, 700, 0xdff1fc))
+        // book frame (matches the catalog)
+        const g = scene.add.graphics()
+        g.fillStyle(C.bindingDark, 1).fillRoundedRect(230, 96, 1060, 770, 28)
+        g.fillStyle(C.binding, 1).fillRoundedRect(240, 104, 1040, 754, 24)
+        g.fillStyle(C.cream, 1).fillRoundedRect(274, 150, 972, 678, 16)
+        g.lineStyle(3, C.creamLine, 1).strokeRoundedRect(274, 150, 972, 678, 16)
+        this.add(g)
 
-        this.add(scene.add.text(760, 150, 'MY SKILLS', { fontFamily: 'Burbank Big, Arial', fontSize: '42px', color: '#ffffff' }).setOrigin(0.5))
-        this.totalText = scene.add.text(760, 196, '', { fontFamily: 'Arial', fontSize: '20px', color: '#ffd23f' }).setOrigin(0.5)
+        this.add(scene.add.text(760, 138, 'MY SKILLS', { fontFamily: FONT, fontSize: '46px', color: C.gold, stroke: C.goldStroke, strokeThickness: 9 }).setOrigin(0.5))
+        this.totalText = scene.add.text(760, 192, '', { fontFamily: FONT, fontSize: '18px', color: C.blueText, stroke: '#ffffff', strokeThickness: 3 }).setOrigin(0.5)
         this.add(this.totalText)
 
-        const close = scene.add.text(1240, 140, '✕', { fontFamily: 'Arial', fontSize: '34px', color: '#ffffff' }).setOrigin(0.5)
-        close.setInteractive({ useHandCursor: true }).on('pointerdown', () => this.onClose())
-        this.add(close)
+        // close
+        const closeBtn = scene.add.graphics()
+        closeBtn.fillStyle(C.redDark, 1).fillCircle(1236, 134, 22).fillStyle(C.red, 1).fillCircle(1236, 132, 20)
+        this.add(closeBtn)
+        const closeX = scene.add.text(1236, 130, '✕', { fontFamily: FONT, fontSize: '22px', color: '#ffffff' }).setOrigin(0.5)
+        this.add(closeX)
+        const closeHit = scene.add.circle(1236, 132, 24).setInteractive({ useHandCursor: true })
+        closeHit.on('pointerdown', () => this.onClose())
+        this.add(closeHit)
 
         this.rows = scene.add.container(0, 0)
         this.add(this.rows)
-        this.resText = scene.add.text(300, 770, '', { fontFamily: 'Arial', fontSize: '17px', color: '#0e5fa8' }).setOrigin(0, 0.5)
+        this.resText = scene.add.text(760, 800, '', { fontFamily: FONT, fontSize: '15px', color: C.brown, stroke: '#ffffff', strokeThickness: 3 }).setOrigin(0.5)
         this.add(this.resText)
 
         this.network.events.on('skills', this.onDataBound)
@@ -56,30 +74,37 @@ export default class SkillsWidget extends BaseContainer {
     }
 
     onData(args) {
-        this.totalText.setText('Total Level: ' + (args.total || 0))
+        this.totalText.setText('Total Level  ' + (args.total || 0))
         this.rows.removeAll(true)
-
         const skills = args.skills || {}
+
         SKILLS.forEach((def, i) => {
-            const d = skills[def.key] || { level: 1, progress: 0, xp: 0 }
-            const y = ROWS_Y + i * ROW_H
+            const d = skills[def.key] || { level: 1, progress: 0 }
+            const y = ROW_Y0 + i * ROW_H
 
-            this.rows.add(this.scene.add.rectangle(760, y, ROW_W, ROW_H - 8, 0xffffff).setStrokeStyle(2, 0x9cc6e8))
-            this.rows.add(this.scene.add.text(ROW_X + 20, y, def.label, { fontFamily: 'Burbank Big, Arial', fontSize: '22px', color: '#0e5fa8' }).setOrigin(0, 0.5))
-            this.rows.add(this.scene.add.text(ROW_X + 200, y, 'Lv ' + d.level, { fontFamily: 'Burbank Big, Arial', fontSize: '22px', color: '#1f8fe0' }).setOrigin(0, 0.5))
+            // row card
+            const card = this.scene.add.graphics()
+            card.fillStyle(0xfffaf0, 1).fillRoundedRect(ROW_X0, y - 26, 980, 52, 10)
+            card.lineStyle(2, C.creamLine, 1).strokeRoundedRect(ROW_X0, y - 26, 980, 52, 10)
+            this.rows.add(card)
 
-            // progress bar
-            this.rows.add(this.scene.add.rectangle(BAR_X, y, BAR_W, 18, 0xc9e3f6).setOrigin(0, 0.5))
-            this.rows.add(this.scene.add.rectangle(BAR_X, y, Math.max(2, BAR_W * (d.progress || 0)), 18, 0x36b34a).setOrigin(0, 0.5))
+            this.rows.add(this.scene.add.text(ROW_X0 + 24, y, def.label, { fontFamily: FONT, fontSize: '21px', color: C.blueText }).setOrigin(0, 0.5))
+            this.rows.add(this.scene.add.text(ROW_X0 + 250, y, 'Lv ' + d.level, { fontFamily: FONT, fontSize: '21px', color: C.brown }).setOrigin(0, 0.5))
 
-            // active coin buff (matches server: +1% coins per level in gameOver)
-            this.rows.add(this.scene.add.text(BAR_X + BAR_W + 24, y, '+' + d.level + '% coins', { fontFamily: 'Arial', fontSize: '16px', color: '#f5a800' }).setOrigin(0, 0.5))
+            // progress bar (recessed track + rounded green fill)
+            const bar = this.scene.add.graphics()
+            bar.fillStyle(C.track, 1).fillRoundedRect(BAR_X, y - 11, BAR_W, 22, 8)
+            bar.lineStyle(2, C.trackLine, 1).strokeRoundedRect(BAR_X, y - 11, BAR_W, 22, 8)
+            const w = Math.max(8, BAR_W * (d.progress || 0))
+            bar.fillStyle(C.fill, 1).fillRoundedRect(BAR_X, y - 11, w, 22, 8)
+            this.rows.add(bar)
+
+            this.rows.add(this.scene.add.text(BAR_X + BAR_W + 22, y, '+' + d.level + '% coins', { fontFamily: FONT, fontSize: '15px', color: C.brown }).setOrigin(0, 0.5))
         })
 
-        // gathered resources
         const res = args.resources || {}
-        const parts = Object.keys(res).filter(k => res[k] > 0).map(k => k + ': ' + res[k])
-        this.resText.setText(parts.length ? 'Resources (sell at NPC shops) -  ' + parts.join('   ') : 'Resources: none yet - play minigames to gather!')
+        const parts = Object.keys(res).filter(k => res[k] > 0).map(k => k + ' x' + res[k])
+        this.resText.setText(parts.length ? 'Resources (sell to NPC shops):  ' + parts.join('    ') : 'Play minigames to gather resources and level up!')
     }
 
     onClose() {
