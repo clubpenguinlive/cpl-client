@@ -444,6 +444,12 @@ export default class Main extends BaseScene {
         this.input.keyboard.on('keydown-M', () => this.onMapKey())
         this.input.keyboard.on('keydown-P', () => this.onPlayerCardKey())
         this.input.keyboard.on('keydown-K', () => this.onSkillsKey())
+
+        // Skills button in the toolbar - tappable for mobile (K is the desktop shortcut).
+        const skillsButton = this.add.image(1326, 923, 'main', 'blue-button')
+        skillsButton.setInteractive({ useHandCursor: true })
+        skillsButton.on('pointerdown', () => this.onSkillsKey())
+        this.skillsButtonIcon = this.add.text(1326, 920, '★', { fontFamily: 'Burbank Big, Arial', fontSize: '28px', color: '#ffffff' }).setOrigin(0.5)
     }
 
     onMapKey() {
