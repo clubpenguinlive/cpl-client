@@ -14,6 +14,8 @@ export default class Forest extends RoomScene {
 
         /* START-USER-CTR-CODE */
 
+        this.music = '950'
+
         this.roomTriggers = {
             'plaza': () => this.triggerRoom(300, 1240, 660),
             'shack': () => this.triggerRoom(807, 500, 800),

@@ -18,6 +18,8 @@ export default class Rink extends RoomScene {
 
         /* START-USER-CTR-CODE */
 
+        this.music = '950'
+
         this.roomTriggers = {
             'forts': () => this.triggerRoom(801, 560, 400)
         }

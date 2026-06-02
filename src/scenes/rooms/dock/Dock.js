@@ -20,6 +20,8 @@ export default class Dock extends RoomScene {
 
         /* START-USER-CTR-CODE */
 
+        this.music = '950'
+
         this.roomTriggers = {
             'beach': () => this.triggerRoom(400, 950, 430),
             'village': () => this.triggerRoom(200, 1300, 760),

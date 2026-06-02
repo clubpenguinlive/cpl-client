@@ -16,6 +16,8 @@ export default class Plaza extends RoomScene {
 
         /* START-USER-CTR-CODE */
 
+        this.music = '950'
+
         this.roomTriggers = {
             'forts': () => this.triggerRoom(801, 1284, 720),
             'pet': () => this.triggerRoom(310, 818, 520),

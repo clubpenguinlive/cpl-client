@@ -16,6 +16,8 @@ export default class DojoExt extends RoomScene {
 
         /* START-USER-CTR-CODE */
 
+        this.music = '950'
+
         this.roomTriggers = {
             'map': () => this.interface.loadWidget('Map'),
             'dojo': () => this.triggerRoom(320, 400, 660),
