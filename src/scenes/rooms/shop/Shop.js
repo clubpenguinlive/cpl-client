@@ -23,7 +23,7 @@ export default class Shop extends RoomScene {
 
         this.roomTriggers = {
             'town': () => this.triggerRoom(100, 932, 560),
-            'catalog': () => this.interface.loadWidget('ClothingCatalog')
+            'catalog': () => this.interface.loadWidget("DailyCatalog")
         }
 
         /* END-USER-CTR-CODE */
@@ -140,7 +140,7 @@ export default class Shop extends RoomScene {
         // catalog (components)
         const catalogButton = new Button(catalog);
         catalogButton.spriteName = "catalog";
-        catalogButton.callback = () => this.interface.loadWidget('ClothingCatalog');
+        catalogButton.callback = () => this.interface.loadWidget("DailyCatalog");
         catalogButton.activeFrame = false;
         catalogButton.pixelPerfect = true;
 
