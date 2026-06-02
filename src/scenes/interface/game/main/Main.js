@@ -355,6 +355,7 @@ export default class Main extends BaseScene {
         const news_buttonButton = new Button(news_button);
         news_buttonButton.spriteName = "news-button";
         news_buttonButton.activeFrame = false;
+        news_buttonButton.callback = () => this.onSkillsKey();
 
         // mod_button (components)
         const mod_buttonSimpleButton = new SimpleButton(mod_button);
@@ -446,10 +447,6 @@ export default class Main extends BaseScene {
         this.input.keyboard.on('keydown-K', () => this.onSkillsKey())
 
         // Skills button in the toolbar - tappable for mobile (K is the desktop shortcut).
-        const skillsButton = this.add.image(96, 634, 'main', 'blue-button')
-        skillsButton.setInteractive({ useHandCursor: true })
-        skillsButton.on('pointerdown', () => this.onSkillsKey())
-        this.skillsButtonIcon = this.add.text(96, 631, '★', { fontFamily: 'Burbank Big, Arial', fontSize: '28px', color: '#ffffff' }).setOrigin(0.5)
     }
 
     onMapKey() {
