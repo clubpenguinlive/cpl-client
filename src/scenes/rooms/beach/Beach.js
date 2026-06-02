@@ -18,6 +18,8 @@ export default class Beach extends RoomScene {
 
         /* START-USER-CTR-CODE */
 
+        this.music = '950'
+
         this.roomTriggers = {
             'village': () => this.triggerRoom(200, 450, 750),
             'dock': () => this.triggerRoom(800, 240, 420),

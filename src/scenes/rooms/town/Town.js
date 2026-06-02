@@ -22,6 +22,8 @@ export default class Town extends RoomScene {
 
         /* START-USER-CTR-CODE */
 
+        this.music = '950'
+
         this.roomTriggers = {
             'dock': () => this.triggerRoom(800, 1200, 400),
             'forts': () => this.triggerRoom(801, 360, 520),

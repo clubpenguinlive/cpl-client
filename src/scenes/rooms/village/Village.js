@@ -26,6 +26,8 @@ export default class Village extends RoomScene {
 
         /* START-USER-CTR-CODE */
 
+        this.music = '950'
+
         this.roomTriggers = {
             'lodge': () => this.triggerRoom(220, 320, 640),
             'dock': () => this.triggerRoom(800, 436, 280),

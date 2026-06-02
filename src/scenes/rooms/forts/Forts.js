@@ -28,6 +28,8 @@ export default class Forts extends RoomScene {
 
         /* START-USER-CTR-CODE */
 
+        this.music = '950'
+
         this.roomTriggers = {
             'town': () => this.triggerRoom(100, 1240, 660),
             'rink': () => this.triggerRoom(802, 780, 340),
