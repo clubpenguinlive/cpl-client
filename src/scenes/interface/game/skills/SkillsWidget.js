@@ -51,9 +51,7 @@ export default class SkillsWidget extends BaseContainer {
         g.lineStyle(3, C.creamLine, 1).strokeRoundedRect(PAGE_L, 150, PAGE_R - PAGE_L, 678, 16)
         this.add(g)
 
-        this.add(scene.add.text(760, 138, 'MY SKILLS', { fontFamily: FONT, fontSize: '46px', color: C.gold, stroke: C.goldStroke, strokeThickness: 9 }).setOrigin(0.5))
-        this.totalText = scene.add.text(760, 192, '', { fontFamily: FONT, fontSize: '18px', color: C.blueText, stroke: '#ffffff', strokeThickness: 3 }).setOrigin(0.5)
-        this.add(this.totalText)
+        this.add(scene.add.text(760, 196, 'MY SKILLS', { fontFamily: FONT, fontSize: '44px', color: C.gold, stroke: C.goldStroke, strokeThickness: 9 }).setOrigin(0.5))
 
         const closeBtn = scene.add.graphics()
         closeBtn.fillStyle(C.redDark, 1).fillCircle(1236, 134, 22).fillStyle(C.red, 1).fillCircle(1236, 132, 20)
@@ -73,7 +71,6 @@ export default class SkillsWidget extends BaseContainer {
     }
 
     onData(args) {
-        this.totalText.setText('Total Level  ' + (args.total || 0))
         this.rows.removeAll(true)
         const skills = args.skills || {}
 
