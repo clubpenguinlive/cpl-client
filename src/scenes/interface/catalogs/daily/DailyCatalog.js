@@ -34,6 +34,7 @@ export default class DailyCatalog extends BaseContainer {
         this.todayItems = []
         this.classics = []
         this.countdown = 0
+        this.bboxCache = {}
         this.onDataBound = (args) => this.onData(args)
 
         const block = scene.add.rectangle(0, 0, 1520, 960, 0x000000, 0.5).setOrigin(0, 0).setInteractive()
@@ -165,8 +166,14 @@ export default class DailyCatalog extends BaseContainer {
             this.grid.add(card)
 
             if (this.scene.textures.exists('dc' + id)) {
-                const thumb = this.scene.add.image(x, y - 18, 'dc' + id)
-                const scale = Math.min((CELL_W - 70) / thumb.width, (CELL_H - 64) / thumb.height, 1.3)
+                const tex = this.scene.textures.get('dc' + id)
+                if (!tex.has('trim')) {
+                    const bb = this.getBBox('dc' + id)
+                    tex.add('trim', 0, bb.x, bb.y, bb.w, bb.h)
+                }
+                const thumb = this.scene.add.image(x, y - 16, 'dc' + id, 'trim')
+                // contain the trimmed item in ~78% of the cell so a pin and a coat both read well
+                const scale = Math.min((CELL_W * 0.78) / thumb.width, (CELL_H - 56) / thumb.height, 2.2)
                 thumb.setScale(scale)
                 this.grid.add(thumb)
             }
@@ -185,6 +192,40 @@ export default class DailyCatalog extends BaseContainer {
         this.pageText.setText('Page ' + (this.page + 1) + ' / ' + pages)
         this.prevArrow.draw(this.page > 0)
         this.nextArrow.draw(this.page < pages - 1)
+    }
+
+    // Alpha bounding box of a loaded 600x600 doll sprite, so we can crop away the transparent
+    // doll-canvas margins and scale the actual item up to fill the cell. Cached per id.
+    getBBox(key) {
+        if (this.bboxCache[key]) return this.bboxCache[key]
+        const img = this.scene.textures.get(key).getSourceImage()
+        const w = img.width, h = img.height
+        let bb = { x: 0, y: 0, w: w, h: h }
+        try {
+            const cv = document.createElement('canvas')
+            cv.width = w; cv.height = h
+            const ctx = cv.getContext('2d')
+            ctx.drawImage(img, 0, 0)
+            const data = ctx.getImageData(0, 0, w, h).data
+            let minX = w, minY = h, maxX = 0, maxY = 0, found = false
+            for (let y = 0; y < h; y += 2) {
+                for (let x = 0; x < w; x += 2) {
+                    if (data[(y * w + x) * 4 + 3] > 24) {
+                        found = true
+                        if (x < minX) minX = x
+                        if (x > maxX) maxX = x
+                        if (y < minY) minY = y
+                        if (y > maxY) maxY = y
+                    }
+                }
+            }
+            if (found) {
+                const pad = 4
+                bb = { x: Math.max(0, minX - pad), y: Math.max(0, minY - pad), w: Math.min(w, maxX - minX + pad * 2), h: Math.min(h, maxY - minY + pad * 2) }
+            }
+        } catch (e) { /* tainted/unsupported -> use full frame */ }
+        this.bboxCache[key] = bb
+        return bb
     }
 
     onBuy(id) { this.interface.prompt.showItem(id) }
