@@ -8,6 +8,7 @@ export default class BaseScene extends Phaser.Scene {
         this.interface = this.scene.get('InterfaceController')
         this.memory = this.scene.get('MemoryManager')
         this.ruffle = this.scene.get('RuffleController')
+        this.iframeGame = this.scene.get('IframeController')
         this.world = this.scene.get('WorldController')
 
         this.input.on('pointerover', () => this.interface.resetCursor(this))
