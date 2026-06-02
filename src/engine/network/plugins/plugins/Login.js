@@ -18,6 +18,12 @@ export default class Login extends Plugin {
     login(args) {
         this.interface.hideLoading()
 
+        // New/untrusted device: server wants an emailed code before issuing the login key.
+        if (args.verificationRequired) {
+            this.network.pendingVerify = { username: args.username, email: args.email }
+            return this.scene.start('VerifyCode', { username: args.username, email: args.email })
+        }
+
         if (args.success) {
             return this.scene.start('Servers', args)
         }

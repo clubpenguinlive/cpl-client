@@ -30,6 +30,7 @@ export default class Attic extends RoomScene {
 
 
         /* START-USER-CTR-CODE */
+        this.music = 589
 
         this.roomTriggers = {
             'lodge': () => this.triggerRoom(220, 1146, 562),

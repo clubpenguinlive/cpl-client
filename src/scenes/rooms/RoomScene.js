@@ -60,6 +60,14 @@ export default class RoomScene extends BaseUnloadableScene {
             this.load.audio(this.music, `assets/media/music/${this.music}.mp3`)
         }
 
+        if (this.playlist) {
+            for (let track of this.playlist) {
+                if (!this.cache.audio.exists(track)) {
+                    this.load.audio(track, 'assets/media/music/' + track + '.mp3')
+                }
+            }
+        }
+
         this._preload()
     }
 
@@ -178,6 +186,12 @@ export default class RoomScene extends BaseUnloadableScene {
         if (this.music) {
             this.memory.unloadAudio(this.music)
         }
+
+        if (this.playlist) {
+            for (let track of this.playlist) {
+                this.memory.unloadAudio(track)
+            }
+        }
     }
 
     getWaiting(id) {
@@ -244,8 +258,17 @@ export default class RoomScene extends BaseUnloadableScene {
     }
 
     checkTrigger(callback) {
-        if (callback && !this.world.client.activeSeat) {
+        if (this.world.client.activeSeat) {
+            return
+        }
+
+        if (callback) {
             callback()
+        } else {
+            // Dead-end door (room not implemented in this build): friendly feedback
+            // instead of silently doing nothing. No callback, so the default
+            // (() => this.error.close()) runs and Okay dismisses the prompt.
+            this.interface.prompt.showError('This area isn\'t open yet.\nComing soon!', 'Okay')
         }
     }
 

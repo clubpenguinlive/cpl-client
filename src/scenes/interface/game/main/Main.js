@@ -440,6 +440,45 @@ export default class Main extends BaseScene {
 
         this.input.keyboard.on('keydown-TAB', (event) => this.onChatKeyDown(event))
         this.input.keyboard.on('keydown-ENTER', (event) => this.onChatKeyDown(event))
+        this.input.keyboard.on('keydown-ESC', () => this.onEscapeKey())
+        this.input.keyboard.on('keydown-M', () => this.onMapKey())
+        this.input.keyboard.on('keydown-P', () => this.onPlayerCardKey())
+    }
+
+    onMapKey() {
+        // M toggles the island map (the Map widget)
+        const widgets = this.interface.widgets
+        if (widgets.keyActive('Map')) {
+            widgets.getWidget('Map').close()
+        } else {
+            this.onMapClick()
+        }
+    }
+
+    onPlayerCardKey() {
+        // P toggles your own player card
+        const id = this.world.client.id
+        if (this.playerCard.visible && this.playerCard.id === id) {
+            this.playerCard.visible = false
+        } else {
+            this.playerCard.show(id, this.world.client.username)
+        }
+    }
+
+    onEscapeKey() {
+        // Mirror clicking a menu X button: close the topmost open widget/menu.
+        const widgets = this.interface.widgets?.activeWidgetObjects ?? []
+        if (widgets.length) {
+            this.interface.closeWidgets()
+            return
+        }
+
+        for (const menu of [this.settings, this.playerCard, this.moderator, this.mail, this.mailbook, this.buddy]) {
+            if (menu && menu.visible) {
+                menu.visible = false
+                return
+            }
+        }
     }
 
     onSleep(sys, data) {

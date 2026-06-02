@@ -5,57 +5,113 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <meta http-equiv="X-UA-Compatible" content="ie=edge">
 
-        <title>Create Account</title>
+        <title>Create a Penguin | Club Penguin Live</title>
+        <link rel="icon" type="image/x-icon" href="/favicon.ico">
 
-        <link rel="stylesheet" href="/assets/styles/styles.css" type="text/css">
-        <link rel="stylesheet" href="styles/create.css" type="text/css">
+        <link rel="stylesheet" href="/assets/styles/fonts.css" type="text/css">
+        <link rel="stylesheet" href="styles/create.css?v=cpl6" type="text/css">
 
         <!-- Scripts -->
-        <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-        <script src="scripts/js/create.js"></script>
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        <script src="scripts/js/create.js?v=cpl4"></script>
     </head>
 
     <body>
+        <header class="cpl-nav">
+            <div class="side">
+                <a class="home" href="https://clubpenguinlive.net">Home</a>
+                <a href="https://clubpenguinlive.net/#news">What's New?</a>
+                <a href="/pages/rules.html">Community Rules</a>
+                <a href="/pages/terms.html">Legal</a>
+                <a href="/pages/help.html">Help</a>
+            </div>
+        </header>
+
         <section class="modal-container">
             <div id="modal" class="modal fade">
-                <h1 id="modal-title">Create an Account</h1>
+                <h1 id="modal-title">Create Your Penguin</h1>
 
                 <div id="modal-content">
                     <form id="modal-form">
+                        <div class="create-cols">
 
-                        <div class="form-group" id="username-group">
-                            <input type="text" name="username" placeholder="Username" maxlength="12" required autofocus>
-                            <div class="feedback"></div>
+                            <!-- LEFT: live penguin preview + colour picker -->
+                            <div class="create-left">
+                                <div class="peng-preview-wrap">
+                                    <canvas id="peng-preview" width="300" height="372" aria-hidden="true"></canvas>
+                                </div>
+                                <div class="form-group" id="color-group">
+                                    <label class="color-label">Pick your colour</label>
+                                    <div class="color-swatches">
+                                        <button type="button" class="swatch selected" data-color="1" style="background:#003366" aria-label="Color 1"></button>
+                                        <button type="button" class="swatch" data-color="2" style="background:#009900" aria-label="Color 2"></button>
+                                        <button type="button" class="swatch" data-color="3" style="background:#FF3399" aria-label="Color 3"></button>
+                                        <button type="button" class="swatch" data-color="4" style="background:#333333" aria-label="Color 4"></button>
+                                        <button type="button" class="swatch" data-color="5" style="background:#CC0000" aria-label="Color 5"></button>
+                                        <button type="button" class="swatch" data-color="6" style="background:#FF6600" aria-label="Color 6"></button>
+                                        <button type="button" class="swatch" data-color="7" style="background:#FFCC00" aria-label="Color 7"></button>
+                                        <button type="button" class="swatch" data-color="8" style="background:#660099" aria-label="Color 8"></button>
+                                        <button type="button" class="swatch" data-color="9" style="background:#996600" aria-label="Color 9"></button>
+                                        <button type="button" class="swatch" data-color="10" style="background:#FF6666" aria-label="Color 10"></button>
+                                        <button type="button" class="swatch" data-color="11" style="background:#006600" aria-label="Color 11"></button>
+                                        <button type="button" class="swatch" data-color="12" style="background:#0099CC" aria-label="Color 12"></button>
+                                        <button type="button" class="swatch" data-color="13" style="background:#8AE302" aria-label="Color 13"></button>
+                                        <button type="button" class="swatch" data-color="14" style="background:#93A0A4" aria-label="Color 14"></button>
+                                        <button type="button" class="swatch" data-color="15" style="background:#02A797" aria-label="Color 15"></button>
+                                        <button type="button" class="swatch" data-color="16" style="background:#F0F0D8" aria-label="Color 16"></button>
+                                    </div>
+                                    <input type="hidden" name="color" value="1">
+                                    <div class="feedback"></div>
+                                </div>
+                            </div>
+
+                            <!-- RIGHT: numbered account steps -->
+                            <div class="create-right">
+                                <div class="form-group" id="username-group">
+                                    <div class="step"><span class="step-num">1</span>Name your penguin</div>
+                                    <input type="text" name="username" placeholder="Penguin Name" maxlength="12" required autofocus>
+                                    <div class="feedback"></div>
+                                </div>
+
+                                <div class="form-group" id="password-group">
+                                    <div class="step"><span class="step-num">2</span>Choose a password</div>
+                                    <input type="password" name="password" placeholder="Password" autocomplete="new-password" maxlength="60" required>
+                                    <div class="feedback"></div>
+                                </div>
+
+                                <div class="form-group" id="password-repeat-group">
+                                    <input type="password" name="password-repeat" placeholder="Repeat Password" autocomplete="new-password" maxlength="60" required>
+                                    <div class="feedback"></div>
+                                </div>
+
+                                <div class="form-group" id="email-group">
+                                    <div class="step"><span class="step-num">3</span>Your email address</div>
+                                    <input type="email" name="email" placeholder="Email Address" maxlength="254" required>
+                                    <div class="feedback"></div>
+                                </div>
+
+                                <div class="form-group" id="cf-turnstile-response-group">
+                                    <div class="cf-turnstile" data-sitekey="0x4AAAAAADYRrvWND1L5qZvq"></div>
+                                    <div class="feedback"></div>
+                                </div>
+                            </div>
+
                         </div>
-
-                        <div class="form-group" id="email-group">
-                            <input type="email" name="email" placeholder="Email Address" maxlength="254" required>
-                            <div class="feedback"></div>
-                        </div>
-
-                        <div class="form-group" id="password-group">
-                            <input type="password" name="password" placeholder="Password" autocomplete="new-password" maxlength="60" required>
-                            <div class="feedback"></div>
-                        </div>
-
-                        <div class="form-group" id="password-repeat-group">
-                            <input type="password" name="password-repeat" placeholder="Repeat Password" autocomplete="new-password" maxlength="60" required>
-                            <div class="feedback"></div>
-                        </div>
-
-                        <div class="form-group" id="h-captcha-response-group">
-                            <div class="h-captcha" data-sitekey="10000000-ffff-ffff-ffff-000000000001"></div>
-                            <div class="feedback"></div>
-                        </div>
-
                     </form>
                 </div>
 
-                <button id="modal-button" class="button" type="submit" form="modal-form">Create</button>
+                <button id="modal-button" class="button" type="submit" form="modal-form">Create My Penguin</button>
 
-                <a href="/" class="modal-close">×</a>
+                <a href="https://clubpenguinlive.net" class="modal-close">&times;</a>
             </div>
         </section>
+
+        <footer class="cpl-footer">
+            <nav>
+                <a href="https://clubpenguinlive.net">Home</a>·<a href="https://clubpenguinlive.net/#support">Community</a>·<a href="/pages/help.html">Help</a>·<a href="/pages/terms.html">Terms of Service</a>·<a href="/pages/privacy.html">Privacy Policy</a>
+            </nav>
+            <p>© 2026 Club Penguin Live. A fan-run private server, not affiliated with or endorsed by The Walt Disney Company.</p>
+        </footer>
     </body>
 
 </html>

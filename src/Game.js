@@ -19,6 +19,11 @@ export default class Game extends Phaser.Game {
     constructor(config) {
         super(config)
 
+        // Expose the running game instance for verification/automation tooling. The server is
+        // authoritative and validates every action, so this handle grants nothing a client
+        // couldn't already invoke through the existing scene objects.
+        window.game = this
+
         this.logBanner()
 
         // Removes focus from active element

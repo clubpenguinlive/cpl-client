@@ -47,7 +47,7 @@ export default class Dance extends RoomScene {
             'mix': null
         }
 
-        this.music = '5'
+        this.playlist = ['club-1', 'club-2', 'club-3', 'club-4']
 
         /* END-USER-CTR-CODE */
     }

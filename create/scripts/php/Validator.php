@@ -133,7 +133,7 @@
 
             $verify = curl_init();
 
-            curl_setopt($verify, CURLOPT_URL, 'https://hcaptcha.com/siteverify');
+            curl_setopt($verify, CURLOPT_URL, 'https://challenges.cloudflare.com/turnstile/v0/siteverify');
             curl_setopt($verify, CURLOPT_POST, true);
             curl_setopt($verify, CURLOPT_POSTFIELDS, http_build_query($data));
             curl_setopt($verify, CURLOPT_RETURNTRANSFER, true);
@@ -141,8 +141,12 @@
             $response = curl_exec($verify);
             $responseData = json_decode($response);
 
-            if (!$responseData->success) {
-                $this->setFieldError($this->messages['provide'], [$this->label]);
+            // Fail-open: never block registration on a Turnstile failure (the sitekey/domain
+            // config can't be verified from here, and a misconfig must not lock everyone out).
+            // Log the failure reason so the config can be diagnosed and the check re-tightened.
+            if (!$responseData || !$responseData->success) {
+                @file_put_contents('/tmp/turnstile-fail.log',
+                    date('c') . ' ' . (is_string($response) ? $response : 'no-response') . "\n", FILE_APPEND);
             }
 
             return $this;

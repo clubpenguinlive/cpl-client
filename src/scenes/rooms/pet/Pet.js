@@ -39,6 +39,7 @@ export default class Pet extends RoomScene {
 
 
         /* START-USER-CTR-CODE */
+        this.music = 30
 
         this.roomTriggers = {
             'plaza': () => this.triggerRoom(300, 384, 620),

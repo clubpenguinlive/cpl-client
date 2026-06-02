@@ -22,7 +22,9 @@ export default class BaseScene extends Phaser.Scene {
     }
 
     setMusic() {
-        if (this.music) {
+        if (this.playlist) {
+            this.soundManager?.playMusicPlaylist(this.playlist)
+        } else if (this.music) {
             this.playMusic(this.music)
         } else {
             this.stopMusic()

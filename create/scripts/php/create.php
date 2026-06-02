@@ -3,7 +3,7 @@
     include 'Database.php';
     include 'Validator.php';
 
-    const HCAPTCHA_SECRET = '0x0000000000000000000000000000000000000000';
+    const TURNSTILE_SECRET = '0x4AAAAAADYRrnKCQNIVcZxWPPME7D4sdwY';
 
     error_reporting(0);
 
@@ -38,14 +38,19 @@
         ->length(8, 60)
         ->equals('password', 'Password');
 
-    $v->name('h-captcha-response', 'Captcha')
-        ->hcaptcha(HCAPTCHA_SECRET);
+    $v->name('cf-turnstile-response', 'Captcha')
+        ->hcaptcha(TURNSTILE_SECRET);
 
     if ($v->isFailure()) {
         die($v->getErrors());
     }
 
+    $color = isset($_POST['color']) ? intval($_POST['color']) : 1;
+    if ($color < 1 || $color > 16) {
+        $color = 1;
+    }
+
     $db = new Database();
-    $db->insertUser($username, $email, $password);
+    $db->insertUser($username, $email, $password, $color);
 
 ?>

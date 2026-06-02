@@ -1,0 +1,76 @@
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+        <title>Manage Account | Club Penguin Live</title>
+
+        <link rel="stylesheet" href="/assets/styles/fonts.css" type="text/css">
+        <link rel="stylesheet" href="/create/styles/create.css?v=cpl3" type="text/css">
+
+        <!-- Scripts -->
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+        <script src="scripts/js/account.js"></script>
+    </head>
+
+    <body>
+        <header class="cpl-nav">
+            <div class="side">
+                <a class="home" href="/">Home</a>
+                <a href="/pages/news.html">What's New?</a>
+                <a href="/pages/safety.html">Safety</a>
+                <a href="/pages/parents.html">Parents</a>
+                <a href="/pages/rules.html">Community Rules</a>
+                <a href="/pages/help.html">Help</a>
+            </div>
+        </header>
+
+        <section class="modal-container">
+            <div id="modal" class="modal fade">
+                <h1 id="modal-title">Manage Account</h1>
+
+                <div id="modal-content">
+                    <form id="modal-form">
+
+                        <div class="form-group" id="username-group">
+                            <input type="text" name="username" placeholder="Penguin Name" maxlength="12" required autofocus>
+                            <div class="feedback"></div>
+                        </div>
+
+                        <div class="form-group" id="current-password-group">
+                            <input type="password" name="current-password" placeholder="Current Password" autocomplete="current-password" maxlength="60" required>
+                            <div class="feedback"></div>
+                        </div>
+
+                        <div class="form-group" id="password-group">
+                            <input type="password" name="password" placeholder="New Password" autocomplete="new-password" maxlength="60" required>
+                            <div class="feedback"></div>
+                        </div>
+
+                        <div class="form-group" id="password-repeat-group">
+                            <input type="password" name="password-repeat" placeholder="Repeat New Password" autocomplete="new-password" maxlength="60" required>
+                            <div class="feedback"></div>
+                        </div>
+
+                        <div class="form-group" id="cf-turnstile-response-group">
+                            <div class="cf-turnstile" data-sitekey="0x4AAAAAADYRrvWND1L5qZvq"></div>
+                            <div class="feedback"></div>
+                        </div>
+
+                    </form>
+                </div>
+
+                <button id="modal-button" class="button" type="submit" form="modal-form">Update Password</button>
+
+                <a href="/" class="modal-close">&times;</a>
+            </div>
+        </section>
+
+        <footer class="cpl-footer">
+            <p>Club Penguin Live. A fan-run private server. Not affiliated with or endorsed by The Walt Disney Company.</p>
+        </footer>
+    </body>
+
+</html>
