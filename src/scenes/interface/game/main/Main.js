@@ -443,6 +443,7 @@ export default class Main extends BaseScene {
         this.input.keyboard.on('keydown-ESC', () => this.onEscapeKey())
         this.input.keyboard.on('keydown-M', () => this.onMapKey())
         this.input.keyboard.on('keydown-P', () => this.onPlayerCardKey())
+        this.input.keyboard.on('keydown-K', () => this.onSkillsKey())
     }
 
     onMapKey() {
@@ -452,6 +453,17 @@ export default class Main extends BaseScene {
             widgets.getWidget('Map').close()
         } else {
             this.onMapClick()
+        }
+    }
+
+    onSkillsKey() {
+        // K toggles the Skills panel
+        const widgets = this.interface.widgets
+        if (widgets.keyActive('SkillsWidget')) {
+            const w = widgets.getWidget('SkillsWidget')
+            if (w && w.onClose) w.onClose()
+        } else {
+            this.interface.loadWidget('SkillsWidget')
         }
     }
 
