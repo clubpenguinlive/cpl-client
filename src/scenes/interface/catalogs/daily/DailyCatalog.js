@@ -14,7 +14,7 @@ const PER_PAGE = COLS * ROWS
 const CELL_W = 250
 const CELL_H = 152
 const GRID_X = 760 - (COLS * CELL_W) / 2 + CELL_W / 2
-const GRID_Y = 348
+const GRID_Y = 374
 
 const C = {
     binding: 0x1c6bb0, bindingDark: 0x12568f, cream: 0xf7eecf, creamLine: 0xd9c290,
@@ -47,11 +47,11 @@ export default class DailyCatalog extends BaseContainer {
         g.lineStyle(3, C.creamLine, 1).strokeRoundedRect(214, 150, 1092, 678, 16)
         this.add(g)
 
-        this.titleText = scene.add.text(760, 138, 'PENGUIN STYLE', { fontFamily: FONT, fontSize: '46px', color: C.gold, stroke: C.goldStroke, strokeThickness: 9 }).setOrigin(0.5)
+        this.titleText = scene.add.text(760, 134, 'PENGUIN STYLE', { fontFamily: FONT, fontSize: '46px', color: C.gold, stroke: C.goldStroke, strokeThickness: 9 }).setOrigin(0.5)
         this.add(this.titleText)
-        this.dateText = scene.add.text(760, 188, '', { fontFamily: FONT, fontSize: '17px', color: C.blueText, stroke: '#ffffff', strokeThickness: 3 }).setOrigin(0.5)
+        this.dateText = scene.add.text(760, 178, '', { fontFamily: FONT, fontSize: '17px', color: C.blueText, stroke: '#ffffff', strokeThickness: 3 }).setOrigin(0.5)
         this.add(this.dateText)
-        this.countdownText = scene.add.text(760, 210, '', { fontFamily: FONT, fontSize: '14px', color: C.brown, stroke: '#ffffff', strokeThickness: 3 }).setOrigin(0.5)
+        this.countdownText = scene.add.text(760, 200, '', { fontFamily: FONT, fontSize: '14px', color: C.brown, stroke: '#ffffff', strokeThickness: 3 }).setOrigin(0.5)
         this.add(this.countdownText)
 
         this.coinsText = scene.add.text(1250, 132, '', { fontFamily: FONT, fontSize: '22px', color: C.gold, stroke: C.goldStroke, strokeThickness: 6 }).setOrigin(1, 0.5)
@@ -64,9 +64,9 @@ export default class DailyCatalog extends BaseContainer {
         closeHit.on('pointerdown', () => this.onClose())
         this.add(closeHit)
 
-        this.todayTab = this.makeTab(600, 262, 'This Week')
+        this.todayTab = this.makeTab(600, 240, 'This Week')
         this.todayTab.bg.on('pointerdown', () => this.setTab('today'))
-        this.classicsTab = this.makeTab(900, 262, 'Classics')
+        this.classicsTab = this.makeTab(900, 240, 'Classics')
         this.classicsTab.bg.on('pointerdown', () => this.setTab('classics'))
 
         this.grid = scene.add.container(0, 0)
@@ -173,7 +173,7 @@ export default class DailyCatalog extends BaseContainer {
                 }
                 const thumb = this.scene.add.image(x, y - 16, 'dc' + id, 'trim')
                 // contain the trimmed item in ~78% of the cell so a pin and a coat both read well
-                const scale = Math.min((CELL_W * 0.78) / thumb.width, (CELL_H - 56) / thumb.height, 2.2)
+                const scale = Math.min((CELL_W * 0.74) / thumb.width, (CELL_H - 64) / thumb.height, 1.9)
                 thumb.setScale(scale)
                 this.grid.add(thumb)
             }
