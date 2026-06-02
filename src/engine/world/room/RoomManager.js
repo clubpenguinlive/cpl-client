@@ -29,6 +29,11 @@ export default class RoomManager {
             return
         }
 
+        if (path.startsWith('iframe:')) {
+            this.addIframeGame(path.slice(7), music)
+            return
+        }
+
         this.loadScene(key, `games/${path}`, { id: gameId })
     }
 
@@ -56,6 +61,14 @@ export default class RoomManager {
         this.scene.ruffle.bootGame(path, music)
     }
 
+    addIframeGame(name, music) {
+        this.removeCurrent()
+
+        this.scene.scene.run(this.scene.iframeGame)
+
+        this.scene.iframeGame.bootIframe(name, music)
+    }
+
     removeCurrent() {
         this.removeRoom()
         this.removeGame()
@@ -68,6 +81,7 @@ export default class RoomManager {
 
     removeGame() {
         this.scene.ruffle.stop()
+        this.scene.iframeGame.stop()
     }
 
     async loadSceneClass(path) {

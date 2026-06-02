@@ -4,6 +4,7 @@ import Boot from '@engine/boot/Boot'
 import InterfaceController from '@engine/interface/InterfaceController'
 import MemoryManager from '@engine/memory/MemoryManager'
 import RuffleController from '@engine/ruffle/RuffleController'
+import IframeController from '@engine/iframe/IframeController'
 import WorldController from '@engine/world/WorldController'
 
 import Network from '@engine/network/Network'
@@ -41,6 +42,7 @@ export default class Game extends Phaser.Game {
         this.scene.add('InterfaceController', InterfaceController)
         this.scene.add('MemoryManager', MemoryManager)
         this.scene.add('RuffleController', RuffleController)
+        this.scene.add('IframeController', IframeController)
         this.scene.add('WorldController', WorldController)
 
         // Start boot
