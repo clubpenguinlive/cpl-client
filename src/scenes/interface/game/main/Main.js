@@ -356,6 +356,10 @@ export default class Main extends BaseScene {
         news_buttonButton.spriteName = "news-button";
         news_buttonButton.activeFrame = false;
         news_buttonButton.callback = () => this.onSkillsKey();
+        // Reskin the (otherwise unused) newspaper as a Skills button. Button reverts the sprite
+        // frame on hover/click, so hide the sprite (alpha 0 stays clickable) and overlay a star.
+        news_button.setAlpha(0);
+        this.addSkillsIcon(76, 70);
 
         // mod_button (components)
         const mod_buttonSimpleButton = new SimpleButton(mod_button);
@@ -457,6 +461,36 @@ export default class Main extends BaseScene {
         } else {
             this.onMapClick()
         }
+    }
+
+    addSkillsIcon(x, y) {
+        const key = 'cpl-skills-btn'
+        if (!this.textures.exists(key)) {
+            const g = this.make.graphics({ add: false })
+            const cx = 45, cy = 42, r = 36
+            g.fillStyle(0x0e406f, 1).fillCircle(cx, cy + 3, r)
+            g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, r)
+            g.fillStyle(0x3f93d4, 0.5).fillEllipse(cx, cy - 12, r * 1.5, r)
+            g.lineStyle(5, 0xffffff, 1).strokeCircle(cx, cy, r)
+            const pts = this.starPoints(cx, cy, 5, 23, 10.5)
+            g.fillStyle(0xffce3d, 1).fillPoints(pts, true)
+            g.lineStyle(4, 0x5a3a12, 1).strokePoints(pts, true, true)
+            g.generateTexture(key, 90, 84)
+            g.destroy()
+        }
+        const icon = this.add.image(x, y, key)
+        icon.setDepth(2)
+        return icon
+    }
+
+    starPoints(cx, cy, points, outer, inner) {
+        const pts = []
+        for (let i = 0; i < points * 2; i++) {
+            const rad = i % 2 === 0 ? outer : inner
+            const a = (Math.PI / points) * i - Math.PI / 2
+            pts.push({ x: cx + Math.cos(a) * rad, y: cy + Math.sin(a) * rad })
+        }
+        return pts
     }
 
     onSkillsKey() {
