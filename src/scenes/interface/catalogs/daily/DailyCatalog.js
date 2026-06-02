@@ -7,11 +7,11 @@ import BaseContainer from '@scenes/base/BaseContainer'
 // This is the model for all future catalogs (no hand-painted pages).
 
 const THUMB_PATH = '/assets/media/clothing/paper/'
-const COLS = 6
-const CELL_W = 168
-const CELL_H = 150
+const COLS = 7
+const CELL_W = 158
+const CELL_H = 132
 const GRID_X = 760 - (COLS * CELL_W) / 2 + CELL_W / 2
-const GRID_Y = 320
+const GRID_Y = 308
 
 export default class DailyCatalog extends BaseContainer {
 
@@ -35,7 +35,7 @@ export default class DailyCatalog extends BaseContainer {
         this.add(scene.add.rectangle(760, 500, 1140, 700, 0xdff1fc))
 
         // header
-        this.titleText = scene.add.text(760, 150, "TODAY'S CATALOG", { fontFamily: 'Burbank Big, Arial', fontSize: '42px', color: '#ffffff' }).setOrigin(0.5)
+        this.titleText = scene.add.text(760, 150, "PENGUIN STYLE", { fontFamily: 'Burbank Big, Arial', fontSize: '42px', color: '#ffffff' }).setOrigin(0.5)
         this.add(this.titleText)
         this.dateText = scene.add.text(760, 192, '', { fontFamily: 'Arial', fontSize: '18px', color: '#cfe9ff' }).setOrigin(0.5)
         this.add(this.dateText)
@@ -92,7 +92,7 @@ export default class DailyCatalog extends BaseContainer {
         this.todayItems = args.items || []
         this.classics = args.classics || []
         this.countdown = args.secondsUntilNext || 0
-        this.dateText.setText('Catalog for ' + (args.date || ''))
+        this.dateText.setText('New styles every Monday' + (args.week ? '  ·  week ' + args.week : ''))
         this.setTab('today')
         this.loadThumbsAndRender()
     }
@@ -158,10 +158,10 @@ export default class DailyCatalog extends BaseContainer {
     updateCountdown() {
         if (this.countdown <= 0) return
         this.countdown--
-        const h = Math.floor(this.countdown / 3600)
+        const d = Math.floor(this.countdown / 86400)
+        const h = Math.floor((this.countdown % 86400) / 3600)
         const m = Math.floor((this.countdown % 3600) / 60)
-        const s = this.countdown % 60
-        this.countdownText.setText('New items in ' + h + 'h ' + m + 'm ' + s + 's')
+        this.countdownText.setText('Next drop in ' + d + 'd ' + h + 'h ' + m + 'm')
     }
 
     onClose() {
