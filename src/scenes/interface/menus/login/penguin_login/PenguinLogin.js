@@ -198,11 +198,18 @@ export default class PenguinLogin extends BaseScene {
 
 
     onLoginSubmit() {
+        // Enter fires both the scene keydown handler and the TextInput callback; guard against a
+        // double submit (which would double-send token_login/login and mint two device tokens).
+        if (this.submitting) {
+            return
+        }
+
         let username = this.penguin.username
         let password = this.passwordInput.text
         let token = this.network.getToken(username)
         let onConnect
 
+        this.submitting = true
         this.interface.showLoading(`Logging in ${username}`)
         this.scene.stop()
 
