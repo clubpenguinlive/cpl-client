@@ -100,8 +100,15 @@ export default class RuffleController extends BaseScene {
         })
     }
 
-    // Render a room SWF directly via Ruffle (cpj2 bootRoom path) - proves archived room SWFs render.
+    // Render a CP room SWF (from the archive) directly via Ruffle. Art-only (no live penguins yet);
+    // a Leave button returns to the previous room.
     bootRoom(path, mute = false) {
+        // defer until create() ran (container exists) when triggered from a fresh room
+        if (!this.container) {
+            this.events.once('update', () => this.bootRoom(path, mute))
+            return
+        }
+
         const ruffle = window.RufflePlayer.newest()
 
         this.player = ruffle.createPlayer()
@@ -121,7 +128,33 @@ export default class RuffleController extends BaseScene {
 
         try { this.player.volume = mute ? 0 : 0.7 } catch (e) {}
         this.interface.hideLoading()
+        this.interface.hideInterface()
         this.container.visible = true
+
+        this.addLeaveButton()
+    }
+
+    addLeaveButton() {
+        if (this.leaveBtn) return
+        const btn = document.createElement('button')
+        btn.textContent = '← Leave'
+        btn.style.cssText = 'position:fixed;top:14px;left:14px;z-index:99999;padding:8px 16px;'
+            + 'font-family:CCComiccrazy,sans-serif;font-size:18px;color:#fff;background:#e6584d;'
+            + 'border:3px solid #fff;border-radius:14px;cursor:pointer;box-shadow:0 2px 6px rgba(0,0,0,.4)'
+        btn.onclick = () => this.leaveRoom()
+        document.body.appendChild(btn)
+        this.leaveBtn = btn
+    }
+
+    leaveRoom() {
+        // Flash room is an overlay; the real room (e.g. Plaza) is still active underneath.
+        // Just hide the overlay + restore the HUD - no navigation.
+        if (this.leaveBtn) { this.leaveBtn.remove(); this.leaveBtn = null }
+        this.removePlayer()
+        this.resetDepth()
+        this.stopMusic()
+        if (this.container) this.container.visible = false
+        this.interface.showInterface()
     }
 
     /* ===== classic-game ExternalInterface (implemented against our client) ===== */
@@ -270,6 +303,7 @@ export default class RuffleController extends BaseScene {
 
     close() {
         this.gameName = null
+        if (this.leaveBtn) { this.leaveBtn.remove(); this.leaveBtn = null }
         this.removePlayer()
         this.resetDepth()
         this.stopMusic()

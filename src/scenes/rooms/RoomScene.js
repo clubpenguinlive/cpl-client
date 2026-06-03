@@ -272,6 +272,11 @@ export default class RoomScene extends BaseUnloadableScene {
         }
     }
 
+    triggerFlashRoom(swf) {
+        this.scene.run('RuffleController')
+        this.ruffle.bootRoom(swf)
+    }
+
     triggerRoom(id, x, y) {
         let room = this.crumbs.rooms[id]
 
