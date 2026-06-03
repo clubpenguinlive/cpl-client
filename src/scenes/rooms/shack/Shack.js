@@ -19,7 +19,7 @@ export default class Shack extends RoomScene {
         this.roomTriggers = {
             'forest': () => this.triggerRoom(809, 1234, 410),
             'eco': null,
-            'mine': () => this.triggerFlashRoom('assets/media/flash/rooms/mine12.swf')
+            'mine': () => this.triggerRoom(812, 760, 600)
         }
 
         /* END-USER-CTR-CODE */
