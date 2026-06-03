@@ -1,5 +1,6 @@
 export { default as Animation } from './Animation'
 export { default as Button } from './Button'
+export { default as HoverAnimation } from './HoverAnimation'
 export { default as Draggable } from './Draggable'
 export { default as DraggableContainer } from './DraggableContainer'
 export { default as Interactive } from './Interactive'
