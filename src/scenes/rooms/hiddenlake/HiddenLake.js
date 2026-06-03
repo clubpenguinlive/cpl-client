@@ -20,7 +20,8 @@ export default class HiddenLake extends RoomScene {
 
         /* START-USER-CTR-CODE */
         this.roomTriggers = {
-            'forest': () => this.triggerRoom(809, 870, 330)
+            'forest': () => this.triggerRoom(809, 870, 330),
+            'underwater': () => this.triggerRoom(815, 760, 600)
         }
         this.music = 666
         /* END-USER-CTR-CODE */
