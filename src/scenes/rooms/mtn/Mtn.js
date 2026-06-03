@@ -32,10 +32,10 @@ export default class Mtn extends RoomScene {
 
         this.roomTriggers = {
             'village': () => this.triggerRoom(200, 480, 560),
-            'waddle100': () => this.triggerWaddle(100),
-            'waddle101': () => this.triggerWaddle(101),
-            'waddle102': () => this.triggerWaddle(102),
-            'waddle103': () => this.triggerWaddle(103)
+            'waddle100': () => this.triggerGame(999),
+            'waddle101': () => this.triggerGame(999),
+            'waddle102': () => this.triggerGame(999),
+            'waddle103': () => this.triggerGame(999)
         }
 
         this.waddles = {}
