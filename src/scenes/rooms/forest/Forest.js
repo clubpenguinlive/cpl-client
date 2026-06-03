@@ -20,7 +20,7 @@ export default class Forest extends RoomScene {
             'plaza': () => this.triggerRoom(300, 1240, 660),
             'shack': () => this.triggerRoom(807, 500, 800),
             'cove': () => this.triggerRoom(810, 520, 416),
-            'lake': null
+            'lake': () => this.triggerRoom(814, 760, 500)
         }
 
         /* END-USER-CTR-CODE */
