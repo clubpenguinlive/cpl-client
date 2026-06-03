@@ -17,7 +17,7 @@ export default class Cave extends RoomScene {
         /* START-USER-CTR-CODE */
 
         this.roomTriggers = {
-            'boiler': () => this.triggerFlashRoom('assets/media/flash/rooms/boiler11.swf'),
+            'boiler': () => this.triggerRoom(811, 582, 680),
             'plaza': () => this.triggerRoom(300, 582, 588),
             'mine': () => this.triggerGame(905)
         }
