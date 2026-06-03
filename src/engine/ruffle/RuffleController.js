@@ -100,6 +100,30 @@ export default class RuffleController extends BaseScene {
         })
     }
 
+    // Render a room SWF directly via Ruffle (cpj2 bootRoom path) - proves archived room SWFs render.
+    bootRoom(path, mute = false) {
+        const ruffle = window.RufflePlayer.newest()
+
+        this.player = ruffle.createPlayer()
+        this.container.setElement(this.player, this.playerStyle)
+
+        this.player.load({
+            url: path,
+            allowScriptAccess: true,
+            menu: false,
+            contextMenu: 'off',
+            scale: 'noborder',
+            autoplay: 'on',
+            warnOnUnsupportedContent: false,
+            splashScreen: false,
+            logLevel: localStorage.logging === 'true' ? 'info' : 'error'
+        })
+
+        try { this.player.volume = mute ? 0 : 0.7 } catch (e) {}
+        this.interface.hideLoading()
+        this.container.visible = true
+    }
+
     /* ===== classic-game ExternalInterface (implemented against our client) ===== */
 
     getKeys() {
