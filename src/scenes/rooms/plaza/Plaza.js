@@ -24,7 +24,7 @@ export default class Plaza extends RoomScene {
             'cave': () => this.triggerRoom(806, 1180, 614),
             'stage1': null,
             'stage2': null,
-            'pizza': () => this.triggerFlashRoom('assets/media/flash/rooms/pizza10.swf'),
+            'pizza': () => this.triggerRoom(330, 760, 700),
             'forest': () => this.triggerRoom(809, 270, 430)
         }
 
