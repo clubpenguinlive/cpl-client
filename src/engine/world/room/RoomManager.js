@@ -25,7 +25,7 @@ export default class RoomManager {
         const { key, path, music } = this.crumbs.games[gameId]
 
         if (path.endsWith('.swf')) {
-            this.addFlashGame(path, music)
+            this.addFlashGame(this.crumbs.games[gameId])
             return
         }
 
@@ -53,12 +53,12 @@ export default class RoomManager {
         this.room = this.scene.scene.add(key, scene, true, data)
     }
 
-    addFlashGame(path, music) {
+    addFlashGame(game) {
         this.removeCurrent()
 
         this.scene.scene.run(this.scene.ruffle)
 
-        this.scene.ruffle.bootGame(path, music)
+        this.scene.ruffle.bootGame(game)
     }
 
     addIframeGame(name, music) {
