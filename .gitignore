@@ -127,3 +127,6 @@ assets/media/**
 assets/.gitignore
 
 assets/desktop.ini
+
+# PHP DB credentials (real file lives only on the server)
+db-config.php
