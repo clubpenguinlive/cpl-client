@@ -1,5 +1,7 @@
 import Plugin from '../Plugin'
 
+import roomStringKey from '@engine/world/room/roomStringKey'
+
 
 export default class Join extends Plugin {
 
@@ -28,7 +30,7 @@ export default class Join extends Plugin {
     }
 
     joinRoom(args) {
-        this.interface.showLoading(this.getString(`load_${this.crumbs.rooms[args.room].key}`), true)
+        this.interface.showLoading(this.getString(`load_${roomStringKey(this.crumbs.rooms[args.room].key)}`), true)
 
         this.world.joinRoom(args.room, args.users)
     }
