@@ -294,9 +294,10 @@
             @keyframes cpl-tilt { 0%, 45% { transform: rotate(0); } 65%, 100% { transform: rotate(-90deg); } }
         </style>
 
-        <link rel="stylesheet" href="assets/styles/fonts.css?v=<%= htmlWebpackPlugin.options.templateParameters.timestamp %>" type="text/css">
-
-        <!-- Fonts -->
+        <!-- Fonts: loaded once via WebFontLoader (see src/data/fonts.js), which fetches
+             fonts.css and force-loads each family so canvas text is ready. The old
+             duplicate <link rel=stylesheet href=fonts.css> was removed (it re-fetched the
+             same CSS + every woff2 a second time on first load). -->
         <script src="assets/scripts/lib/webfont.js?v=<%= htmlWebpackPlugin.options.templateParameters.timestamp %>"></script>
 
         <!-- Phaser (pinned; Subresource Integrity guards against CDN compromise) -->
