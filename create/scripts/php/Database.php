@@ -2,13 +2,11 @@
 
     class Database {
 
-        const HOST = 'localhost';
-        const USER = 'yukon';
-        const PASSWORD = 'clubpenguinlive2026';
-        const DATABASE = 'clubpenguinlive';
-
         function __construct() {
-            $this->db = new mysqli(self::HOST, self::USER, self::PASSWORD, self::DATABASE);
+            // DB credentials live in db-config.php (gitignored, present only on the
+            // deployed server) - see db-config.example.php. Never hardcode them here.
+            $cfg = require __DIR__ . '/db-config.php';
+            $this->db = new mysqli($cfg['host'], $cfg['user'], $cfg['password'], $cfg['database']);
 
             if ($this->db->connect_error) {
                 $this->dieWithMessage('username', 'Failed to connect.');
