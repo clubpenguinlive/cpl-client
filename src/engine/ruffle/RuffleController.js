@@ -1,6 +1,7 @@
 import BaseScene from '@scenes/base/BaseScene'
 
 import RuffleShim from '@engine/ruffle/RuffleShim'
+import TouchControls from '@engine/ruffle/TouchControls'
 
 
 // Faithful port of cpj2's Flash subsystem so the original CP minigame SWFs (Ice Fishing, Cart
@@ -38,6 +39,7 @@ export default class RuffleController extends BaseScene {
         this.music = 0
         this.gameName = null
         this.eventListeners = []
+        this.touch = null
 
         // window.ruffle = the shim, which forwards each key to this controller
         this.shim = new RuffleShim(this)
@@ -227,6 +229,12 @@ export default class RuffleController extends BaseScene {
         this.interface.hideInterface()
         this.stopMusic()
         this.container.visible = true
+
+        // mobile: overlay touch controls for the keyboard-driven games (no-op on desktop)
+        if (TouchControls.supports(this.gameName)) {
+            this.touch = new TouchControls(this.player, this.gameName)
+            this.touch.mount()
+        }
     }
 
     // SERVER-AUTHORITATIVE: forward the (untrusted) SWF score to game_over; the server caps it.
@@ -303,6 +311,7 @@ export default class RuffleController extends BaseScene {
 
     close() {
         this.gameName = null
+        if (this.touch) { this.touch.destroy(); this.touch = null }
         if (this.leaveBtn) { this.leaveBtn.remove(); this.leaveBtn = null }
         this.removePlayer()
         this.resetDepth()
@@ -315,6 +324,7 @@ export default class RuffleController extends BaseScene {
         this.events.off('update')
         this.path = null
         this.music = null
+        if (this.touch) { this.touch.destroy(); this.touch = null }
         this.removePlayer()
         this.resetDepth()
         this.stopMusic()
