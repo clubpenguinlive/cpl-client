@@ -5,7 +5,13 @@
         function __construct() {
             // DB credentials live in db-config.php (gitignored, present only on the
             // deployed server) - see db-config.example.php. Never hardcode them here.
-            $cfg = require __DIR__ . '/db-config.php';
+            $configPath = __DIR__ . '/db-config.php';
+            if (!is_file($configPath)) {
+                // Missing on this deploy target: fail with the normal JSON error
+                // instead of a fatal require, so the page degrades gracefully.
+                $this->dieWithMessage('username', 'The server is not configured yet. Please try again later.');
+            }
+            $cfg = require $configPath;
             $this->db = new mysqli($cfg['host'], $cfg['user'], $cfg['password'], $cfg['database']);
 
             if ($this->db->connect_error) {
