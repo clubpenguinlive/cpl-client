@@ -66,6 +66,13 @@
             .cpl-navbtn:hover { background: #0e5fa8; }
             #cpl-logout { background: #e6584d; border-color: rgba(255,255,255,.4); }
             #cpl-logout:hover { background: #c94539; }
+            /* icon-only fullscreen toggle (inline SVG, inherits the nav white) */
+            .cpl-iconbtn { background: none; border: none; cursor: pointer; padding: 4px; display: inline-flex; align-items: center; color: #fff; line-height: 0; }
+            .cpl-iconbtn svg { width: 22px; height: 22px; display: block; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+            .cpl-iconbtn:hover { color: #d6efff; }
+            .cpl-iconbtn .ic-compress { display: none; }
+            .cpl-iconbtn.is-fs .ic-expand { display: none; }
+            .cpl-iconbtn.is-fs .ic-compress { display: block; }
 
             /* framed game stage */
             #cpl-stage { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; padding: 10px; min-height: 0; }
@@ -98,8 +105,19 @@
             #cpl-footer a { color: #fff; text-decoration: none; margin: 0 5px; font-weight: bold; }
             #cpl-footer a:hover { color: #d6efff; }
 
+            /* hamburger button: inert on desktop (display:none keeps it out of flow, so the
+               nav renders byte-for-byte as before); revealed only on narrow screens below. */
+            .cpl-burger { display: none; }
             @media (max-width: 760px) {
-                #cpl-nav .side a:not(.home):not(.cta) { display: none; }
+                .cpl-burger { display: block; cursor: pointer; color: #fff; font-size: 24px; line-height: 1; padding: 2px 8px; user-select: none; }
+                /* collapse the left link group into a tappable dropdown (Home + the text links) */
+                #cpl-nav > .side:not(.right) { display: none; }
+                #cpl-nav-toggle:checked ~ .side:not(.right) {
+                    display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
+                    position: absolute; left: 0; top: var(--nav-h); z-index: 951; min-width: 200px;
+                    background: #1f9fe0; border-bottom: 2px solid #1577b8; box-shadow: 0 6px 14px rgba(0,0,0,.28); padding: 14px 18px;
+                }
+                #cpl-nav-toggle:checked ~ .side:not(.right) a.home { width: auto; height: auto; background: none; font-size: 16.5px; }
             }
             @media (pointer: coarse) {
                 html, body { position: fixed; inset: 0; width: 100%; height: 100%; overflow: hidden; }
@@ -110,6 +128,76 @@
                 #cpl-footer { display: none; }
                 #cpl-stage { padding: 0; }
                 #game-wrap { border-width: 2px; border-radius: 6px; box-shadow: none; }
+            }
+            /* mobile (touch): the nav bar is slim (34px), so the desktop-sized Log Out pill and
+               fullscreen icon overpower it (the pill renders TALLER than the bar). Scale the right-side
+               controls down to the hamburger's weight and tighten the cluster so the bar reads balanced,
+               not a small burger far-left and oversized buttons far-right. Desktop (fine pointer) never
+               matches @media (pointer: coarse), so it stays byte-for-byte unchanged. */
+            @media (pointer: coarse) {
+                .cpl-burger { font-size: 21px; padding: 2px 6px; }
+                #cpl-nav .side.right { gap: 8px; }
+                #cpl-logout, .cpl-navbtn { font-size: 12px; padding: 4px 11px; }
+                .cpl-iconbtn { padding: 3px; }
+                .cpl-iconbtn svg { width: 18px; height: 18px; }
+            }
+            /* IN-WORLD on mobile landscape: drop the top nav band entirely so the game canvas
+               reclaims that row, and float the three controls as overlays in the screen corners.
+               The canvas is FIT + CENTER_BOTH, so on landscape it's pillarboxed; the floats live in
+               those side bands, clear of the game's own in-canvas icons (star/mail top-left, M badge
+               top-right). Gated on body.cpl-playing so the normal bar stays on the landing/login
+               screen; gated on pointer:coarse so desktop (fine pointer) is byte-for-byte unchanged. */
+            @media (pointer: coarse) and (orientation: landscape) {
+                /* detach the nav from the flex column -> #cpl-stage (and the canvas) grow to full height.
+                   pointer-events:none lets taps fall through the empty band to the game; only the chips
+                   below re-enable pointer-events. */
+                body.cpl-playing #cpl-nav {
+                    position: fixed; top: 0; left: 0; right: 0; height: 0; min-height: 0; padding: 0;
+                    background: transparent; border: none; box-shadow: none; z-index: 970; pointer-events: none;
+                }
+                /* collapse the inline link row into the hamburger at ANY width while in-world */
+                body.cpl-playing #cpl-nav > .side:not(.right) { display: none; }
+                /* hamburger -> floating chip, top-left */
+                body.cpl-playing .cpl-burger {
+                    display: flex; align-items: center; justify-content: center;
+                    position: absolute; top: 4px; left: 4px; z-index: 972; pointer-events: auto;
+                    width: 31px; height: 27px; padding: 0; font-size: 18px; line-height: 1;
+                    color: #fff; background: rgba(12, 64, 104, .62); border-radius: 8px;
+                }
+                /* the right group is now a passthrough; fullscreen + Log Out are placed individually so
+                   they can sit in different corners. display:contents drops the wrapper box, so each
+                   child positions against #cpl-nav (the fixed, full-width layer), not the old right box. */
+                body.cpl-playing #cpl-nav .side.right { display: contents; }
+                /* fullscreen -> TOP-LEFT. Narrow-safe default: stacked just under the hamburger, kept in
+                   the left band column so it's always clear of the game's in-canvas star/mail (to its
+                   right). On roomier phones the min-width rule below lifts it up BESIDE the hamburger. */
+                body.cpl-playing #cpl-fullscreen {
+                    position: absolute; top: 36px; left: 4px; z-index: 972; pointer-events: auto;
+                    background: rgba(12, 64, 104, .62); border-radius: 8px; padding: 4px; height: 27px; box-sizing: border-box;
+                }
+                /* Log Out -> TOP-RIGHT. Narrow-safe default hugs the edge (a 667-class band can't fit the
+                   pill plus the game's M badge); the min-width rule below insets it off the edge. */
+                body.cpl-playing #cpl-logout {
+                    position: absolute; top: 4px; right: 4px; z-index: 972; pointer-events: auto;
+                }
+                /* the link dropdown opens under the hamburger, above the canvas */
+                body.cpl-playing #cpl-nav-toggle:checked ~ .side:not(.right) {
+                    display: flex; flex-direction: column; align-items: flex-start; gap: 13px;
+                    position: absolute; top: 42px; left: 8px; z-index: 973; pointer-events: auto;
+                    min-width: 178px; background: #1f9fe0; border-radius: 10px;
+                    box-shadow: 0 6px 16px rgba(0,0,0,.4); padding: 13px 17px;
+                }
+                body.cpl-playing #cpl-nav-toggle:checked ~ .side:not(.right) a.home {
+                    width: auto; height: auto; background: none; font-size: 16.5px;
+                }
+            }
+            /* roomier landscape phones (>= 700px wide): the left band has space to sit fullscreen
+               BESIDE the hamburger, and the right band has space to inset Log Out off the screen edge,
+               so the three controls read balanced across the top (verified clear of the game's star/mail
+               at ~x139 and M badge at ~x711 at this size). Below 700px the narrow-safe defaults apply. */
+            @media (pointer: coarse) and (orientation: landscape) and (min-width: 700px) {
+                body.cpl-playing #cpl-fullscreen { top: 4px; left: 41px; }
+                body.cpl-playing #cpl-logout { right: 14px; }
             }
 
             /* ---- Animated landing (front page) ---- */
@@ -224,6 +312,8 @@
 
     <body>
         <header id="cpl-nav">
+            <input type="checkbox" id="cpl-nav-toggle" hidden>
+            <label for="cpl-nav-toggle" class="cpl-burger" aria-label="Menu">☰</label>
             <div class="side">
                 <a class="home" href="https://clubpenguinlive.net">Home</a>
                 <a href="https://clubpenguinlive.net/#news">What's New?</a>
@@ -232,7 +322,10 @@
                 <a href="/pages/help.html">Help</a>
             </div>
             <div class="side right">
-                <button type="button" class="cpl-navbtn" id="cpl-fullscreen">Go Full Screen</button>
+                <button type="button" class="cpl-iconbtn" id="cpl-fullscreen" aria-label="Full screen" title="Full screen">
+                    <svg class="ic-expand" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5M16 3h5v5M16 21h5v-5M8 21H3v-5"/></svg>
+                    <svg class="ic-compress" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8h5V3M21 8h-5V3M21 16h-5v5M3 16h5v5"/></svg>
+                </button>
                 <button type="button" class="cpl-navbtn" id="cpl-logout">Log Out</button>
             </div>
         </header>

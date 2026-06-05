@@ -391,6 +391,20 @@ export default class Main extends BaseScene {
         this.mailbook = mailbook;
         this.hideOnSleep = hideOnSleep;
 
+        // Mobile only: enlarge the bottom-toolbar buttons' touch/hit areas so taps register more
+        // reliably on a phone. Visual layout is UNCHANGED (the icons stay the same size/place); we
+        // only widen the hit zone to fill the inter-button gap and extend it down into the bottom
+        // margin. Desktop (fine pointer) keeps the default 56x56 hit area, so it's byte-for-byte
+        // unchanged. NOTE: the buttons are only 60px apart, so making them visually thumb-sized
+        // needs the reserved toolbar relayout - this is the safe, no-overlap part.
+        if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+            for (const btn of [chat_button, emote_button, action_button, snowball_button,
+                               chat_send_button, player_button, buddies_button, igloo_button, help_button]) {
+                const w = btn.width, h = btn.height
+                btn.setInteractive(new Phaser.Geom.Rectangle(-2, -4, w + 4, h + 40), Phaser.Geom.Rectangle.Contains)
+            }
+        }
+
         this.events.emit("scene-awake");
     }
 
