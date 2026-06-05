@@ -25,7 +25,10 @@ export default class Mine extends RoomScene {
         /* START-USER-CTR-CODE */
         this.roomTriggers = {
             'cave': () => this.triggerRoom(806, 1280, 655),
-            'cart': () => this.triggerGame(905)
+            'cart': () => this.triggerGame(905),
+            // up-exit (top-center entrance arch) back to the Mine Shack; was an
+            // unwired physics zone, so the door did nothing before.
+            'cavemine': () => this.triggerRoom(807, 760, 620)
         }
         /* END-USER-CTR-CODE */
     }
