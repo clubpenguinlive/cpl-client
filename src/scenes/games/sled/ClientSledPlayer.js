@@ -10,6 +10,21 @@ export default class ClientSledPlayer extends SledPlayer {
         scene.input.keyboard.on('keydown-RIGHT', this.onMoveUpKey, this)
         scene.input.keyboard.on('keydown-DOWN', this.onMoveDownKey, this)
         scene.input.keyboard.on('keydown-LEFT', this.onMoveDownKey, this)
+
+        // Touch support (mobile only): tap the top half of the screen to steer up,
+        // the bottom half to steer down. A full-screen zone at depth -1 sits below the
+        // close button, so topOnly hit-testing still lets the close button work.
+        // Desktop (fine pointer) is untouched and stays keyboard-only.
+        if (window.matchMedia && window.matchMedia('(pointer: coarse)').matches) {
+            const h = scene.cameras.main.height
+            const touchZone = scene.add.zone(0, 0, scene.cameras.main.width, h).setOrigin(0, 0)
+            touchZone.setDepth(-1).setInteractive()
+            touchZone.on('pointerdown', pointer => {
+                if (pointer.y < h / 2) this.onMoveUpKey()
+                else this.onMoveDownKey()
+            })
+            this.touchZone = touchZone
+        }
     }
 
     get canMove() {
