@@ -85,15 +85,15 @@ export default class Login extends BaseScene {
         loginText.setLineSpacing(25);
 
         // passwordText
-        const passwordText = this.add.text(503, 258, "", {});
-        passwordText.setOrigin(0, 0.5);
+        const passwordText = this.add.text(610, 258, "", {});
+        passwordText.setOrigin(1, 0.5);
         passwordText.text = "Password:";
         passwordText.setStyle({ "align": "right", "color": "#000000ff", "fontFamily": "Arial Narrow", "fontSize": "25px" });
         passwordText.setLineSpacing(25);
 
         // usernameText
-        const usernameText = this.add.text(448, 200, "", {});
-        usernameText.setOrigin(0, 0.5);
+        const usernameText = this.add.text(610, 200, "", {});
+        usernameText.setOrigin(1, 0.5);
         usernameText.text = "Email:";
         usernameText.setStyle({ "align": "right", "color": "#000000ff", "fontFamily": "Arial Narrow", "fontSize": "25px" });
         usernameText.setLineSpacing(25);

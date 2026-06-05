@@ -41,7 +41,10 @@
             }
         })
         document.addEventListener('fullscreenchange', function () {
-            fsBtn.textContent = document.fullscreenElement ? 'Exit Full Screen' : 'Go Full Screen'
+            var isFs = !!document.fullscreenElement
+            fsBtn.classList.toggle('is-fs', isFs)
+            fsBtn.setAttribute('aria-label', isFs ? 'Exit full screen' : 'Full screen')
+            fsBtn.title = isFs ? 'Exit full screen' : 'Full screen'
             window.dispatchEvent(new Event('resize'))
         })
     }

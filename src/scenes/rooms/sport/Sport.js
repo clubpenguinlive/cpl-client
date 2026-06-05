@@ -30,6 +30,7 @@ export default class Sport extends RoomScene {
         this.music = 'MUS_Evergreen_Fashion_GiftShopAmb'
 
         this.roomTriggers = {
+            'agent': () => this.triggerRoom(850, 760, 600),
             village: () => this.triggerRoom(200, 1152, 510),
             agent: () => this.triggerAgent()
         }

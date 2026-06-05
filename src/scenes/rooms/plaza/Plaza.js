@@ -22,8 +22,8 @@ export default class Plaza extends RoomScene {
             'forts': () => this.triggerRoom(801, 1284, 720),
             'pet': () => this.triggerRoom(310, 818, 520),
             'cave': () => this.triggerRoom(806, 1180, 614),
-            'stage1': null,
-            'stage2': null,
+            'stage1': () => this.triggerRoom(340, 760, 700),
+            'stage2': () => this.triggerRoom(340, 760, 700),
             'pizza': () => this.triggerRoom(330, 760, 700),
             'forest': () => this.triggerRoom(809, 270, 430)
         }
