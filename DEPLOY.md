@@ -26,6 +26,24 @@ edit + commit + push   →   deploy to prod   →   rebuild   →   verify
 - prod has `git config receive.denyCurrentBranch updateInstead`
 - prod's GitHub (`cpl`) push URL is disabled (prod cannot push to GitHub)
 
+## First-time provisioning (new / rebuilt target)
+
+The DB credentials live in `db-config.php`, which is **gitignored and never shipped by
+git push**. On a fresh target you must create it once, in BOTH php dirs, from the example:
+
+```bash
+ssh nick@10.0.0.72
+for d in account create; do
+  cp /opt/yukon/client/$d/scripts/php/db-config.example.php \
+     /opt/yukon/client/$d/scripts/php/db-config.php
+  # then edit each db-config.php and fill in the real password
+done
+```
+
+`deploy.sh` runs a **pre-flight** that refuses to deploy (before pushing anything) if either
+`db-config.php` is missing or incomplete, so a half-provisioned box fails loudly instead of
+serving a "green" deploy with broken account/create.
+
 ## Deploy
 
 From this repo on dev-01:
