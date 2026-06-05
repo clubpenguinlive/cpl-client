@@ -1,5 +1,7 @@
 import Plugin from '../Plugin'
 
+import roomStringKey from '@engine/world/room/roomStringKey'
+
 
 export default class Buddy extends Plugin {
 
@@ -72,7 +74,7 @@ export default class Buddy extends Plugin {
 
     getRoomName(args, userId) {
         if (!args.igloo && !args.game) {
-            return this.crumbs.rooms[args.find].key
+            return roomStringKey(this.crumbs.rooms[args.find].key)
         }
 
         if (args.game) {
