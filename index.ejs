@@ -141,24 +141,25 @@
                 .cpl-iconbtn { padding: 3px; }
                 .cpl-iconbtn svg { width: 18px; height: 18px; }
             }
-            /* IN-WORLD on mobile landscape: drop the top nav band entirely so the game canvas
-               reclaims that row, and float the three controls as overlays in the screen corners.
-               The canvas is FIT + CENTER_BOTH, so on landscape it's pillarboxed; the floats live in
-               those side bands, clear of the game's own in-canvas icons (star/mail top-left, M badge
-               top-right). Gated on body.cpl-playing so the normal bar stays on the landing/login
-               screen; gated on pointer:coarse so desktop (fine pointer) is byte-for-byte unchanged. */
+            /* On mobile landscape, present the nav as three floating corner chips on EVERY screen
+               (login/start and in-world alike), so the menu reads the same everywhere and the game
+               canvas always gets the full height (no bar-then-collapse flash on world join). The
+               canvas is FIT + CENTER_BOTH, so at phone aspect it's pillarboxed and the chips live in
+               those side bands, clear of the game's in-canvas icons (star/mail top-left, M badge
+               top-right). Gated on pointer:coarse so desktop (fine pointer) is byte-for-byte
+               unchanged; gated on landscape because portrait shows the rotate prompt instead. */
             @media (pointer: coarse) and (orientation: landscape) {
                 /* detach the nav from the flex column -> #cpl-stage (and the canvas) grow to full height.
                    pointer-events:none lets taps fall through the empty band to the game; only the chips
                    below re-enable pointer-events. */
-                body.cpl-playing #cpl-nav {
+                body #cpl-nav {
                     position: fixed; top: 0; left: 0; right: 0; height: 0; min-height: 0; padding: 0;
                     background: transparent; border: none; box-shadow: none; z-index: 970; pointer-events: none;
                 }
-                /* collapse the inline link row into the hamburger at ANY width while in-world */
-                body.cpl-playing #cpl-nav > .side:not(.right) { display: none; }
+                /* collapse the inline link row into the hamburger at ANY width (every screen) */
+                body #cpl-nav > .side:not(.right) { display: none; }
                 /* hamburger -> floating chip, top-left */
-                body.cpl-playing .cpl-burger {
+                body .cpl-burger {
                     display: flex; align-items: center; justify-content: center;
                     position: absolute; top: 4px; left: 4px; z-index: 972; pointer-events: auto;
                     width: 31px; height: 27px; padding: 0; font-size: 18px; line-height: 1;
@@ -167,27 +168,27 @@
                 /* the right group is now a passthrough; fullscreen + Log Out are placed individually so
                    they can sit in different corners. display:contents drops the wrapper box, so each
                    child positions against #cpl-nav (the fixed, full-width layer), not the old right box. */
-                body.cpl-playing #cpl-nav .side.right { display: contents; }
+                body #cpl-nav .side.right { display: contents; }
                 /* fullscreen -> TOP-LEFT. Narrow-safe default: stacked just under the hamburger, kept in
                    the left band column so it's always clear of the game's in-canvas star/mail (to its
                    right). On roomier phones the min-width rule below lifts it up BESIDE the hamburger. */
-                body.cpl-playing #cpl-fullscreen {
+                body #cpl-fullscreen {
                     position: absolute; top: 36px; left: 4px; z-index: 972; pointer-events: auto;
                     background: rgba(12, 64, 104, .62); border-radius: 8px; padding: 4px; height: 27px; box-sizing: border-box;
                 }
                 /* Log Out -> TOP-RIGHT. Narrow-safe default hugs the edge (a 667-class band can't fit the
                    pill plus the game's M badge); the min-width rule below insets it off the edge. */
-                body.cpl-playing #cpl-logout {
+                body #cpl-logout {
                     position: absolute; top: 4px; right: 4px; z-index: 972; pointer-events: auto;
                 }
                 /* the link dropdown opens under the hamburger, above the canvas */
-                body.cpl-playing #cpl-nav-toggle:checked ~ .side:not(.right) {
+                body #cpl-nav-toggle:checked ~ .side:not(.right) {
                     display: flex; flex-direction: column; align-items: flex-start; gap: 13px;
                     position: absolute; top: 42px; left: 8px; z-index: 973; pointer-events: auto;
                     min-width: 178px; background: #1f9fe0; border-radius: 10px;
                     box-shadow: 0 6px 16px rgba(0,0,0,.4); padding: 13px 17px;
                 }
-                body.cpl-playing #cpl-nav-toggle:checked ~ .side:not(.right) a.home {
+                body #cpl-nav-toggle:checked ~ .side:not(.right) a.home {
                     width: auto; height: auto; background: none; font-size: 16.5px;
                 }
             }
@@ -196,8 +197,8 @@
                so the three controls read balanced across the top (verified clear of the game's star/mail
                at ~x139 and M badge at ~x711 at this size). Below 700px the narrow-safe defaults apply. */
             @media (pointer: coarse) and (orientation: landscape) and (min-width: 700px) {
-                body.cpl-playing #cpl-fullscreen { top: 4px; left: 41px; }
-                body.cpl-playing #cpl-logout { right: 14px; }
+                body #cpl-fullscreen { top: 4px; left: 41px; }
+                body #cpl-logout { right: 14px; }
             }
 
             /* ---- Animated landing (front page) ---- */
