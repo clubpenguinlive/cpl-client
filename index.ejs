@@ -97,6 +97,10 @@
             #game-wrap:fullscreen {
                 width: 100vw; height: 100vh; max-width: none; max-height: none;
                 border: none; border-radius: 0; box-shadow: none; aspect-ratio: auto; background: #05112b;
+                /* inset by the device safe area so curved corners / notch / home indicator don't clip
+                   the canvas. env() is 0 on non-notched displays, so desktop fullscreen is unchanged. */
+                box-sizing: border-box;
+                padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
             }
 
             /* footer */
@@ -126,7 +130,11 @@
                 body { --nav-h: 34px; }
                 #cpl-nav { padding: 0 10px; }
                 #cpl-footer { display: none; }
-                #cpl-stage { padding: 0; }
+                /* On a homescreen/standalone launch (iOS "full-screen") the viewport runs edge-to-edge
+                   under the notch, rounded corners, and home indicator. Inset the stage by the safe area
+                   so the canvas + bottom toolbar aren't clipped. env() resolves to 0 in a normal browser
+                   tab (chrome already protects the edges), so in-browser play is unchanged. */
+                #cpl-stage { padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
                 #game-wrap { border-width: 2px; border-radius: 6px; box-shadow: none; }
             }
             /* mobile (touch): the nav bar is slim (34px), so the desktop-sized Log Out pill and
