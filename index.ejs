@@ -66,6 +66,9 @@
             .cpl-navbtn:hover { background: #0e5fa8; }
             #cpl-logout { background: #e6584d; border-color: rgba(255,255,255,.4); }
             #cpl-logout:hover { background: #c94539; }
+            /* Log Out only makes sense once you're in-world. Hide it on the start/login screens
+               (cpl-playing is added by WorldController on world join), so it doesn't show pre-login. */
+            body:not(.cpl-playing) #cpl-logout { display: none; }
             /* icon-only fullscreen toggle (inline SVG, inherits the nav white) */
             .cpl-iconbtn { background: none; border: none; cursor: pointer; padding: 4px; display: inline-flex; align-items: center; color: #fff; line-height: 0; }
             .cpl-iconbtn svg { width: 22px; height: 22px; display: block; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
@@ -280,6 +283,9 @@
             /* rotate-to-play prompt (touch devices held in portrait) */
             #cpl-rotate { display: none; }
             @media (pointer: coarse) and (orientation: portrait) {
+                /* match the rotate overlay's blue so the iOS home-indicator safe-area strip below it
+                   blends in instead of flashing the light page background. */
+                html, body { background: #1163ac; }
                 #cpl-nav, #cpl-stage, #cpl-footer, #cpl-landing { display: none !important; }
                 #cpl-rotate {
                     display: flex; position: fixed; inset: 0; z-index: 9999;
