@@ -135,10 +135,25 @@
                 #cpl-footer { display: none; }
                 /* On a homescreen/standalone launch (iOS "full-screen") the viewport runs edge-to-edge
                    under the notch, rounded corners, and home indicator. Inset the stage by the safe area
-                   so the canvas + bottom toolbar aren't clipped. env() resolves to 0 in a normal browser
-                   tab (chrome already protects the edges), so in-browser play is unchanged. */
-                #cpl-stage { padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px); }
-                #game-wrap { border-width: 2px; border-radius: 6px; box-shadow: none; }
+                   on the TOP and SIDES (notch / Dynamic Island / curved corners) so the canvas and its
+                   top-corner icons aren't clipped. The BOTTOM inset is deliberately NOT applied: the
+                   home-indicator clearance left a ~21px empty strip below the canvas in landscape and
+                   capped the game shorter than the screen, so let it fill to the bottom edge (the thin,
+                   auto-dimming home indicator just overlays that edge). env() is 0 in a normal browser
+                   tab, so in-browser play is unaffected. */
+                #cpl-stage { padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px); }
+                /* Let Phaser FIT own the sizing. The framed wrapper's explicit height:100% + the
+                   max-width cap together OVERRODE its aspect-ratio at landscape aspects narrower than
+                   the game's 1520:960 (tablets, split view, safe-area-trimmed phones): the wrapper
+                   stretched to the full viewport box, so FIT correctly letterboxed the game inside it
+                   and the wrapper's blue background showed as empty bands above/below the canvas. Make
+                   the wrapper span the full available area (no aspect override, no frame) so FIT scales
+                   the canvas to the largest undistorted size against the real screen height, with any
+                   letterbox falling on the page background instead of a blue frame band. */
+                #game-wrap {
+                    width: 100%; height: 100%; max-width: none; max-height: none;
+                    aspect-ratio: auto; border: none; border-radius: 0; box-shadow: none; background: transparent;
+                }
             }
             /* mobile (touch): the nav bar is slim (34px), so the desktop-sized Log Out pill and
                fullscreen icon overpower it (the pill renders TALLER than the bar). Scale the right-side
