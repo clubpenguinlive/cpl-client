@@ -32,10 +32,9 @@ const game = {
     scale: {
         width: width,
         height: height,
-        max: {
-            width: width,
-            height: height
-        },
+        // No `max` cap: let FIT scale the canvas UP past the native 1520x960 to fill larger displays
+        // (e.g. 1440p) rather than pinning it at native and leaving dead space. Aspect stays locked
+        // (FIT); the trade is mild softening of the raster art when upscaled beyond native.
         parent: 'game',
         mode: Phaser.Scale.FIT,
         autoRound: true,

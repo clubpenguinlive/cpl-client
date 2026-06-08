@@ -79,16 +79,16 @@
 
             /* framed game stage */
             #cpl-stage { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; padding: 10px; min-height: 0; }
-            /* Cap the wrapper at the game's NATIVE size (1520x960), not an arbitrary 1360 width. With the
-               old 1360 cap, on a wide desktop `height:100%` drove the aspect-derived width past 1360, the
-               cap clamped the width, and since height stayed at 100% the aspect-ratio was OVERRIDDEN — the
-               wrapper became a too-tall 1.40 box and FIT letterboxed the 1.58 game inside it, showing the
-               blue background as bands above/below. Capping HEIGHT at the native 960 keeps the
-               height-derived width at/under 1520 (= the width cap), so the aspect never breaks and the
-               canvas fills the wrapper. Beyond native the game holds at 1520x960 (crisp, no upscale) and
-               centers on the page background — never a blue frame band. */
+            /* Autofit: the framed game fills the full stage HEIGHT and scales UP past the native
+               1520x960 on larger monitors (e.g. 1440p) instead of being pinned small with dead space
+               around it. `height:100%` drives the size and `width:auto` follows the 1520:960 aspect; on a
+               widescreen window the aspect-derived width stays under 100%, so the aspect never breaks and
+               the canvas fills the wrapper edge to edge (no blue frame bands). The matching Phaser scale
+               `max` cap is removed (see data/game.js) so the canvas can scale beyond native too — the only
+               trade is mild softening of the raster art when upscaled. The left/right side bands are the
+               unavoidable aspect-ratio tax on widescreen windows. */
             #game-wrap {
-                aspect-ratio: 1520 / 960; height: 100%; width: auto; max-width: min(100%, 1520px); max-height: min(100%, 960px); margin: 0 auto;
+                aspect-ratio: 1520 / 960; height: 100%; width: auto; max-width: 100%; max-height: 100%; margin: 0 auto;
                 border: 8px solid #1a73b3; border-radius: 16px; background: #0e5fa8;
                 overflow: hidden; box-shadow: 0 8px 26px rgba(0,0,0,.32);
             }
