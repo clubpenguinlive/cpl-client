@@ -77,11 +77,23 @@ const game = {
             })
         },
         postBoot: (game) => {
+            const refit = () => game.scale.refresh()
             // Re-fit the canvas when the tab regains focus or moves to another screen (avoids scale/WebGL glitches)
             document.addEventListener('visibilitychange', () => {
                 if (!document.hidden) {
-                    game.scale.refresh()
+                    refit()
                 }
+            })
+            // Rotation refit. iOS reports stale viewport dimensions for a beat after orientationchange,
+            // so FIT scales against the old (smaller) size and the canvas comes back too small until a
+            // reload. visualViewport 'resize' fires once the new viewport has actually settled (the
+            // reliable signal on iOS); delayed refits after orientationchange back it up elsewhere.
+            if (window.visualViewport) {
+                window.visualViewport.addEventListener('resize', refit)
+            }
+            window.addEventListener('orientationchange', () => {
+                refit()
+                ;[120, 350, 700].forEach((d) => setTimeout(refit, d))
             })
         }
     }
