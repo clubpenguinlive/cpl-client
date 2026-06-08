@@ -133,15 +133,13 @@
                 body { --nav-h: 34px; }
                 #cpl-nav { padding: 0 10px; }
                 #cpl-footer { display: none; }
-                /* On a homescreen/standalone launch (iOS "full-screen") the viewport runs edge-to-edge
-                   under the notch, rounded corners, and home indicator. Inset the stage by the safe area
-                   on the TOP and SIDES (notch / Dynamic Island / curved corners) so the canvas and its
-                   top-corner icons aren't clipped. The BOTTOM inset is deliberately NOT applied: the
-                   home-indicator clearance left a ~21px empty strip below the canvas in landscape and
-                   capped the game shorter than the screen, so let it fill to the bottom edge. The
-                   clearance is restored only for a standalone full-screen launch (below), where the home
-                   indicator is really exposed. env() is 0 in a normal browser tab anyway. */
-                #cpl-stage { padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 0 env(safe-area-inset-left, 0px); }
+                /* Inset the stage by the safe area on the TOP and SIDES (notch / Dynamic Island / curved
+                   corners) so the canvas and its top-corner icons aren't clipped. For the BOTTOM, use a
+                   small fixed buffer rather than env(safe-area-inset-bottom): the full home-indicator inset
+                   (~21px) left an empty strip and capped the game short, while zero ran the game right under
+                   the indicator and read as tight. 8px splits the difference and is imperceptible in a
+                   normal browser tab. */
+                #cpl-stage { padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 8px env(safe-area-inset-left, 0px); }
                 /* Let Phaser FIT own the sizing. The framed wrapper's explicit height:100% + the
                    max-width cap together OVERRODE its aspect-ratio at landscape aspects narrower than
                    the game's 1520:960 (tablets, split view, safe-area-trimmed phones): the wrapper
@@ -154,16 +152,6 @@
                     width: 100%; height: 100%; max-width: none; max-height: none;
                     aspect-ratio: auto; border: none; border-radius: 0; box-shadow: none; background: transparent;
                 }
-            }
-            /* Full-screen launch (Added-to-Home-Screen / standalone, or the Fullscreen API): the home
-               indicator is really exposed, so restore its bottom clearance — otherwise the game runs
-               right under it and reads as "tight". A normal browser tab is NOT standalone, so it keeps
-               padding-bottom:0 from above and stays perfect. */
-            @media (pointer: coarse) and (orientation: landscape) and (display-mode: standalone) {
-                #cpl-stage { padding-bottom: env(safe-area-inset-bottom, 0px); }
-            }
-            @media (pointer: coarse) and (orientation: landscape) and (display-mode: fullscreen) {
-                #cpl-stage { padding-bottom: env(safe-area-inset-bottom, 0px); }
             }
             /* mobile (touch): the nav bar is slim (34px), so the desktop-sized Log Out pill and
                fullscreen icon overpower it (the pill renders TALLER than the bar). Scale the right-side
@@ -197,7 +185,7 @@
                 /* hamburger -> floating chip, top-left */
                 body .cpl-burger {
                     display: flex; align-items: center; justify-content: center;
-                    position: absolute; top: 4px; left: 4px; z-index: 972; pointer-events: auto;
+                    position: absolute; top: max(4px, env(safe-area-inset-top, 0px)); left: max(10px, env(safe-area-inset-left, 0px)); z-index: 972; pointer-events: auto;
                     width: 31px; height: 27px; padding: 0; font-size: 18px; line-height: 1;
                     color: #fff; background: rgba(12, 64, 104, .62); border-radius: 8px;
                 }
@@ -209,15 +197,15 @@
                    iPhone (requestFullscreen is a no-op), and "full screen" on mobile is Add to Home
                    Screen. Hide it so it's not a dead control. */
                 body #cpl-fullscreen { display: none; }
-                /* Log Out -> TOP-RIGHT. Narrow-safe default hugs the edge (a 667-class band can't fit the
-                   pill plus the game's M badge); the min-width rule below insets it off the edge. */
+                /* Log Out -> TOP-RIGHT, inset off the edge (and clear of the notch/curve via the safe
+                   area). The min-width rule below insets it a little further on roomier landscape phones. */
                 body #cpl-logout {
-                    position: absolute; top: 4px; right: 4px; z-index: 972; pointer-events: auto;
+                    position: absolute; top: max(4px, env(safe-area-inset-top, 0px)); right: max(10px, env(safe-area-inset-right, 0px)); z-index: 972; pointer-events: auto;
                 }
                 /* the link dropdown opens under the hamburger, above the canvas */
                 body #cpl-nav-toggle:checked ~ .side:not(.right) {
                     display: flex; flex-direction: column; align-items: flex-start; gap: 13px;
-                    position: absolute; top: 42px; left: 8px; z-index: 973; pointer-events: auto;
+                    position: absolute; top: 42px; left: max(10px, env(safe-area-inset-left, 0px)); z-index: 973; pointer-events: auto;
                     min-width: 178px; background: #1f9fe0; border-radius: 10px;
                     box-shadow: 0 6px 16px rgba(0,0,0,.4); padding: 13px 17px;
                 }
@@ -229,7 +217,7 @@
                the screen edge so the controls read balanced across the top. Below 700px the narrow-safe
                default applies. (Fullscreen button is hidden on touch, so it's not placed here.) */
             @media (pointer: coarse) and (orientation: landscape) and (min-width: 700px) {
-                body #cpl-logout { right: 14px; }
+                body #cpl-logout { right: max(18px, env(safe-area-inset-right, 0px)); }
             }
 
             /* ---- Animated landing (front page) ---- */
