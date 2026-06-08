@@ -49,16 +49,6 @@
         })
     }
 
-    // Mobile: re-fit the canvas after an orientation change. Phaser's ScaleManager refits on the
-    // window 'resize' event, and rotating between portrait/landscape changes which mobile layout
-    // applies (and the available height). orientationchange can briefly report stale viewport
-    // dimensions, so dispatch resize immediately and again after a short delay to force FIT to
-    // recompute against the settled screen size. (No-op on desktop, which never fires this.)
-    window.addEventListener('orientationchange', function () {
-        window.dispatchEvent(new Event('resize'))
-        setTimeout(function () { window.dispatchEvent(new Event('resize')) }, 250)
-    })
-
     // Log Out: forget the saved-penguin tokens (so we don't zero-click straight back in) and reload
     // to the START screen.
     var logoutBtn = document.getElementById('cpl-logout')
