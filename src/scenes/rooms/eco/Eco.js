@@ -716,6 +716,11 @@ export default class Eco extends RoomScene {
         this.junkPlaying = true
         this.polishedCounter = 0
         this.thrownItems = 0
+
+        // Server-validated recycle reward feedback; cleaned up when leaving the room.
+        this.onRecycleRewardBound = (args) => this.onRecycleReward(args)
+        this.network.events.on('recycle_reward', this.onRecycleRewardBound)
+        this.events.once('shutdown', () => this.network.events.off('recycle_reward', this.onRecycleRewardBound))
     }
 
     playJunkpile() {
@@ -799,11 +804,26 @@ export default class Eco extends RoomScene {
     }
 
     onSnowballComplete(x, y, ball) {
-        // Recycle-for-coins/stamp mechanic STUBBED (reserved economy decision). Snowballs still turn
-        // into eco items visually, but never drive the machine (no junk processing, no stamp, no
-        // polished-product videos). Re-enable in a supervised economy session.
         ball.setTexture("eco-snowball", `${ball.ecoVariant}0001`)
         ball.stop()
+
+        // Recycle-for-coins: each landed eco-item feeds the machine (visual) and earns a small reward.
+        // The payout is server-validated and hard-capped per session (Economy.recycle), so it can't
+        // out-earn the minigames or be minted by a hacked client.
+        this.playJunkpileIfPossible()
+        this.network.send('recycle', {})
+    }
+
+    onRecycleReward(args) {
+        // Reflect the awarded coins in the HUD (the server uses updateCoins, which doesn't auto-push).
+        this.world.client.coins = args.total
+        this.world.interface.refreshPlayerCard()
+
+        // Floating "+N" over the machine.
+        const t = this.add.text(660, 360, '+' + args.coins, {
+            fontFamily: 'Burbank Small', fontSize: '30px', color: '#ffce3d', stroke: '#5a3a12', strokeThickness: 5
+        }).setOrigin(0.5).setDepth(10000)
+        this.tweens.add({ targets: t, y: 300, alpha: 0, duration: 1100, onComplete: () => t.destroy() })
     }
 
     earnStamp() {
