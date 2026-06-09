@@ -90,6 +90,26 @@ let config = {
 
 module.exports = (env, argv) => {
     if (argv.mode !== 'production') {
+        // Dev server: serve the real CPL page (index.ejs) and the bundle at the SAME asset paths the
+        // prod template references, so `npm run dev` previews exactly what ships (not the stale base
+        // index.html). Generated files (index.html, bundle) are served from memory (writeToDisk:false)
+        // so the repo isn't polluted; the source assets/ (media, fonts, lib scripts) come from
+        // devServer.static (repo root). World sockets proxy to a local backend (see devServer.proxy);
+        // with no local server they simply won't connect, which is fine for frontend/layout work.
+        config.output = {
+            filename: 'assets/scripts/client/[name].bundle.min.js',
+            chunkFilename: 'assets/scripts/client/[id].bundle.min.js',
+            path: path.resolve(__dirname, 'dist'),
+        }
+        config.devServer.devMiddleware.writeToDisk = false
+        config.plugins.push(
+            new HtmlWebpackPlugin({
+                filename: 'index.html',
+                inject: false,
+                template: 'index.ejs',
+                templateParameters: { timestamp: timestamp }
+            })
+        )
         return config
     }
 
