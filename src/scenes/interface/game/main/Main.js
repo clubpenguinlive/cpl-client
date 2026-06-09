@@ -463,8 +463,12 @@ export default class Main extends BaseScene {
         this.input.keyboard.on('keydown-M', () => this.onMapKey())
         this.input.keyboard.on('keydown-P', () => this.onPlayerCardKey())
         this.input.keyboard.on('keydown-K', () => this.onSkillsKey())
+        this.input.keyboard.on('keydown-J', () => this.onChallengesKey())
 
-        // Skills button in the toolbar - tappable for mobile (K is the desktop shortcut).
+        // Skills (K) + Daily Challenges (J) openers, top-left. Tappable for mobile too.
+        const challengesIcon = this.addChallengesIcon(76, 165)
+        challengesIcon.setInteractive({ useHandCursor: true })
+        challengesIcon.on('pointerdown', () => this.onChallengesKey())
     }
 
     onMapKey() {
@@ -516,6 +520,41 @@ export default class Main extends BaseScene {
         } else {
             this.interface.loadWidget('SkillsWidget')
         }
+    }
+
+    onChallengesKey() {
+        // J toggles the Daily Challenges panel
+        const widgets = this.interface.widgets
+        if (widgets.keyActive('ChallengesPanel')) {
+            const w = widgets.getWidget('ChallengesPanel')
+            if (w && w.onClose) w.onClose()
+        } else {
+            this.interface.loadWidget('ChallengesPanel')
+        }
+    }
+
+    // Top-left opener: blue medallion with a gold check (sibling to the Skills star).
+    addChallengesIcon(x, y) {
+        const key = 'cpl-challenges-btn'
+        if (!this.textures.exists(key)) {
+            const g = this.make.graphics({ add: false })
+            const cx = 45, cy = 42, r = 36
+            g.fillStyle(0x0e406f, 1).fillCircle(cx, cy + 3, r)
+            g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, r)
+            g.fillStyle(0x3f93d4, 0.5).fillEllipse(cx, cy - 12, r * 1.5, r)
+            g.lineStyle(5, 0xffffff, 1).strokeCircle(cx, cy, r)
+            g.lineStyle(9, 0xffce3d, 1)
+            g.beginPath()
+            g.moveTo(cx - 17, cy + 1)
+            g.lineTo(cx - 5, cy + 15)
+            g.lineTo(cx + 18, cy - 16)
+            g.strokePath()
+            g.generateTexture(key, 90, 84)
+            g.destroy()
+        }
+        const icon = this.add.image(x, y, key)
+        icon.setDepth(2)
+        return icon
     }
 
     onPlayerCardKey() {
