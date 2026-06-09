@@ -15,7 +15,8 @@ const SKILLS = [
     { key: 'cooking',    label: 'Cooking',    color: 0xe07a2a, effect: 'Faster service',  res: null },
     { key: 'hauling',    label: 'Hauling',    color: 0x49c25e, effect: 'Stronger arms',   res: 'cargo' },
     { key: 'performing', label: 'Performing', color: 0x9a5cc0, effect: 'Bigger crowds',   res: null },
-    { key: 'agent',      label: 'Agent',      color: 0x444b55, effect: 'Sharper senses',  res: null }
+    { key: 'agent',      label: 'Agent',      color: 0x444b55, effect: 'Sharper senses',  res: null },
+    { key: 'sledding',   label: 'Sledding',   color: 0xd84b3a, effect: 'Faster runs',     res: null }
 ]
 
 const C = {
@@ -26,7 +27,8 @@ const C = {
 }
 
 const PAGE_L = 274, PAGE_R = 1246
-const ROW_Y0 = 296, ROW_H = 64
+// ROW_H tightened from 64 -> 58 so all 8 skills fit above the trade-in counter (y=762).
+const ROW_Y0 = 296, ROW_H = 58
 const CARD_X = 300, CARD_W = 920
 const NAME_X = CARD_X + 54
 const LV_X = CARD_X + 250
