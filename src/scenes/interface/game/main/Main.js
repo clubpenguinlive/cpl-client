@@ -7,6 +7,7 @@ import ShowHint from "../../../components/ShowHint";
 import ChatLog from "../chatlog/ChatLog";
 import SimpleButton from "../../../components/SimpleButton";
 import MailButton from "./buttons/mail/MailButton";
+import StampPopup from "../stamps/StampPopup";
 import Phone from "../phone/Phone";
 import Waddle from "../waddle/Waddle";
 import Buddy from "../buddy/Buddy";
@@ -465,10 +466,19 @@ export default class Main extends BaseScene {
         this.input.keyboard.on('keydown-K', () => this.onSkillsKey())
         this.input.keyboard.on('keydown-J', () => this.onChallengesKey())
 
-        // Skills (K) + Daily Challenges (J) openers, top-left. Tappable for mobile too.
+        // Skills (K) + Daily Challenges (J) + Stamp Book (B) openers, top-left. Tappable for mobile too.
         const challengesIcon = this.addChallengesIcon(76, 165)
         challengesIcon.setInteractive({ useHandCursor: true })
         challengesIcon.on('pointerdown', () => this.onChallengesKey())
+
+        this.input.keyboard.on('keydown-B', () => this.onStampsKey())
+        const stampIcon = this.addStampIcon(76, 260)
+        stampIcon.setInteractive({ useHandCursor: true })
+        stampIcon.on('pointerdown', () => this.onStampsKey())
+
+        // Stamp-earned notifications, persistent while in-world.
+        this.stampPopup = new StampPopup(this)
+        this.add.existing(this.stampPopup)
     }
 
     onMapKey() {
@@ -549,6 +559,37 @@ export default class Main extends BaseScene {
             g.lineTo(cx - 5, cy + 15)
             g.lineTo(cx + 18, cy - 16)
             g.strokePath()
+            g.generateTexture(key, 90, 84)
+            g.destroy()
+        }
+        const icon = this.add.image(x, y, key)
+        icon.setDepth(2)
+        return icon
+    }
+
+    onStampsKey() {
+        // B toggles the Stamp Book
+        const widgets = this.interface.widgets
+        if (widgets.keyActive('StampBook')) {
+            const w = widgets.getWidget('StampBook')
+            if (w && w.onClose) w.onClose()
+        } else {
+            this.interface.loadWidget('StampBook')
+        }
+    }
+
+    // Top-left opener: blue medallion with a gold postage-stamp.
+    addStampIcon(x, y) {
+        const key = 'cpl-stamp-btn'
+        if (!this.textures.exists(key)) {
+            const g = this.make.graphics({ add: false })
+            const cx = 45, cy = 42, r = 36
+            g.fillStyle(0x0e406f, 1).fillCircle(cx, cy + 3, r)
+            g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, r)
+            g.fillStyle(0x3f93d4, 0.5).fillEllipse(cx, cy - 12, r * 1.5, r)
+            g.lineStyle(5, 0xffffff, 1).strokeCircle(cx, cy, r)
+            g.fillStyle(0xffce3d, 1).fillRoundedRect(cx - 16, cy - 16, 32, 32, 5)
+            g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, 8)
             g.generateTexture(key, 90, 84)
             g.destroy()
         }
