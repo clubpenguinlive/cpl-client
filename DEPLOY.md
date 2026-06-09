@@ -22,7 +22,17 @@ edit + commit + push   →   deploy to prod   →   rebuild   →   verify
 
 ## One-time setup (already done)
 
-- dev-01 has a `prod` git remote: `nick@10.0.0.72:/opt/yukon/client`
+- **`cpl-prod` is the single source for the prod address**, a Host alias in `~/.ssh/config` on
+  dev-01 (`HostName 10.0.0.72`, `User nick`). The deploy script, git remote, and these docs all
+  reference the alias; if prod's IP or user ever changes, edit only the ssh config. On a fresh
+  machine, recreate it:
+  ```
+  Host cpl-prod
+      HostName 10.0.0.72
+      User nick
+      IdentityFile ~/.ssh/id_ed25519
+  ```
+- dev-01 has a `prod` git remote: `cpl-prod:/opt/yukon/client`
 - prod has `git config receive.denyCurrentBranch updateInstead`
 - prod's GitHub (`cpl`) push URL is disabled (prod cannot push to GitHub)
 
@@ -32,7 +42,7 @@ The DB credentials live in `db-config.php`, which is **gitignored and never ship
 git push**. On a fresh target you must create it once, in BOTH php dirs, from the example:
 
 ```bash
-ssh nick@10.0.0.72
+ssh cpl-prod
 for d in account create; do
   cp /opt/yukon/client/$d/scripts/php/db-config.example.php \
      /opt/yukon/client/$d/scripts/php/db-config.php
@@ -57,7 +67,7 @@ which is just:
 ```bash
 git push origin main        # publish to GitHub (source of truth)
 git push prod   main        # ship to prod working tree (rejected if prod is dirty)
-ssh nick@10.0.0.72 'bash /opt/yukon/recover_rebuild.sh'   # rebuild dist on prod
+ssh cpl-prod 'bash /opt/yukon/recover_rebuild.sh'   # rebuild dist on prod
 ```
 
 `recover_rebuild.sh` runs `npm run build` and re-links the piefruit asset/font dirs, branding, and
@@ -76,6 +86,6 @@ node <repo>/.local-scratch/verify_game.js   # from dev-01, expect RESULT: PASS
 
 ```bash
 git push prod <previous-good-sha>:main --force-with-lease
-ssh nick@10.0.0.72 'bash /opt/yukon/recover_rebuild.sh'
+ssh cpl-prod 'bash /opt/yukon/recover_rebuild.sh'
 ```
 (then reconcile `main` on GitHub to the same commit).
