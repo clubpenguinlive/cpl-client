@@ -372,6 +372,13 @@ export default class Stage extends RoomScene {
         const scriptbtnButton = new Button(scriptbtn);
         scriptbtnButton.spriteName = "scriptbtn";
 
+        // The costume + script buttons belong to a play-rotation feature that doesn't exist yet (only
+        // the canonical Squidzoid play ships), so they have no callback and would read as dead controls.
+        // Hide them and strip the interactivity the Button components added, until a second play wires
+        // them up. (disableInteractive() undoes the setInteractive() from `new Button(...)` above.)
+        costumebtn.setVisible(false).disableInteractive();
+        scriptbtn.setVisible(false).disableInteractive();
+
         // fan0001 (components)
         const fan0001Animation = new Animation(fan0001);
         fan0001Animation.key = "fan";
