@@ -133,3 +133,7 @@ db-config.php
 
 # verify-game skill screenshot output
 verify_game.png
+
+# container build-staged artifacts (placed into the build context by deploy.sh, not source)
+minigames/
+deploy/nginx.conf
