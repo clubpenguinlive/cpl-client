@@ -1,0 +1,32 @@
+# cpl-web: nginx + the built client, layered on cpl-assets-base (which carries piefruit media/fonts).
+# Build context = the client-clubpenguinlive repo with two things staged in by deploy.sh:
+#   - minigames/        (not tracked here; lives at /opt/yukon/minigames on prod)
+#   - deploy/nginx.conf  (canonical copy lives in server-clubpenguinlive/deploy/)
+ARG ASSETS_BASE=ghcr.io/clubpenguinlive/cpl-assets-base:stable
+
+FROM node:24-bookworm-slim AS build
+WORKDIR /app
+COPY package*.json ./
+RUN npm ci
+COPY . .
+# production build -> dist/ : index.html + assets/scripts/client/*.min.js (webpack `clean:true` wipes dist)
+RUN NODE_OPTIONS=--max-old-space-size=2048 npm run build
+
+FROM ${ASSETS_BASE} AS web
+WORKDIR /usr/share/nginx/html
+# cpl-assets-base already provides ./assets/media and ./assets/fonts. Lay the built client + the
+# static trees that recover_rebuild.sh assembles on prod:
+COPY --from=build /app/dist/index.html ./index.html
+COPY --from=build /app/dist/assets/scripts/client ./assets/scripts/client
+COPY assets/styles ./assets/styles
+COPY assets/scripts/lib ./assets/scripts/lib
+COPY create ./create
+COPY account ./account
+COPY pages ./pages
+COPY minigames ./minigames
+COPY branding/favicon.ico ./favicon.ico
+COPY branding/manifest.json ./manifest.json
+COPY branding/sw.js ./sw.js
+COPY branding/icons ./icons
+COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
+EXPOSE 80
