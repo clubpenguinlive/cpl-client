@@ -465,12 +465,12 @@ export default class Main extends BaseScene {
         this.input.keyboard.on('keydown-J', () => this.onChallengesKey())
 
         // Skills (K) + Daily Challenges (J) + Stamp Book (B) openers, top-left. Tappable for mobile too.
-        const challengesIcon = this.addChallengesIcon(172, 58)
+        const challengesIcon = this.addChallengesIcon(172, 70)
         challengesIcon.setInteractive({ useHandCursor: true })
         challengesIcon.on('pointerdown', () => this.onChallengesKey())
 
         this.input.keyboard.on('keydown-B', () => this.onStampsKey())
-        const stampIcon = this.addStampIcon(268, 58)
+        const stampIcon = this.addStampIcon(268, 70)
         stampIcon.setInteractive({ useHandCursor: true })
         stampIcon.on('pointerdown', () => this.onStampsKey())
 
