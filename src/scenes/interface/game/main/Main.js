@@ -183,7 +183,7 @@ export default class Main extends BaseScene {
         request_button.visible = false;
 
         // mailButton
-        const mailButton = new MailButton(this, 76, 58);
+        const mailButton = new MailButton(this, 76, 70);
         this.add.existing(mailButton);
 
         // news_button
@@ -586,8 +586,8 @@ export default class Main extends BaseScene {
             g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, r)
             g.fillStyle(0x3f93d4, 0.5).fillEllipse(cx, cy - 12, r * 1.5, r)
             g.lineStyle(5, 0xffffff, 1).strokeCircle(cx, cy, r)
-            g.fillStyle(0xffce3d, 1).fillRoundedRect(cx - 16, cy - 16, 32, 32, 5)
-            g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, 8)
+            g.fillStyle(0xffce3d, 1).fillRoundedRect(cx - 20, cy - 20, 40, 40, 6)
+            g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, 10)
             g.generateTexture(key, 90, 84)
             g.destroy()
         }

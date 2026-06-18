@@ -17,6 +17,7 @@ export default class MailButton extends BaseContainer {
 
         // button
         const button = scene.add.image(0, 0, "main", "mail-button");
+        button.setDisplaySize(90, 84);
         this.add(button);
 
         // notification
