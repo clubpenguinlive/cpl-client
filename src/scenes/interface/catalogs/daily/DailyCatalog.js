@@ -33,6 +33,9 @@ export default class DailyCatalog extends BaseContainer {
         this.page = 0
         this.todayItems = []
         this.classics = []
+        this.secrets = []
+        this.revealedSecrets = new Set()
+        this.secretsKey = ''
         this.countdown = 0
         this.bboxCache = {}
         this.onDataBound = (args) => this.onData(args)
@@ -64,7 +67,7 @@ export default class DailyCatalog extends BaseContainer {
         closeHit.on('pointerdown', () => this.onClose())
         this.add(closeHit)
 
-        this.todayTab = this.makeTab(600, 240, 'This Week')
+        this.todayTab = this.makeTab(600, 240, 'This Month')
         this.todayTab.bg.on('pointerdown', () => this.setTab('today'))
         this.classicsTab = this.makeTab(900, 240, 'Classics')
         this.classicsTab.bg.on('pointerdown', () => this.setTab('classics'))
@@ -128,16 +131,31 @@ export default class DailyCatalog extends BaseContainer {
     onData(args) {
         this.todayItems = args.items || []
         this.classics = args.classics || []
+        this.secrets = args.secrets || []
         this.countdown = args.secondsUntilNext || 0
-        this.dateText.setText('New styles every Monday' + (args.week ? '   ·   week ' + args.week : ''))
+
+        const month = args.month || (new Date().getUTCMonth() + 1)
+        const year = args.year || new Date().getUTCFullYear()
+        const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+        this.dateText.setText(MONTHS[month - 1] + ' ' + year)
+
+        const key = 'cpl_catalog_secrets_' + year + '_' + month
+        this.secretsKey = key
+        try {
+            this.revealedSecrets = new Set(JSON.parse(localStorage.getItem(key) || '[]'))
+        } catch (e) {
+            this.revealedSecrets = new Set()
+        }
+
         this.setTab('today')
         this.loadThumbsAndRender()
     }
 
-    activeIds() { return this.tab === 'today' ? this.todayItems : this.classics }
+    activeIds() { return this.tab === 'today' ? [...this.todayItems, ...this.secrets] : this.classics }
 
     loadThumbsAndRender() {
-        const ids = [...new Set([...this.todayItems, ...this.classics])]
+        const revealed = [...this.revealedSecrets]
+        const ids = [...new Set([...this.todayItems, ...this.classics, ...revealed])]
         const toLoad = ids.filter(id => !this.scene.textures.exists('dc' + id))
         if (toLoad.length === 0) { this.renderGrid(); return }
         toLoad.forEach(id => this.scene.load.image('dc' + id, THUMB_PATH + id + '.png'))
@@ -157,13 +175,40 @@ export default class DailyCatalog extends BaseContainer {
         ids.forEach((id, i) => {
             const x = GRID_X + (i % COLS) * CELL_W
             const y = GRID_Y + Math.floor(i / COLS) * CELL_H
-            const item = items[id] || {}
             const cx = x - CELL_W / 2 + 10, cy = y - CELL_H / 2 + 8, cw = CELL_W - 20, ch = CELL_H - 16
 
+            const isSecret = this.secrets.includes(id)
+            const revealed = this.revealedSecrets.has(id)
+
+            if (isSecret && !revealed) {
+                const card = this.scene.add.graphics()
+                const paintM = (hover) => {
+                    card.clear()
+                    card.fillStyle(hover ? 0xfce58c : 0xfff0a0, 1).fillRoundedRect(cx, cy, cw, ch, 12)
+                    card.lineStyle(hover ? 3 : 2, hover ? 0xd4a017 : 0xe8c33a, 1).strokeRoundedRect(cx, cy, cw, ch, 12)
+                }
+                paintM(false)
+                this.grid.add(card)
+                this.grid.add(this.scene.add.text(x, y - 18, '⭐', { fontSize: '32px' }).setOrigin(0.5))
+                this.grid.add(this.scene.add.text(x, y + CELL_H / 2 - 34, '???', { fontFamily: FONT, fontSize: '14px', color: C.blueText }).setOrigin(0.5))
+                this.grid.add(this.scene.add.text(x, y + CELL_H / 2 - 16, 'Secret item!', { fontFamily: FONT, fontSize: '13px', color: C.brown, stroke: '#ffffff', strokeThickness: 3 }).setOrigin(0.5))
+                const hitM = this.scene.add.rectangle(x, y, cw, ch, 0xffffff, 0).setInteractive({ useHandCursor: true })
+                hitM.on('pointerover', () => paintM(true))
+                hitM.on('pointerout', () => paintM(false))
+                hitM.on('pointerdown', () => this.revealSecret(id))
+                this.grid.add(hitM)
+                return
+            }
+
+            const item = items[id] || {}
             const card = this.scene.add.graphics()
             const paint = (hover) => { card.clear(); card.fillStyle(hover ? C.cardHover : C.card, 1).fillRoundedRect(cx, cy, cw, ch, 12); card.lineStyle(hover ? 3 : 2, hover ? 0xf5a800 : C.cardLine, 1).strokeRoundedRect(cx, cy, cw, ch, 12) }
             paint(false)
             this.grid.add(card)
+
+            if (isSecret) {
+                this.grid.add(this.scene.add.text(cx + 4, cy + 4, '⭐', { fontSize: '11px' }).setOrigin(0))
+            }
 
             if (this.scene.textures.exists('dc' + id)) {
                 const tex = this.scene.textures.get('dc' + id)
@@ -172,7 +217,6 @@ export default class DailyCatalog extends BaseContainer {
                     tex.add('trim', 0, bb.x, bb.y, bb.w, bb.h)
                 }
                 const thumb = this.scene.add.image(x, y - 16, 'dc' + id, 'trim')
-                // contain the trimmed item in ~78% of the cell so a pin and a coat both read well
                 const scale = Math.min((CELL_W * 0.74) / thumb.width, (CELL_H - 64) / thumb.height, 1.9)
                 thumb.setScale(scale)
                 this.grid.add(thumb)
@@ -192,6 +236,15 @@ export default class DailyCatalog extends BaseContainer {
         this.pageText.setText('Page ' + (this.page + 1) + ' / ' + pages)
         this.prevArrow.draw(this.page > 0)
         this.nextArrow.draw(this.page < pages - 1)
+    }
+
+    revealSecret(id) {
+        this.revealedSecrets.add(id)
+        try { localStorage.setItem(this.secretsKey, JSON.stringify([...this.revealedSecrets])) } catch (e) {}
+        if (this.scene.textures.exists('dc' + id)) { this.renderGrid(); return }
+        this.scene.load.image('dc' + id, THUMB_PATH + id + '.png')
+        this.scene.load.once('complete', () => this.renderGrid())
+        this.scene.load.start()
     }
 
     // Alpha bounding box of a loaded 600x600 doll sprite, so we can crop away the transparent
