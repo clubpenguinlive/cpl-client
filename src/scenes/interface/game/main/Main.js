@@ -464,7 +464,7 @@ export default class Main extends BaseScene {
         this.input.keyboard.on('keydown-K', () => this.onSkillsKey())
         this.input.keyboard.on('keydown-J', () => this.onChallengesKey())
 
-        // Skills (K) + Daily Challenges (J) + Stamp Book (B) openers, top-left. Tappable for mobile too.
+        // Skills (K) + Daily Challenges (J) + Stamp Book (B) + Leaderboard (L) openers, top-left.
         const challengesIcon = this.addChallengesIcon(172, 70)
         challengesIcon.setInteractive({ useHandCursor: true })
         challengesIcon.on('pointerdown', () => this.onChallengesKey())
@@ -473,6 +473,11 @@ export default class Main extends BaseScene {
         const stampIcon = this.addStampIcon(268, 70)
         stampIcon.setInteractive({ useHandCursor: true })
         stampIcon.on('pointerdown', () => this.onStampsKey())
+
+        this.input.keyboard.on('keydown-L', () => this.onLeaderboardKey())
+        const leaderboardIcon = this.addLeaderboardIcon(364, 70)
+        leaderboardIcon.setInteractive({ useHandCursor: true })
+        leaderboardIcon.on('pointerdown', () => this.onLeaderboardKey())
 
         // Stamp-earned notifications, persistent while in-world.
         this.stampPopup = new StampPopup(this)
@@ -588,6 +593,43 @@ export default class Main extends BaseScene {
             g.lineStyle(5, 0xffffff, 1).strokeCircle(cx, cy, r)
             g.fillStyle(0xffce3d, 1).fillRoundedRect(cx - 20, cy - 20, 40, 40, 6)
             g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, 10)
+            g.generateTexture(key, 90, 84)
+            g.destroy()
+        }
+        const icon = this.add.image(x, y, key)
+        icon.setDepth(2)
+        return icon
+    }
+
+    onLeaderboardKey() {
+        const widgets = this.interface.widgets
+        if (widgets.keyActive('LeaderboardPanel')) {
+            const w = widgets.getWidget('LeaderboardPanel')
+            if (w && w.onClose) w.onClose()
+        } else {
+            this.interface.loadWidget('LeaderboardPanel')
+        }
+    }
+
+    // Top-left opener: blue medallion with a gold trophy.
+    addLeaderboardIcon(x, y) {
+        const key = 'cpl-leaderboard-btn'
+        if (!this.textures.exists(key)) {
+            const g = this.make.graphics({ add: false })
+            const cx = 45, cy = 42, r = 36
+            g.fillStyle(0x0e406f, 1).fillCircle(cx, cy + 3, r)
+            g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, r)
+            g.fillStyle(0x3f93d4, 0.5).fillEllipse(cx, cy - 12, r * 1.5, r)
+            g.lineStyle(5, 0xffffff, 1).strokeCircle(cx, cy, r)
+            // Trophy cup
+            g.fillStyle(0xffce3d, 1)
+            g.fillRect(cx - 11, cy - 16, 22, 18)
+            g.fillTriangle(cx - 11, cy + 2, cx + 11, cy + 2, cx, cy + 14)
+            g.fillRect(cx - 7, cy + 12, 14, 5)
+            g.fillRect(cx - 10, cy + 16, 20, 4)
+            g.fillStyle(0x5a3a12, 1)
+            g.fillRect(cx - 14, cy - 18, 3, 8)
+            g.fillRect(cx + 11, cy - 18, 3, 8)
             g.generateTexture(key, 90, 84)
             g.destroy()
         }
