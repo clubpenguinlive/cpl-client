@@ -211,7 +211,7 @@ export default class Sport extends RoomScene {
     }
 
     onCatalogClick() {
-
+        this.interface.loadWidget('SportCatalog')
     }
 
     triggerAgent() {
