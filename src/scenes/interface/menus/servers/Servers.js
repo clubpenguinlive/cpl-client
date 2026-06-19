@@ -40,15 +40,6 @@ export default class Servers extends BaseScene {
         // bar_full_small
         this.add.image(620, 908, "servers", "bar_full_small");
 
-        // text
-        const text = this.add.text(277, 908, "", {});
-        text.setOrigin(0, 0.5);
-        text.text = "Buddies online";
-        text.setStyle({ "fixedWidth":200,"fontFamily": "Arial Narrow", "fontSize": "28px" });
-
-        // online_small
-        this.add.image(252, 908, "servers", "online_small");
-
         // more
         const more = this.add.image(1300, 630, "servers", "more");
         more.setOrigin(0.5, 0.5027322404371585);

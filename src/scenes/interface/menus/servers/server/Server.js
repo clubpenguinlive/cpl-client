@@ -97,6 +97,7 @@ export default class Server extends BaseContainer {
         /* START-USER-CTR-CODE */
 
         this.button = serverButton
+        buddy.visible = false
 
         /* END-USER-CTR-CODE */
     }
