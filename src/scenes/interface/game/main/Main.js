@@ -248,15 +248,9 @@ export default class Main extends BaseScene {
         this.add.existing(settings);
         settings.visible = false;
 
-        // mail
-        const mail = new Mail(this);
-        this.add.existing(mail);
-        mail.visible = false;
-
-        // mailbook
-        const mailbook = new Mailbook(this);
-        this.add.existing(mailbook);
-        mailbook.visible = false;
+        // mail + mailbook are lazy-loaded on first open (see openMail())
+        const mail = null
+        const mailbook = null
 
         // lists
         const hideOnSleep = [settings, moderator, playerCard, petCard, buddy, waddle, phone];
@@ -420,7 +414,12 @@ export default class Main extends BaseScene {
 
         this.setupWidgets()
 
-        // Mail
+        // Mail: override the MailButton callback to lazy-init on first open.
+        // The mail + mailbook atlases are NOT in preload-pack (deferred to first use).
+        const mailBtnImg = this.mailButton.list[0]
+        if (mailBtnImg && mailBtnImg.__Button) {
+            mailBtnImg.__Button.callback = () => this.openMail()
+        }
 
         this.updateMailCount()
 
@@ -646,6 +645,22 @@ export default class Main extends BaseScene {
         } else {
             this.playerCard.show(id, this.world.client.username)
         }
+    }
+
+    openMail(cb) {
+        const done = cb || (() => this.mail.show())
+        if (this.mail) {
+            done()
+            return
+        }
+        const loader = this.interface.widgets.packLoader
+        loader.loadPack('mail-pack', 'assets/media/interface/game/mail/mail-pack.json', () => {
+            this.mail = new Mail(this)
+            this.add.existing(this.mail)
+            this.mailbook = new Mailbook(this)
+            this.add.existing(this.mailbook)
+            done()
+        })
     }
 
     onEscapeKey() {
