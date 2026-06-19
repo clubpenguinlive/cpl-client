@@ -346,12 +346,10 @@ export default class Main extends BaseScene {
         request_buttonButton.callback = () => this.onRequestClick();
         request_buttonButton.activeFrame = false;
 
-        // news_button: the standalone Skills panel was de-emphasised in favour of the daily-challenge
-        // and stamp retention loop, so the gold-star Skills toolbar button is hidden. The underlying
-        // skill/resource economy (which challenges and stamps run on) is untouched, and the panel
-        // (with its resource sell trade-in) stays reachable via the K shortcut as a stopgap until the
-        // trade-in is relocated to a shop/NPC. To restore the button, re-add the Button wiring + the
-        // addSkillsIcon(76, 70) call below.
+        // Skills toolbar button hidden: the standalone Skills panel is de-emphasised in favour of
+        // challenges and stamps. The resource sell trade-in moved to the Sport Shop catalog (Trade-In
+        // tab). The K shortcut and SkillsWidget remain for devs. To restore the button, re-add the
+        // Button wiring + addSkillsIcon(76, 70) call below.
         news_button.setVisible(false).disableInteractive();
 
         // mod_button (components)
