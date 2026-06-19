@@ -250,7 +250,12 @@ export default class Buttons extends BaseContainer {
     }
 
     onMailClick() {
-        this.interface.main.mailbook.showPostcards(this.parentContainer.id, this.username)
+        const main = this.interface.main
+        if (main.mailbook) {
+            main.mailbook.showPostcards(this.parentContainer.id, this.username)
+        } else {
+            main.openMail(() => main.mailbook.showPostcards(this.parentContainer.id, this.username))
+        }
     }
 
     onIgnoreClick() {

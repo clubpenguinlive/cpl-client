@@ -42,7 +42,7 @@ export default class GoToButton extends BaseImage {
             }
         }
 
-       this.interface.main.mail.close()
+       this.interface.main.mail?.close()
     }
 
     /* END-USER-CODE */

@@ -262,6 +262,10 @@ export default class IglooEdit extends BaseScene {
 
     /* START-USER-CODE */
 
+    preload() {
+        this.load.multiatlas('iglooedit', 'assets/media/interface/game/iglooedit/iglooedit.json', 'assets/media/interface/game/iglooedit/')
+    }
+
     create() {
         this._create()
 
