@@ -86,7 +86,7 @@ export default class DailyCatalog extends BaseContainer {
 
         this.updateCoins()
         this.network.events.on('daily_catalog', this.onDataBound)
-        this.network.send('get_daily_catalog', {})
+        this.network.send('get_daily_catalog', this.getShopArgs())
         this.tick = scene.time.addEvent({ delay: 1000, loop: true, callback: () => this.updateCountdown() })
     }
 
@@ -280,6 +280,8 @@ export default class DailyCatalog extends BaseContainer {
         this.bboxCache[key] = bb
         return bb
     }
+
+    getShopArgs() { return {} }
 
     onBuy(id) { this.interface.prompt.showItem(id) }
 
