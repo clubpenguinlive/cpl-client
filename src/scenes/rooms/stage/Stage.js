@@ -463,12 +463,14 @@ export default class Stage extends RoomScene {
         } else if(!this.skyline.anims?.currentFrame?.index) {
             this.skyline.play('skyline')
         }
+        this.network.send('perform_act', {})
     }
     switchboxTwo(){
         if(this.carPlaying) return
         this.car.__Animation.play()
         this.monsterArms.play('monsterarms-smack')
         this.carPlaying = true
+        this.network.send('perform_act', {})
     }
     switchboxThree(){
         if(this.monsterMouthPlaying) {
@@ -479,27 +481,33 @@ export default class Stage extends RoomScene {
         }
         this.monsterMouth.__Animation.play()
         this.monsterMouthPlaying = true
+        this.network.send('perform_act', {})
     }
     switchboxFour(){
         if(this.monsterFullPlaying) return
         this.monsterWings.__Animation.play()
         this.monsterFullPlaying = true
         if(!this.carPlaying) this.monsterArms.play('monsterarms-full')
+        this.network.send('perform_act', {})
     }
     switchboxFive(){
         this.monsterArms.play('monsterarms-once')
+        this.network.send('perform_act', {})
     }
     switchboxSix(){
         this.soundManager.play('squidzoid-beam')
         this.shadowBeam.__Animation.play()
+        this.network.send('perform_act', {})
     }
     switchboxSeven(){
         this.soundManager.play('squidzoid-beam')
         this.plasmaGlow.__Animation.play()
+        this.network.send('perform_act', {})
     }
     switchboxEight(){
         this.yellowpuffle.__Animation.play()
         this.spotlights.__Animation.play()
+        this.network.send('perform_act', {})
     }
 
     /* END-USER-CODE */
