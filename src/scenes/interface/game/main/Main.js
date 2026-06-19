@@ -478,6 +478,11 @@ export default class Main extends BaseScene {
         leaderboardIcon.setInteractive({ useHandCursor: true })
         leaderboardIcon.on('pointerdown', () => this.onLeaderboardKey())
 
+        this.input.keyboard.on('keydown-N', () => this.onClubsKey())
+        const clubsIcon = this.addClubsIcon(460, 70)
+        clubsIcon.setInteractive({ useHandCursor: true })
+        clubsIcon.on('pointerdown', () => this.onClubsKey())
+
         // Stamp-earned notifications, persistent while in-world.
         this.stampPopup = new StampPopup(this)
         this.add.existing(this.stampPopup)
@@ -608,6 +613,42 @@ export default class Main extends BaseScene {
         } else {
             this.interface.loadWidget('LeaderboardPanel')
         }
+    }
+
+    onClubsKey() {
+        const widgets = this.interface.widgets
+        if (widgets.keyActive('ClubsPanel')) {
+            const w = widgets.getWidget('ClubsPanel')
+            if (w && w.onClose) w.onClose()
+        } else {
+            this.interface.loadWidget('ClubsPanel')
+        }
+    }
+
+    // Top-left opener: blue medallion with two interlocking C letters (clubs icon).
+    addClubsIcon(x, y) {
+        const key = 'cpl-clubs-btn'
+        if (!this.textures.exists(key)) {
+            const g = this.make.graphics({ add: false })
+            const cx = 45, cy = 42, r = 36
+            g.fillStyle(0x0e406f, 1).fillCircle(cx, cy + 3, r)
+            g.fillStyle(0x6a3fa0, 1).fillCircle(cx, cy, r)
+            g.fillStyle(0x9060c8, 0.5).fillEllipse(cx, cy - 12, r * 1.5, r)
+            g.lineStyle(5, 0xffffff, 1).strokeCircle(cx, cy, r)
+            // Two C shapes
+            g.lineStyle(7, 0xffce3d, 1)
+            g.beginPath()
+            g.arc(cx - 6, cy, 13, Phaser.Math.DegToRad(40), Phaser.Math.DegToRad(320), false)
+            g.strokePath()
+            g.beginPath()
+            g.arc(cx + 6, cy, 13, Phaser.Math.DegToRad(220), Phaser.Math.DegToRad(140), false)
+            g.strokePath()
+            g.generateTexture(key, 90, 84)
+            g.destroy()
+        }
+        const icon = this.add.image(x, y, key)
+        icon.setDepth(2)
+        return icon
     }
 
     // Top-left opener: blue medallion with a gold trophy.

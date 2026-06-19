@@ -43,12 +43,16 @@ export default class PenguinLoader {
     addName(penguin) {
         let x = penguin.x
         let y = penguin.y + 40
-        let nameTag = penguin.room.add.text(x, y, penguin.username, this.nameStyle)
+        let nameTag = penguin.room.add.text(x, y, this.getNameText(penguin), this.nameStyle)
 
         nameTag.setOrigin(0.5)
-        nameTag.depth = penguin.depth + 2000 // Keep nametag above everything else
+        nameTag.depth = penguin.depth + 2000
 
         return nameTag
+    }
+
+    getNameText(penguin) {
+        return penguin.club ? `[${penguin.club.tag}] ${penguin.username}` : penguin.username
     }
 
     addInput(penguin) {
