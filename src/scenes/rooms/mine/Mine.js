@@ -87,7 +87,7 @@ export default class Mine extends RoomScene {
         const chair = this.add.image(571, 296, "mine", "chair");
 
         // equipment
-        this.add.image(398, 213, "mine", "bg/equipment");
+        const equipment = this.add.image(398, 213, "mine", "bg/equipment");
 
         // rocks
         const rocks = this.add.image(795.5263061523438, 339.7232979752952, "mine", "rocks");
@@ -174,7 +174,7 @@ export default class Mine extends RoomScene {
         cartbtn.setOrigin(0.5462245784535273, 0.0350787621909927);
 
         // lists
-        const sort = [foreground, minesign, cart1, shovel, cart2, wood, cavewallfront, _cavewallback, rocks, chair, _table];
+        const sort = [foreground, minesign, cart1, shovel, cart2, wood, cavewallfront, _cavewallback, rocks, chair, _table, equipment];
 
         // entrance (components)
         const entranceAnimation = new Animation(entrance);
