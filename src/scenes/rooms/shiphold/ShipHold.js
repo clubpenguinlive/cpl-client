@@ -134,7 +134,7 @@ export default class ShipHold extends RoomScene {
         if (this.doorLocked) {
             return;
         }
-        this.triggerRoom(422, 308, 425)
+        this.triggerRoom(423, 760, 500)
     }
 
 
