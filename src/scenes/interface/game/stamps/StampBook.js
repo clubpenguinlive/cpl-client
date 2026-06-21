@@ -4,7 +4,6 @@ import BaseContainer from '@scenes/base/BaseContainer'
 // Stamp Book — catalog-book chrome (like SkillsWidget/ChallengesPanel). Group tabs across the top;
 // each page shows that group's stamps as earned (gold) or locked (grey) with an earned count. Defs +
 // the user's owned set come from the server (`get_stamps` -> `stamps`); the server is the authority.
-// Name-based v1 (no stamp icon art yet).
 
 const FONT = 'CCComiccrazy'
 
@@ -13,6 +12,22 @@ const C = {
     earned: 0xffe9a8, earnedLine: 0xe0b94a, locked: 0xe7ded0, lockedLine: 0xcdbf9f,
     gold: '#ffce3d', goldStroke: '#5a3a12', blueText: '#15568f', brown: '#8a5a12', grey: '#9a8f73',
     tab: 0xe2d6b0, tabActive: 0xf7eecf, tabLine: 0xc9b487, red: 0xe6584d, redDark: 0xb83b30
+}
+
+// Per-group accent color + simple medallion symbol drawn with Graphics.
+const GROUP_STYLE = {
+    'Activities':  { accent: 0xe8820a, symbol: 'star'     },
+    'Card-Jitsu':  { accent: 0xcc2020, symbol: 'diamond'  },
+    'Eco':         { accent: 0x2a9a3a, symbol: 'triangle' },
+    'Exploration': { accent: 0x1a6bbf, symbol: 'compass'  },
+    'Challenges':  { accent: 0x8820c0, symbol: 'bolt'     },
+    'Stamps':      { accent: 0xe06020, symbol: 'mail'     },
+    'Social':      { accent: 0xe83060, symbol: 'heart'    },
+    'Igloo':       { accent: 0x4070d0, symbol: 'house'    },
+    'Missions':    { accent: 0x507030, symbol: 'shield'   },
+    'Puffles':     { accent: 0xc030c0, symbol: 'paw'      },
+    'Legend':      { accent: 0xc09000, symbol: 'crown'    },
+    'Mascots':     { accent: 0x20a0c0, symbol: 'sparkle'  },
 }
 
 const GRID_X = 300, GRID_Y0 = 360, COLS = 3, CELL_W = 300, CELL_H = 78, COL_GAP = 12, ROW_GAP = 12
@@ -87,9 +102,13 @@ export default class StampBook extends BaseContainer {
 
         this.groups.forEach(group => {
             const active = group === this.activeGroup
+            const accent = (GROUP_STYLE[group] || {}).accent
             const g = this.scene.add.graphics()
             g.fillStyle(active ? C.tabActive : C.tab, 1).fillRoundedRect(x, 280, tabW, 40, 10)
-            g.lineStyle(2, C.tabLine, 1).strokeRoundedRect(x, 280, tabW, 40, 10)
+            g.lineStyle(2, active && accent ? accent : C.tabLine, 1).strokeRoundedRect(x, 280, tabW, 40, 10)
+            if (active && accent) {
+                g.fillStyle(accent, 1).fillRoundedRect(x, 316, tabW, 4, 2)
+            }
             this.tabs.add(g)
             this.tabs.add(this.scene.add.text(x + tabW / 2, 300, group, { fontFamily: FONT, fontSize: '16px', color: active ? C.blueText : C.grey }).setOrigin(0.5))
             const hit = this.scene.add.rectangle(x + tabW / 2, 300, tabW, 40, 0xffffff, 0.001).setInteractive({ useHandCursor: true })
@@ -102,6 +121,8 @@ export default class StampBook extends BaseContainer {
     renderGrid() {
         this.grid.removeAll(true)
         const ids = this.byGroup[this.activeGroup] || []
+        const style = GROUP_STYLE[this.activeGroup] || {}
+        const accent = style.accent || 0xffce3d
         let earnedCount = 0
 
         ids.forEach((id, i) => {
@@ -116,13 +137,18 @@ export default class StampBook extends BaseContainer {
             const g = this.scene.add.graphics()
             g.fillStyle(owned ? C.earned : C.locked, 1).fillRoundedRect(x, y, CELL_W, CELL_H, 10)
             g.lineStyle(2, owned ? C.earnedLine : C.lockedLine, 1).strokeRoundedRect(x, y, CELL_W, CELL_H, 10)
-            // medallion
-            g.fillStyle(owned ? 0xffce3d : 0xc8bda3, 1).fillCircle(x + 38, y + CELL_H / 2, 22)
-            if (owned) {
-                g.lineStyle(5, 0xffffff, 1).beginPath()
-                g.moveTo(x + 28, y + CELL_H / 2); g.lineTo(x + 36, y + CELL_H / 2 + 9); g.lineTo(x + 50, y + CELL_H / 2 - 10); g.strokePath()
-            }
+            // accent bar on left edge
+            if (owned) g.fillStyle(accent, 1).fillRoundedRect(x, y + 8, 4, CELL_H - 16, 2)
+            // medallion circle
+            const mColor = owned ? accent : 0xc8bda3
+            g.fillStyle(mColor, 1).fillCircle(x + 38, y + CELL_H / 2, 22)
+            g.fillStyle(0xffffff, owned ? 0.25 : 0.12).fillCircle(x + 33, y + CELL_H / 2 - 7, 9)
             this.grid.add(g)
+
+            // symbol drawn in medallion
+            if (style.symbol) {
+                this.drawSymbol(this.grid, style.symbol, x + 38, y + CELL_H / 2, owned ? 0xffffff : 0x9a8f73)
+            }
 
             this.grid.add(this.scene.add.text(x + 72, y + 26, def.name, { fontFamily: FONT, fontSize: '17px', color: owned ? C.blueText : '#9a8f73' }).setOrigin(0, 0.5))
             this.grid.add(this.scene.add.text(x + 72, y + 52, owned ? 'Earned' : 'Locked', { fontFamily: FONT, fontSize: '13px', color: owned ? '#2f8f43' : '#9a8f73' }).setOrigin(0, 0.5))
@@ -131,6 +157,91 @@ export default class StampBook extends BaseContainer {
         const total = Object.keys(this.defs).length
         const totalOwned = this.owned.size
         this.count.setText(this.activeGroup + ': ' + earnedCount + ' / ' + ids.length + '   •   Total ' + totalOwned + ' / ' + total)
+    }
+
+    // Draw a small symbol at (cx, cy) using Phaser Graphics, added to container.
+    drawSymbol(container, symbol, cx, cy, color) {
+        const g = this.scene.add.graphics()
+        g.fillStyle(color, 1)
+        g.lineStyle(2.5, color, 1)
+
+        switch (symbol) {
+            case 'star': {
+                const pts = this._starPoints(cx, cy, 5, 13, 6)
+                g.fillPoints(pts, true)
+                break
+            }
+            case 'diamond': {
+                g.fillTriangle(cx, cy - 13, cx + 9, cy, cx, cy + 13)
+                g.fillTriangle(cx, cy - 13, cx - 9, cy, cx, cy + 13)
+                break
+            }
+            case 'triangle': {
+                g.fillTriangle(cx, cy - 13, cx + 12, cy + 8, cx - 12, cy + 8)
+                break
+            }
+            case 'compass': {
+                g.fillRect(cx - 2, cy - 13, 4, 26)
+                g.fillRect(cx - 13, cy - 2, 26, 4)
+                g.fillStyle(color, 0.5).fillCircle(cx, cy, 5)
+                break
+            }
+            case 'bolt': {
+                const bpts = [{ x: cx + 4, y: cy - 13 }, { x: cx - 4, y: cy - 2 }, { x: cx + 3, y: cy - 2 }, { x: cx - 4, y: cy + 13 }, { x: cx + 5, y: cy + 1 }, { x: cx - 2, y: cy + 1 }]
+                g.fillPoints(bpts, true)
+                break
+            }
+            case 'mail': {
+                g.strokeRect(cx - 12, cy - 8, 24, 17)
+                g.beginPath().moveTo(cx - 12, cy - 8).lineTo(cx, cy + 1).lineTo(cx + 12, cy - 8).strokePath()
+                break
+            }
+            case 'heart': {
+                g.fillCircle(cx - 6, cy - 5, 7)
+                g.fillCircle(cx + 6, cy - 5, 7)
+                g.fillTriangle(cx - 13, cy - 2, cx + 13, cy - 2, cx, cy + 13)
+                break
+            }
+            case 'house': {
+                g.fillTriangle(cx, cy - 13, cx - 13, cy, cx + 13, cy)
+                g.fillRect(cx - 10, cy, 20, 13)
+                g.fillStyle(color, 0.4).fillRect(cx - 4, cy + 4, 8, 9)
+                break
+            }
+            case 'shield': {
+                const spts = [{ x: cx, y: cy - 13 }, { x: cx + 11, y: cy - 8 }, { x: cx + 11, y: cy + 2 }, { x: cx, y: cy + 13 }, { x: cx - 11, y: cy + 2 }, { x: cx - 11, y: cy - 8 }]
+                g.fillPoints(spts, true)
+                break
+            }
+            case 'paw': {
+                g.fillCircle(cx, cy + 5, 8)
+                g.fillCircle(cx - 9, cy - 2, 4)
+                g.fillCircle(cx + 9, cy - 2, 4)
+                g.fillCircle(cx, cy - 10, 4)
+                break
+            }
+            case 'crown': {
+                const cpts = [{ x: cx - 12, y: cy + 7 }, { x: cx - 12, y: cy - 5 }, { x: cx - 6, y: cy + 2 }, { x: cx, y: cy - 13 }, { x: cx + 6, y: cy + 2 }, { x: cx + 12, y: cy - 5 }, { x: cx + 12, y: cy + 7 }]
+                g.fillPoints(cpts, true)
+                break
+            }
+            case 'sparkle': {
+                const spts2 = this._starPoints(cx, cy, 4, 13, 4)
+                g.fillPoints(spts2, true)
+                break
+            }
+        }
+        container.add(g)
+    }
+
+    _starPoints(cx, cy, points, outer, inner) {
+        const pts = []
+        for (let i = 0; i < points * 2; i++) {
+            const angle = (i * Math.PI) / points - Math.PI / 2
+            const r = i % 2 === 0 ? outer : inner
+            pts.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r })
+        }
+        return pts
     }
 
     onClose() {
