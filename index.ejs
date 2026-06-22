@@ -228,6 +228,35 @@
                 body #cpl-logout { right: max(18px, env(safe-area-inset-right, 0px)); }
             }
 
+            /* Tablets in landscape (pointer:coarse, >= 900px wide): the game's 1.583:1 aspect
+               means the viewport is narrower than the game, producing only a thin top/bottom
+               letterbox — not enough room for the floating corner chips (27px tall at top:4px
+               overflows the letterbox and lands on the game canvas). Revert to a visible slim
+               nav bar so the chip/canvas overlap doesn't happen. The 900px floor keeps phones
+               (usually < 900px CSS width in landscape) on the chip layout. */
+            @media (pointer: coarse) and (orientation: landscape) and (min-width: 900px) {
+                body #cpl-nav {
+                    position: relative; height: var(--nav-h); min-height: var(--nav-h);
+                    background: #1f9fe0; border-bottom: 2px solid #1577b8;
+                    box-shadow: 0 2px 0 rgba(0,0,0,.08);
+                    padding: 0 16px; pointer-events: auto;
+                }
+                body #cpl-nav > .side:not(.right) { display: flex; flex-direction: row; align-items: center; gap: 22px; }
+                body .cpl-burger { display: none; }
+                body #cpl-nav .side.right { display: flex; }
+                body #cpl-logout { position: static; top: auto; right: auto; }
+                body #cpl-fullscreen { display: none; }
+                #game-wrap {
+                    width: auto; height: 100%; max-width: 100%; max-height: 100%;
+                    aspect-ratio: 1520 / 960;
+                    border: 8px solid #1a73b3; border-radius: 16px;
+                    background: #0e5fa8; box-shadow: 0 8px 26px rgba(0,0,0,.32);
+                }
+                #cpl-stage {
+                    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) 8px env(safe-area-inset-left, 0px);
+                }
+            }
+
             /* ---- Animated landing (front page) ---- */
             /* starts below the nav so the CP-blue menu bar stays visible on the home page */
             #cpl-landing {
