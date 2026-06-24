@@ -55,31 +55,65 @@ export default class TouchControls {
     mount() {
         if (!this.layout || this.root) return
 
+        // Use the Ruffle player's bounding rect so the overlay sits over the actual canvas
+        // regardless of whether the page is in framed (desktop) or full-bleed (mobile) layout.
+        // Recalculate on resize so the controls stay anchored after orientation changes.
+        const getRect = () => {
+            const el = this.target
+            if (!el) return null
+            return el.getBoundingClientRect()
+        }
+
         const root = document.createElement('div')
         root.className = 'ruffle-touch-controls'
-        root.style.cssText = 'position:fixed;inset:0;z-index:99998;pointer-events:none;'
+        root.style.cssText = 'position:fixed;z-index:99998;pointer-events:none;'
             + 'touch-action:none;-webkit-user-select:none;user-select:none'
 
-        // D-pad, bottom-left
+        // D-pad, bottom-left of the Ruffle canvas
         const pad = document.createElement('div')
-        pad.style.cssText = 'position:absolute;width:198px;height:198px;pointer-events:none;'
-            + 'left:max(16px,env(safe-area-inset-left));bottom:max(16px,env(safe-area-inset-bottom))'
+        pad.style.cssText = 'position:absolute;width:198px;height:198px;pointer-events:none'
         for (const dir of this.layout.dpad) {
             const [x, y] = POS[dir]
             pad.appendChild(this._button(GLYPH[dir], dir, `left:${x}px;top:${y}px;width:64px;height:64px;font-size:24px`))
         }
         root.appendChild(pad)
 
-        // action button, bottom-right
+        // action button, bottom-right of the Ruffle canvas
+        let actionBtn = null
         if (this.layout.action) {
             const a = this.layout.action
-            root.appendChild(this._button(a.label, a.dir,
-                'right:max(20px,env(safe-area-inset-right));bottom:max(34px,env(safe-area-inset-bottom));'
-                + 'width:92px;height:92px;font-size:17px;font-family:CCComiccrazy,sans-serif'))
+            actionBtn = this._button(a.label, a.dir,
+                'position:absolute;width:92px;height:92px;font-size:17px;font-family:CCComiccrazy,sans-serif')
+            root.appendChild(actionBtn)
+        }
+
+        const MARGIN = 16
+        const reposition = () => {
+            const r = getRect()
+            if (!r) return
+            // size the overlay to exactly cover the canvas
+            root.style.left   = r.left   + 'px'
+            root.style.top    = r.top    + 'px'
+            root.style.width  = r.width  + 'px'
+            root.style.height = r.height + 'px'
+            // D-pad: bottom-left inside the canvas
+            pad.style.left   = MARGIN + 'px'
+            pad.style.bottom = MARGIN + 'px'
+            pad.style.top    = ''
+            // action button: bottom-right inside the canvas
+            if (actionBtn) {
+                actionBtn.style.right  = MARGIN + 'px'
+                actionBtn.style.bottom = (MARGIN + 18) + 'px'
+                actionBtn.style.left   = ''
+                actionBtn.style.top    = ''
+            }
         }
 
         document.body.appendChild(root)
         this.root = root
+        this._reposition = reposition
+        reposition()
+        window.addEventListener('resize', reposition)
     }
 
     _button(label, dir, extraCss) {
@@ -138,6 +172,7 @@ export default class TouchControls {
     destroy() {
         // release anything still held so a key can't stick down after the overlay is gone
         for (const dir of [...this.held]) this._up(dir)
+        if (this._reposition) { window.removeEventListener('resize', this._reposition); this._reposition = null }
         if (this.root) { this.root.remove(); this.root = null }
         this.target = null
     }
