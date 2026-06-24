@@ -31,6 +31,10 @@ const GROUP_STYLE = {
 }
 
 const GRID_X = 300, GRID_Y0 = 360, COLS = 3, CELL_W = 300, CELL_H = 78, COL_GAP = 12, ROW_GAP = 12
+const GRID_ROWS_PER_PAGE = 5   // max rows visible before pagination kicks in (5 rows * 90px = 450px, fits in 468px of cream area)
+const STAMPS_PER_PAGE = COLS * GRID_ROWS_PER_PAGE
+
+const TAB_PAGE_SIZE = 6   // how many group tabs to show at once
 
 export default class StampBook extends BaseContainer {
 
@@ -65,6 +69,9 @@ export default class StampBook extends BaseContainer {
         closeHit.on('pointerdown', () => this.onClose())
         this.add(closeHit)
 
+        this.tabPage = 0
+        this.gridPage = 0
+
         this.tabs = scene.add.container(0, 0)
         this.add(this.tabs)
         this.grid = scene.add.container(0, 0)
@@ -88,7 +95,11 @@ export default class StampBook extends BaseContainer {
             byGroup[group].push(Number(id))
         }
         this.byGroup = byGroup
-        this.activeGroup = this.activeGroup && byGroup[this.activeGroup] ? this.activeGroup : this.groups[0]
+        if (!this.activeGroup || !byGroup[this.activeGroup]) {
+            this.activeGroup = this.groups[0]
+            this.tabPage = 0
+        }
+        this.gridPage = 0
 
         this.renderTabs()
         this.renderGrid()
@@ -96,11 +107,60 @@ export default class StampBook extends BaseContainer {
 
     renderTabs() {
         this.tabs.removeAll(true)
-        const tabW = 174, gap = 10
-        const totalW = this.groups.length * tabW + (this.groups.length - 1) * gap
-        let x = 760 - totalW / 2
 
-        this.groups.forEach(group => {
+        // Show TAB_PAGE_SIZE tabs at a time with prev/next arrows so the row fits the modal width.
+        // Content area runs x=274 to x=1246 (972px wide). Arrow buttons take 32px each side.
+        const tabAreaX = 290, tabAreaW = 940
+        const arrowW = 32
+        const tabCount = Math.min(TAB_PAGE_SIZE, this.groups.length)
+        const usableW = tabAreaW - arrowW * 2
+        const tabW = Math.floor((usableW - (tabCount - 1) * 8) / tabCount)
+        const gap = 8
+
+        const totalPages = Math.ceil(this.groups.length / TAB_PAGE_SIZE)
+        const hasMultiPage = totalPages > 1
+
+        // Keep tabPage in range
+        this.tabPage = Math.max(0, Math.min(totalPages - 1, this.tabPage))
+
+        // ensure the active group is visible on the current tab page
+        const activeIdx = this.groups.indexOf(this.activeGroup)
+        if (activeIdx >= 0) {
+            const activePage = Math.floor(activeIdx / TAB_PAGE_SIZE)
+            if (activePage !== this.tabPage) this.tabPage = activePage
+        }
+
+        const slice = this.groups.slice(this.tabPage * TAB_PAGE_SIZE, this.tabPage * TAB_PAGE_SIZE + TAB_PAGE_SIZE)
+        let x = tabAreaX + arrowW + (usableW - (slice.length * tabW + (slice.length - 1) * gap)) / 2
+
+        // Prev arrow
+        if (hasMultiPage) {
+            const canPrev = this.tabPage > 0
+            const ag = this.scene.add.graphics()
+            ag.fillStyle(canPrev ? 0x2a7fc4 : 0x9bb6cc, 1).fillCircle(tabAreaX + 14, 300, 14)
+            this.tabs.add(ag)
+            const atxt = this.scene.add.text(tabAreaX + 14, 298, '<', { fontFamily: FONT, fontSize: '18px', color: '#fff' }).setOrigin(0.5)
+            this.tabs.add(atxt)
+            if (canPrev) {
+                const hit = this.scene.add.circle(tabAreaX + 14, 300, 14, 0xffffff, 0.001).setInteractive({ useHandCursor: true })
+                hit.on('pointerdown', () => { this.tabPage--; this.renderTabs() })
+                this.tabs.add(hit)
+            }
+
+            const canNext = this.tabPage < totalPages - 1
+            const bg = this.scene.add.graphics()
+            bg.fillStyle(canNext ? 0x2a7fc4 : 0x9bb6cc, 1).fillCircle(tabAreaX + tabAreaW - 14, 300, 14)
+            this.tabs.add(bg)
+            const btxt = this.scene.add.text(tabAreaX + tabAreaW - 14, 298, '>', { fontFamily: FONT, fontSize: '18px', color: '#fff' }).setOrigin(0.5)
+            this.tabs.add(btxt)
+            if (canNext) {
+                const hit2 = this.scene.add.circle(tabAreaX + tabAreaW - 14, 300, 14, 0xffffff, 0.001).setInteractive({ useHandCursor: true })
+                hit2.on('pointerdown', () => { this.tabPage++; this.renderTabs() })
+                this.tabs.add(hit2)
+            }
+        }
+
+        slice.forEach(group => {
             const active = group === this.activeGroup
             const accent = (GROUP_STYLE[group] || {}).accent
             const g = this.scene.add.graphics()
@@ -110,9 +170,9 @@ export default class StampBook extends BaseContainer {
                 g.fillStyle(accent, 1).fillRoundedRect(x, 316, tabW, 4, 2)
             }
             this.tabs.add(g)
-            this.tabs.add(this.scene.add.text(x + tabW / 2, 300, group, { fontFamily: FONT, fontSize: '16px', color: active ? C.blueText : C.grey }).setOrigin(0.5))
+            this.tabs.add(this.scene.add.text(x + tabW / 2, 300, group, { fontFamily: FONT, fontSize: '15px', color: active ? C.blueText : C.grey }).setOrigin(0.5))
             const hit = this.scene.add.rectangle(x + tabW / 2, 300, tabW, 40, 0xffffff, 0.001).setInteractive({ useHandCursor: true })
-            hit.on('pointerdown', () => { this.activeGroup = group; this.renderTabs(); this.renderGrid() })
+            hit.on('pointerdown', () => { this.activeGroup = group; this.gridPage = 0; this.renderTabs(); this.renderGrid() })
             this.tabs.add(hit)
             x += tabW + gap
         })
@@ -125,10 +185,17 @@ export default class StampBook extends BaseContainer {
         const accent = style.accent || 0xffce3d
         let earnedCount = 0
 
-        ids.forEach((id, i) => {
+        // Count total earned for this group before slicing
+        for (const id of ids) { if (this.owned.has(id)) earnedCount++ }
+
+        const totalGridPages = Math.max(1, Math.ceil(ids.length / STAMPS_PER_PAGE))
+        this.gridPage = Math.max(0, Math.min(totalGridPages - 1, this.gridPage))
+
+        const slice = ids.slice(this.gridPage * STAMPS_PER_PAGE, this.gridPage * STAMPS_PER_PAGE + STAMPS_PER_PAGE)
+
+        slice.forEach((id, i) => {
             const def = this.defs[id]
             const owned = this.owned.has(id)
-            if (owned) earnedCount++
 
             const col = i % COLS, row = Math.floor(i / COLS)
             const x = GRID_X + col * (CELL_W + COL_GAP)
@@ -153,6 +220,35 @@ export default class StampBook extends BaseContainer {
             this.grid.add(this.scene.add.text(x + 72, y + 26, def.name, { fontFamily: FONT, fontSize: '17px', color: owned ? C.blueText : '#9a8f73' }).setOrigin(0, 0.5))
             this.grid.add(this.scene.add.text(x + 72, y + 52, owned ? 'Earned' : 'Locked', { fontFamily: FONT, fontSize: '13px', color: owned ? '#2f8f43' : '#9a8f73' }).setOrigin(0, 0.5))
         })
+
+        // Grid pagination controls (prev/next page), shown below the grid
+        if (totalGridPages > 1) {
+            const CTRL_Y = GRID_Y0 + GRID_ROWS_PER_PAGE * (CELL_H + ROW_GAP) + 10
+            const canPrev = this.gridPage > 0
+            const canNext = this.gridPage < totalGridPages - 1
+
+            const pgPrev = this.scene.add.graphics()
+            pgPrev.fillStyle(canPrev ? 0x2a7fc4 : 0x9bb6cc, 1).fillCircle(360, CTRL_Y, 22)
+            this.grid.add(pgPrev)
+            this.grid.add(this.scene.add.text(360, CTRL_Y - 2, '<', { fontFamily: FONT, fontSize: '22px', color: '#fff' }).setOrigin(0.5))
+            if (canPrev) {
+                const h = this.scene.add.circle(360, CTRL_Y, 22, 0xffffff, 0.001).setInteractive({ useHandCursor: true })
+                h.on('pointerdown', () => { this.gridPage--; this.renderGrid() })
+                this.grid.add(h)
+            }
+
+            this.grid.add(this.scene.add.text(760, CTRL_Y - 2, 'Page ' + (this.gridPage + 1) + ' / ' + totalGridPages, { fontFamily: FONT, fontSize: '18px', color: C.blueText }).setOrigin(0.5))
+
+            const pgNext = this.scene.add.graphics()
+            pgNext.fillStyle(canNext ? 0x2a7fc4 : 0x9bb6cc, 1).fillCircle(1160, CTRL_Y, 22)
+            this.grid.add(pgNext)
+            this.grid.add(this.scene.add.text(1160, CTRL_Y - 2, '>', { fontFamily: FONT, fontSize: '22px', color: '#fff' }).setOrigin(0.5))
+            if (canNext) {
+                const h2 = this.scene.add.circle(1160, CTRL_Y, 22, 0xffffff, 0.001).setInteractive({ useHandCursor: true })
+                h2.on('pointerdown', () => { this.gridPage++; this.renderGrid() })
+                this.grid.add(h2)
+            }
+        }
 
         const total = Object.keys(this.defs).length
         const totalOwned = this.owned.size
