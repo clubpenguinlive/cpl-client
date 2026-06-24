@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Who's Online? | Club Penguin Live</title>
+<link rel="stylesheet" href="/assets/styles/fonts.css" type="text/css">
+<style>
+@font-face { font-family:'ProximaNova'; src:url('/assets/fonts/ProximaNova-Reg.woff2') format('woff2'); font-display:swap; }
+@font-face { font-family:'ProximaNova'; font-weight:bold; src:url('/assets/fonts/ProximaNova-Bold.woff2') format('woff2'); font-display:swap; }
+*{box-sizing:border-box} html,body{height:100%;margin:0}
+body{display:flex;flex-direction:column;min-height:100vh;background:#2f9fe0;color:#fff;
+     font-family:'ProximaNova','Helvetica Neue',Helvetica,Arial,sans-serif;}
+.cpl-nav{flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;height:46px;padding:0 16px;
+     background:#1f9fe0;border-bottom:2px solid #1577b8;box-shadow:0 2px 0 rgba(0,0,0,.08)}
+.cpl-nav .side{display:flex;align-items:center;gap:18px}
+.cpl-nav a{color:#fff;text-decoration:none;font-size:15px;font-weight:bold;text-shadow:0 1px 1px rgba(0,0,0,.18)}
+.cpl-nav a:hover{color:#d6efff}
+.cpl-nav a.home{width:22px;height:22px;background:url('/assets/media/icon-home.png') center/contain no-repeat;font-size:0}
+.cpl-nav a.cta{background:linear-gradient(#ffd23f,#ffb300);color:#5a3b00;padding:8px 18px;border-radius:999px;box-shadow:0 3px 0 #c98a00;text-shadow:none}
+.cpl-main{flex:1 1 auto;display:flex;align-items:flex-start;justify-content:center;padding:30px 16px}
+.cpl-panel{background:#fff;color:#0b2238;border-radius:18px;max-width:700px;width:100%;padding:34px 44px;box-shadow:0 12px 34px rgba(0,0,0,.28);text-align:center}
+.cpl-panel h1{font-family:'Burbank Big Regular',sans-serif;color:#0e5fa8;font-size:36px;margin:0 0 6px}
+.cpl-panel .subtitle{color:#4a7aaa;font-size:14px;margin:0 0 28px}
+.worlds{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;margin-bottom:24px}
+.world-card{background:#eaf4ff;border-radius:14px;padding:22px 32px;min-width:140px;flex:1;max-width:200px}
+.world-card .world-name{font-weight:bold;font-size:17px;color:#0e5fa8;margin-bottom:8px}
+.world-card .world-count{font-size:38px;font-weight:bold;color:#0b2238;line-height:1}
+.world-card .world-label{font-size:13px;color:#4a7aaa;margin-top:4px}
+.world-card.offline .world-count{color:#aaa;font-size:28px;line-height:1.3}
+.total-row{font-size:18px;color:#0b2238;margin-bottom:28px;font-weight:bold}
+.total-row .total-num{color:#0e5fa8}
+.cpl-play{display:inline-block;background:linear-gradient(#ffd23f,#ffb300);color:#5a3b00;
+     padding:14px 36px;border-radius:999px;font-weight:bold;text-decoration:none;font-size:17px;
+     box-shadow:0 4px 0 #c98a00;transition:transform .1s,box-shadow .1s}
+.cpl-play:hover{transform:translateY(-1px);box-shadow:0 6px 0 #c98a00}
+.cpl-play:active{transform:translateY(2px);box-shadow:0 2px 0 #c98a00}
+.refresh-note{font-size:12px;color:#4a7aaa;margin-top:18px}
+.cpl-footer{flex:0 0 auto;text-align:center;font-size:12px;color:#eaf6ff;padding:10px 12px;background:#1f9fe0;border-top:2px solid #1577b8}
+.cpl-footer p{margin:0 0 3px} .cpl-footer a{color:#fff;text-decoration:none;margin:0 5px;font-weight:bold}
+@media(max-width:760px){.cpl-nav .side a:not(.home):not(.cta){display:none}}
+@media(max-width:480px){.cpl-panel{padding:24px 18px}.worlds{gap:12px}.world-card{padding:16px 18px;min-width:110px}}
+</style></head>
+<body>
+<header class="cpl-nav">
+  <div class="side">
+    <a class="home" href="/">Home</a>
+    <a href="/pages/news.html">What's New?</a><a href="/pages/safety.html">Safety</a>
+    <a href="/pages/parents.html">Parents</a><a href="/pages/rules.html">Community Rules</a><a href="/pages/help.html">Help</a>
+  </div>
+  <div class="side"><a class="cta" href="/create">Create a Penguin</a></div>
+</header>
+<main class="cpl-main">
+  <div class="cpl-panel">
+    <h1>Who's Online?</h1>
+    <p class="subtitle">Live player counts, updated every 30 seconds</p>
+    <div class="worlds" id="worlds">
+      <div class="world-card" id="card-blizzard">
+        <div class="world-name">Blizzard</div>
+        <div class="world-count" id="count-blizzard">...</div>
+        <div class="world-label">penguins</div>
+      </div>
+      <div class="world-card" id="card-iceberg">
+        <div class="world-name">Iceberg</div>
+        <div class="world-count" id="count-iceberg">...</div>
+        <div class="world-label">penguins</div>
+      </div>
+    </div>
+    <div class="total-row">Total: <span class="total-num" id="total">...</span> penguins online</div>
+    <a class="cpl-play" href="/">Play Now</a>
+    <p class="refresh-note" id="refresh-note">Fetching data...</p>
+  </div>
+</main>
+<footer class="cpl-footer">
+  <p>Club Penguin Live. A fan-run private server. Not affiliated with or endorsed by The Walt Disney Company.</p>
+  <nav><a href="/pages/terms.html">Terms of Service</a>·<a href="/pages/privacy.html">Privacy Policy</a>·<a href="/pages/community.html">Community</a>·<a href="/pages/help.html">Help</a></nav>
+</footer>
+<script>
+(function() {
+  var worlds = [
+    { id: 'blizzard', endpoint: '/api/stats/blizzard' },
+    { id: 'iceberg',  endpoint: '/api/stats/iceberg'  }
+  ];
+
+  function setCount(id, value, failed) {
+    var card = document.getElementById('card-' + id);
+    var el = document.getElementById('count-' + id);
+    if (failed) {
+      card.classList.add('offline');
+      el.textContent = 'Offline';
+    } else {
+      card.classList.remove('offline');
+      el.textContent = value;
+    }
+  }
+
+  function setTotal(counts) {
+    var valid = counts.filter(function(n) { return n !== null; });
+    var totalEl = document.getElementById('total');
+    if (valid.length === 0) {
+      totalEl.textContent = '?';
+    } else {
+      totalEl.textContent = valid.reduce(function(a, b) { return a + b; }, 0);
+    }
+  }
+
+  function updateNote() {
+    var note = document.getElementById('refresh-note');
+    var now = new Date();
+    var h = now.getHours(), m = now.getMinutes(), s = now.getSeconds();
+    note.textContent = 'Last updated at ' +
+      (h < 10 ? '0' : '') + h + ':' +
+      (m < 10 ? '0' : '') + m + ':' +
+      (s < 10 ? '0' : '') + s +
+      ' — refreshes every 30 seconds';
+  }
+
+  function fetchAll() {
+    var counts = [null, null];
+    var done = 0;
+
+    worlds.forEach(function(w, i) {
+      fetch(w.endpoint)
+        .then(function(r) {
+          if (!r.ok) throw new Error('HTTP ' + r.status);
+          return r.json();
+        })
+        .then(function(data) {
+          counts[i] = typeof data.players === 'number' ? data.players : null;
+          setCount(w.id, counts[i] !== null ? counts[i] : '?', counts[i] === null);
+        })
+        .catch(function() {
+          setCount(w.id, 0, true);
+          counts[i] = null;
+        })
+        .then(function() {
+          done++;
+          if (done === worlds.length) {
+            setTotal(counts);
+            updateNote();
+          }
+        });
+    });
+  }
+
+  fetchAll();
+  setInterval(fetchAll, 30000);
+})();
+</script>
+</body></html>
