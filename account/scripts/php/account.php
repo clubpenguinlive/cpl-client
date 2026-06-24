@@ -3,7 +3,7 @@
     include 'Database.php';
     include 'Validator.php';
 
-    const TURNSTILE_SECRET = '***REMOVED***';
+    define('TURNSTILE_SECRET', getenv('TURNSTILE_SECRET') ?: '');
 
     error_reporting(0);
 
