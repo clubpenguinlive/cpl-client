@@ -126,6 +126,7 @@ export default class RuffleController extends BaseScene {
         this.player = ruffle.createPlayer()
         this.container.setElement(this.player, this.playerStyle)
 
+        this.stopMusic()
         this.player.load({
             url: path,
             allowScriptAccess: true,
