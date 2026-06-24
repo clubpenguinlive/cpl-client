@@ -3,7 +3,7 @@
     include 'Database.php';
     include 'Validator.php';
 
-    const TURNSTILE_SECRET = '0x4AAAAAADYRrnKCQNIVcZxWPPME7D4sdwY';
+    define('TURNSTILE_SECRET', getenv('TURNSTILE_SECRET') ?: '');
 
     error_reporting(0);
 
