@@ -19,7 +19,6 @@ const PENGUIN_COLORS = {
 }
 
 const TABS = [
-    { key: 'coins',   label: 'Richest',  unit: 'coins' },
     { key: 'stamps',  label: 'Stamps',   unit: 'stamps' },
     { key: 'fishing', label: 'Fisher',   unit: 'XP' },
     { key: 'mining',  label: 'Miner',    unit: 'XP' },
@@ -40,7 +39,7 @@ export default class LeaderboardPanel extends BaseContainer {
         super(scene, 0, 0)
 
         this.depth = 100
-        this.category = 'coins'
+        this.category = 'stamps'
         this.rows = []
         this.page = 0
         this.onDataBound = (args) => this.onData(args)
