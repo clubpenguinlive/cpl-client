@@ -76,12 +76,22 @@ export default class RuffleController extends BaseScene {
 
     // RoomManager passes the game crumb object: { key, path, music, use_alt_loader }
     bootGame(game) {
-        this.path = `games/${game.key}/bootstrap.swf`
+        // Use game.path directly when it's already a .swf (e.g. Pizzatron 3000).
+        // Fall back to the bootstrap convention for games that use the cpj2 loader.
+        const swfPath = (game.path && game.path.endsWith('.swf'))
+            ? game.path
+            : `games/${game.key}/bootstrap.swf`
+        this.path = swfPath
         this.music = game.music || 0
         this.gameName = game.key
 
-        // defer until after create() so this.container exists
-        this.events.once('update', () => this.boot(game.use_alt_loader))
+        if (game.path && game.path.endsWith('.swf')) {
+            // Direct SWF: bypass the cpj2 boot loader and load the SWF straight.
+            this.events.once('update', () => this.bootRoom(swfPath))
+        } else {
+            // defer until after create() so this.container exists
+            this.events.once('update', () => this.boot(game.use_alt_loader))
+        }
     }
 
     boot(useAltLoader = false) {
