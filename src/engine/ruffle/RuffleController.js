@@ -87,7 +87,7 @@ export default class RuffleController extends BaseScene {
 
         if (game.path && game.path.endsWith('.swf')) {
             // Direct SWF: bypass the cpj2 boot loader and load the SWF straight.
-            this.events.once('update', () => this.bootRoom(swfPath))
+            this.events.once('update', () => this.bootRoom(`${basePath}${swfPath}`))
         } else {
             // defer until after create() so this.container exists
             this.events.once('update', () => this.boot(game.use_alt_loader))
