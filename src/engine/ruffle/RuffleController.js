@@ -127,6 +127,10 @@ export default class RuffleController extends BaseScene {
         this.container.setElement(this.player, this.playerStyle)
 
         this.stopMusic()
+
+        // Inject locale FlashVars for game SWFs that use LocaleText (e.g. Pizzatron 3000).
+        // Room art SWFs (pizza10.swf, mine12.swf, etc.) don't use LocaleText so skip them.
+        const isGameSwf = path.includes('/games/')
         this.player.load({
             url: path,
             allowScriptAccess: true,
@@ -136,7 +140,8 @@ export default class RuffleController extends BaseScene {
             autoplay: 'on',
             warnOnUnsupportedContent: false,
             splashScreen: false,
-            logLevel: localStorage.logging === 'true' ? 'info' : 'error'
+            logLevel: localStorage.logging === 'true' ? 'info' : 'error',
+            ...(isGameSwf ? { parameters: { LANG_LOC_FILENAME: 'locale', LANG_LOCALE_ID: 'en' } } : {})
         })
 
         try { this.player.volume = mute ? 0 : 0.7 } catch (e) {}
