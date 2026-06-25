@@ -148,8 +148,6 @@ export default class RuffleController extends BaseScene {
         this.interface.hideLoading()
         this.interface.hideInterface()
         this.container.visible = true
-
-        this.addLeaveButton()
     }
 
     addLeaveButton() {
