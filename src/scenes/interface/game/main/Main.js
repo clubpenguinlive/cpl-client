@@ -465,16 +465,19 @@ export default class Main extends BaseScene {
         const challengesIcon = this.addChallengesIcon(172, 70)
         challengesIcon.setInteractive({ useHandCursor: true })
         challengesIcon.on('pointerdown', () => this.onChallengesKey())
+        this.addIconTweens(challengesIcon)
 
         this.input.keyboard.on('keydown-B', () => this.onStampsKey())
         const stampIcon = this.addStampIcon(268, 70)
         stampIcon.setInteractive({ useHandCursor: true })
         stampIcon.on('pointerdown', () => this.onStampsKey())
+        this.addIconTweens(stampIcon)
 
         this.input.keyboard.on('keydown-N', () => this.onClubsKey())
         const clubsIcon = this.addClubsIcon(364, 70)
         clubsIcon.setInteractive({ useHandCursor: true })
         clubsIcon.on('pointerdown', () => this.onClubsKey())
+        this.addIconTweens(clubsIcon)
 
         // Stamp-earned notifications, persistent while in-world.
         this.stampPopup = new StampPopup(this)
@@ -546,22 +549,37 @@ export default class Main extends BaseScene {
     // Top-left opener: blue medallion with a gold check (sibling to the Skills star).
     addChallengesIcon(x, y) {
         const key = 'cpl-challenges-btn'
-        if (!this.textures.exists(key)) {
-            const g = this.make.graphics({ add: false })
-            const cx = 45, cy = 42, r = 36
-            g.fillStyle(0x0e406f, 1).fillCircle(cx, cy + 3, r)
-            g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, r)
-            g.fillStyle(0x3f93d4, 0.5).fillEllipse(cx, cy - 12, r * 1.5, r)
-            g.lineStyle(5, 0xffffff, 1).strokeCircle(cx, cy, r)
-            g.lineStyle(9, 0xffce3d, 1)
-            g.beginPath()
-            g.moveTo(cx - 17, cy + 1)
-            g.lineTo(cx - 5, cy + 15)
-            g.lineTo(cx + 18, cy - 16)
-            g.strokePath()
-            g.generateTexture(key, 90, 84)
-            g.destroy()
+        if (this.textures.exists(key)) {
+            this.textures.remove(key)
         }
+        const g = this.make.graphics({ add: false })
+        const cx = 45, cy = 42, r = 36
+        // Layer 1: drop shadow
+        g.fillStyle(0x000000, 0.28)
+        g.fillCircle(cx, cy + 5, r + 1)
+        // Layer 2: main circle
+        g.fillStyle(0x1c6bb0, 1)
+        g.fillCircle(cx, cy, r)
+        // Layer 3: inner bottom shadow for depth
+        g.lineStyle(8, 0x000000, 0.18)
+        g.beginPath()
+        g.arc(cx, cy, r - 3, Phaser.Math.DegToRad(30), Phaser.Math.DegToRad(150), false)
+        g.strokePath()
+        // Layer 4: white border
+        g.lineStyle(4, 0xffffff, 1)
+        g.strokeCircle(cx, cy, r)
+        // Layer 5: gold checkmark
+        g.lineStyle(9, 0xffce3d, 1)
+        g.beginPath()
+        g.moveTo(cx - 17, cy + 1)
+        g.lineTo(cx - 5, cy + 15)
+        g.lineTo(cx + 18, cy - 16)
+        g.strokePath()
+        // Layer 6: top gloss
+        g.fillStyle(0xffffff, 0.28)
+        g.fillEllipse(cx, cy - r * 0.42, r * 1.45, r * 0.62)
+        g.generateTexture(key, 90, 84)
+        g.destroy()
         const icon = this.add.image(x, y, key)
         icon.setDepth(2)
         return icon
@@ -581,18 +599,33 @@ export default class Main extends BaseScene {
     // Top-left opener: blue medallion with a gold postage-stamp.
     addStampIcon(x, y) {
         const key = 'cpl-stamp-btn'
-        if (!this.textures.exists(key)) {
-            const g = this.make.graphics({ add: false })
-            const cx = 45, cy = 42, r = 36
-            g.fillStyle(0x0e406f, 1).fillCircle(cx, cy + 3, r)
-            g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, r)
-            g.fillStyle(0x3f93d4, 0.5).fillEllipse(cx, cy - 12, r * 1.5, r)
-            g.lineStyle(5, 0xffffff, 1).strokeCircle(cx, cy, r)
-            g.fillStyle(0xffce3d, 1).fillRoundedRect(cx - 20, cy - 20, 40, 40, 6)
-            g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, 10)
-            g.generateTexture(key, 90, 84)
-            g.destroy()
+        if (this.textures.exists(key)) {
+            this.textures.remove(key)
         }
+        const g = this.make.graphics({ add: false })
+        const cx = 45, cy = 42, r = 36
+        // Layer 1: drop shadow
+        g.fillStyle(0x000000, 0.28)
+        g.fillCircle(cx, cy + 5, r + 1)
+        // Layer 2: main circle
+        g.fillStyle(0x1c6bb0, 1)
+        g.fillCircle(cx, cy, r)
+        // Layer 3: inner bottom shadow for depth
+        g.lineStyle(8, 0x000000, 0.18)
+        g.beginPath()
+        g.arc(cx, cy, r - 3, Phaser.Math.DegToRad(30), Phaser.Math.DegToRad(150), false)
+        g.strokePath()
+        // Layer 4: white border
+        g.lineStyle(4, 0xffffff, 1)
+        g.strokeCircle(cx, cy, r)
+        // Layer 5: gold rounded rect + blue center dot
+        g.fillStyle(0xffce3d, 1).fillRoundedRect(cx - 20, cy - 20, 40, 40, 6)
+        g.fillStyle(0x1c6bb0, 1).fillCircle(cx, cy, 10)
+        // Layer 6: top gloss
+        g.fillStyle(0xffffff, 0.28)
+        g.fillEllipse(cx, cy - r * 0.42, r * 1.45, r * 0.62)
+        g.generateTexture(key, 90, 84)
+        g.destroy()
         const icon = this.add.image(x, y, key)
         icon.setDepth(2)
         return icon
@@ -608,30 +641,91 @@ export default class Main extends BaseScene {
         }
     }
 
-    // Top-left opener: blue medallion with two interlocking C letters (clubs icon).
+    // Top-left opener: purple medallion with two interlocking C letters (clubs icon).
     addClubsIcon(x, y) {
         const key = 'cpl-clubs-btn'
-        if (!this.textures.exists(key)) {
-            const g = this.make.graphics({ add: false })
-            const cx = 45, cy = 42, r = 36
-            g.fillStyle(0x0e406f, 1).fillCircle(cx, cy + 3, r)
-            g.fillStyle(0x6a3fa0, 1).fillCircle(cx, cy, r)
-            g.fillStyle(0x9060c8, 0.5).fillEllipse(cx, cy - 12, r * 1.5, r)
-            g.lineStyle(5, 0xffffff, 1).strokeCircle(cx, cy, r)
-            // Two C shapes
-            g.lineStyle(7, 0xffce3d, 1)
-            g.beginPath()
-            g.arc(cx - 6, cy, 13, Phaser.Math.DegToRad(40), Phaser.Math.DegToRad(320), false)
-            g.strokePath()
-            g.beginPath()
-            g.arc(cx + 6, cy, 13, Phaser.Math.DegToRad(220), Phaser.Math.DegToRad(140), false)
-            g.strokePath()
-            g.generateTexture(key, 90, 84)
-            g.destroy()
+        if (this.textures.exists(key)) {
+            this.textures.remove(key)
         }
+        const g = this.make.graphics({ add: false })
+        const cx = 45, cy = 42, r = 36
+        // Layer 1: drop shadow
+        g.fillStyle(0x000000, 0.28)
+        g.fillCircle(cx, cy + 5, r + 1)
+        // Layer 2: main circle
+        g.fillStyle(0x6a3fa0, 1)
+        g.fillCircle(cx, cy, r)
+        // Layer 3: inner bottom shadow for depth
+        g.lineStyle(8, 0x000000, 0.18)
+        g.beginPath()
+        g.arc(cx, cy, r - 3, Phaser.Math.DegToRad(30), Phaser.Math.DegToRad(150), false)
+        g.strokePath()
+        // Layer 4: white border
+        g.lineStyle(4, 0xffffff, 1)
+        g.strokeCircle(cx, cy, r)
+        // Layer 5: two C shapes in gold
+        g.lineStyle(7, 0xffce3d, 1)
+        g.beginPath()
+        g.arc(cx - 6, cy, 13, Phaser.Math.DegToRad(40), Phaser.Math.DegToRad(320), false)
+        g.strokePath()
+        g.beginPath()
+        g.arc(cx + 6, cy, 13, Phaser.Math.DegToRad(220), Phaser.Math.DegToRad(140), false)
+        g.strokePath()
+        // Layer 6: top gloss
+        g.fillStyle(0xffffff, 0.28)
+        g.fillEllipse(cx, cy - r * 0.42, r * 1.45, r * 0.62)
+        g.generateTexture(key, 90, 84)
+        g.destroy()
         const icon = this.add.image(x, y, key)
         icon.setDepth(2)
         return icon
+    }
+
+    addIconTweens(icon) {
+        icon.on('pointerover', () => {
+            this.tweens.killTweensOf(icon)
+            this.tweens.add({
+                targets: icon,
+                scaleX: 1.08, scaleY: 1.08,
+                duration: 100,
+                ease: 'Quad.Out'
+            })
+        })
+        icon.on('pointerout', () => {
+            this.tweens.killTweensOf(icon)
+            this.tweens.add({
+                targets: icon,
+                scaleX: 1, scaleY: 1,
+                duration: 120,
+                ease: 'Back.Out'
+            })
+        })
+        icon.on('pointerdown', () => {
+            this.tweens.killTweensOf(icon)
+            this.tweens.add({
+                targets: icon,
+                scaleX: 0.93, scaleY: 0.93,
+                duration: 80,
+                ease: 'Quad.Out'
+            })
+        })
+        icon.on('pointerup', () => {
+            this.tweens.killTweensOf(icon)
+            this.tweens.add({
+                targets: icon,
+                scaleX: 1.05, scaleY: 1.05,
+                duration: 80,
+                ease: 'Quad.Out',
+                onComplete: () => {
+                    this.tweens.add({
+                        targets: icon,
+                        scaleX: 1, scaleY: 1,
+                        duration: 120,
+                        ease: 'Back.Out'
+                    })
+                }
+            })
+        })
     }
 
     onPlayerCardKey() {
