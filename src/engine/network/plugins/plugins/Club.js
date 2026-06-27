@@ -11,8 +11,7 @@ export default class Club extends Plugin {
             'club_joined': this.onClubJoined,
             'club_left': this.onClubLeft,
             'club_update': this.onClubUpdate,
-            'club_info': this.onClubInfo,
-            'club_leaderboard': this.onClubLeaderboard
+            'club_info': this.onClubInfo
         }
     }
 
@@ -48,10 +47,6 @@ export default class Club extends Plugin {
 
     onClubInfo(args) {
         // club_info is forwarded to any listening widget via network.events
-    }
-
-    onClubLeaderboard(args) {
-        // club_leaderboard is forwarded to any listening widget via network.events
     }
 
     refreshOwnTag() {

@@ -1,9 +1,9 @@
 import BaseContainer from '@scenes/base/BaseContainer'
 
 
-// Clubs panel: shows the player's current club or a create-club button, plus a top-20 leaderboard.
-// Server events: club_leaderboard, club_created, club_joined, club_left (handled by network/Club.js).
-// Sends: club_leaderboard, create_club, join_club, leave_club.
+// Clubs panel: shows the player's current club or a create-club button.
+// Server events: club_created, club_joined, club_left (handled by network/Club.js).
+// Sends: create_club, join_club, leave_club.
 
 const FONT = 'CCComiccrazy'
 
@@ -22,7 +22,6 @@ export default class ClubsPanel extends BaseContainer {
         super(scene, 0, 0)
 
         this.depth = 100
-        this.boards = []
 
         const block = scene.add.rectangle(0, 0, 1520, 960, 0x000000, 0.5).setOrigin(0, 0).setInteractive()
         this.add(block)
@@ -44,26 +43,11 @@ export default class ClubsPanel extends BaseContainer {
         closeHit.on('pointerdown', () => this.onClose())
         this.add(closeHit)
 
-        // Current club status area (top half)
+        // Current club status area
         this.statusContainer = scene.add.container(0, 0)
         this.add(this.statusContainer)
 
-        // Leaderboard area (bottom half)
-        this.lbContainer = scene.add.container(0, 0)
-        this.add(this.lbContainer)
-
-        this.lbHeader = scene.add.text(760, 550, 'TOP CLUBS', { fontFamily: FONT, fontSize: '22px', color: C.blueText }).setOrigin(0.5)
-        this.add(this.lbHeader)
-
-        this.lbRows = scene.add.container(0, 0)
-        this.add(this.lbRows)
-
         this.renderStatus()
-
-        // Listen for leaderboard responses; re-render when our club changes
-        this.onLbBound = (args) => this.renderLeaderboard(args)
-        this.network.events.on('club_leaderboard', this.onLbBound)
-        this.network.send('club_leaderboard', {})
     }
 
     get myClub() {
@@ -113,33 +97,6 @@ export default class ClubsPanel extends BaseContainer {
         }
     }
 
-    renderLeaderboard(args) {
-        this.lbRows.removeAll(true)
-        const clubs = (args && args.clubs) || []
-        const s = this.scene
-
-        clubs.forEach((club, i) => {
-            const y = 582 + i * 32
-            const rankColor = i === 0 ? '#e8b84b' : i === 1 ? '#aaaaaa' : i === 2 ? '#cd7f32' : C.blueText
-            s.add.text(310, y, `${i + 1}.`, { fontFamily: FONT, fontSize: '18px', color: rankColor }).setOrigin(0, 0.5)
-            s.add.text(360, y, `[${club.tag}] ${club.name}`, { fontFamily: FONT, fontSize: '18px', color: '#333333' }).setOrigin(0, 0.5)
-            s.add.text(1168, y, `${club.xp} XP`, { fontFamily: FONT, fontSize: '18px', color: rankColor }).setOrigin(1, 0.5)
-
-            if (!this.myClub && i > 0) {
-                const joinHit = s.add.rectangle(900, y, 120, 28).setInteractive({ useHandCursor: true })
-                const joinLbl = s.add.text(900, y, 'Join', { fontFamily: FONT, fontSize: '16px', color: C.blueText }).setOrigin(0.5)
-                joinHit.on('pointerdown', () => this.onJoin(club.id, club.name))
-                this.lbRows.add([joinHit, joinLbl])
-            }
-
-            this.lbRows.add(s.add.text(310, y, '', { fontFamily: FONT })) // spacer
-        })
-
-        if (clubs.length === 0) {
-            this.lbRows.add(s.add.text(760, 600, 'No clubs yet. Be the first!', { fontFamily: FONT, fontSize: '20px', color: '#888888' }).setOrigin(0.5))
-        }
-    }
-
     onCreateClub() {
         const name = window.prompt('Club name (2-32 letters, numbers, spaces):')
         if (!name || name.trim().length < 2) return
@@ -150,7 +107,6 @@ export default class ClubsPanel extends BaseContainer {
         // Wait for confirmation and re-render
         this.network.events.once('club_created', () => {
             this.renderStatus()
-            this.network.send('club_leaderboard', {})
         })
     }
 
@@ -159,7 +115,6 @@ export default class ClubsPanel extends BaseContainer {
             this.network.send('leave_club', {})
             this.network.events.once('club_left', () => {
                 this.renderStatus()
-                this.network.send('club_leaderboard', {})
             })
         })
     }
@@ -169,13 +124,11 @@ export default class ClubsPanel extends BaseContainer {
             this.network.send('join_club', { clubId })
             this.network.events.once('club_joined', () => {
                 this.renderStatus()
-                this.network.send('club_leaderboard', {})
             })
         })
     }
 
     onClose() {
-        this.network.events.off('club_leaderboard', this.onLbBound)
         this.visible = false
     }
 
