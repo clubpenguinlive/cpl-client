@@ -37,6 +37,53 @@ export default class MailButton extends BaseContainer {
 
         this.lastUnreadCount = 0
 
+        // Hover and press tweens
+        button.setInteractive({ useHandCursor: true })
+        button.on('pointerover', () => {
+            scene.tweens.killTweensOf(button)
+            scene.tweens.add({
+                targets: button,
+                scaleX: 1.08, scaleY: 1.08,
+                duration: 100,
+                ease: 'Quad.Out'
+            })
+        })
+        button.on('pointerout', () => {
+            scene.tweens.killTweensOf(button)
+            scene.tweens.add({
+                targets: button,
+                scaleX: 1, scaleY: 1,
+                duration: 120,
+                ease: 'Back.Out'
+            })
+        })
+        button.on('pointerdown', () => {
+            scene.tweens.killTweensOf(button)
+            scene.tweens.add({
+                targets: button,
+                scaleX: 0.93, scaleY: 0.93,
+                duration: 80,
+                ease: 'Quad.Out'
+            })
+        })
+        button.on('pointerup', () => {
+            scene.tweens.killTweensOf(button)
+            scene.tweens.add({
+                targets: button,
+                scaleX: 1.05, scaleY: 1.05,
+                duration: 80,
+                ease: 'Quad.Out',
+                onComplete: () => {
+                    scene.tweens.add({
+                        targets: button,
+                        scaleX: 1, scaleY: 1,
+                        duration: 120,
+                        ease: 'Back.Out'
+                    })
+                }
+            })
+        })
+
         /* END-USER-CTR-CODE */
     }
 
