@@ -1,8 +1,9 @@
-# Yukon
+# cpl-client
 
-Visit the Discord server for more support.
-
-[![Yukon Discord members](https://badgen.net/discord/members/NtYtpzyxBu)](https://discord.gg/NtYtpzyxBu)
+The Phaser game client for Club Penguin Live. Builds the browser client and serves
+the PHP account/create flows. Pairs with [cpl-server](https://github.com/clubpenguinlive/cpl-server)
+(the game world backend) and [cpl-assets](https://github.com/clubpenguinlive/cpl-assets)
+(rooms, crumbs, fonts, media).
 
 ## Built With
 
@@ -14,20 +15,20 @@ Visit the Discord server for more support.
 
 ## Local Installation
 
-These instructions will get you a copy of the project up and running on your local machine for development purposes.
+These instructions get you a copy of the client running locally for development.
 
 ### Prerequisites
 
 * [Node.js](https://nodejs.org/en/)
-* [yukon-server](https://github.com/wizguin/yukon-server)
-* assets
+* [cpl-server](https://github.com/clubpenguinlive/cpl-server) for the game worlds
+* Assets from [cpl-assets](https://github.com/clubpenguinlive/cpl-assets)
 
 ### Installation
 
 1. Clone this repository.
 
 ```console
-git clone https://github.com/wizguin/yukon
+git clone https://github.com/clubpenguinlive/cpl-client
 ```
 
 2. Install node dependencies.
@@ -36,23 +37,28 @@ git clone https://github.com/wizguin/yukon
 npm install
 ```
 
-3. Merge contents of assets into the assets folder.
+3. Merge the cpl-assets contents into the `assets` folder.
 
 ### Usage
 
-* Running the dev server.
+* Running the dev server. Serves the real client page (`index.ejs`) with hot rebuild
+  at `localhost:8080`. World sockets proxy to a local cpl-server; without one running
+  they simply do not connect, which is fine for frontend and layout work.
 
 ```console
 npm run dev
 ```
 
-* Building the client for production. Production files can be found in "/dist".
+* Building the client for production. Output lands in `/dist` (`index.html` plus the
+  minified bundle under `assets/scripts/client`). In practice the Docker build runs
+  this for you (see Deploy), so you rarely invoke it by hand.
 
 ```console
 npm run build
 ```
 
-* Building crumbs. This will merge files in "/assets/media/crumbs/en" into a single json file, you only need to run this when modifying crumbs.
+* Building crumbs. Merges the files in `/assets/media/crumbs/en` into a single JSON
+  file. Only needed when modifying crumbs.
 
 ```console
 npm run build-crumbs
@@ -60,46 +66,30 @@ npm run build-crumbs
 
 ### Scene Editing
 
-Editing .scene files requires a copy of [Phaser Editor](https://phasereditor2d.com/).
+Editing `.scene` files requires a copy of [Phaser Editor](https://phasereditor2d.com/).
 
 ### Account creation
 
-If you'd like to use the included PHP account registration locally, you must host it on a PHP supported web server running on port 80 at the path "/create/scripts/php". Webpack dev server will proxy requests accordingly.
+The PHP account and registration pages live in `create/` and `account/`. Locally, host
+them on a PHP web server at `/create/scripts/php`; the webpack dev server proxies
+requests there per `webpack.config.js`.
 
-```console
-'/create/scripts/php': 'http://localhost:80'
-```
+### Editing the page template
 
-See [here](https://github.com/wizguin/yukon-server#account-creation) for a simpler way to create accounts locally.
+The served page is generated from `index.ejs` at build time. Edit that template and
+rebuild rather than touching any generated `dist/index.html`.
 
-## Production Usage
+## Deploy
 
-The following is required when running the project in production.
+Production is a Docker Compose stack on the CPL prod host. The client ships as two
+images built from this repo: `cpl-web` (nginx + the built client, `Dockerfile.web`)
+and `cpl-php` (PHP-FPM for the account/create flows, `Dockerfile.php`). The nginx
+config is canonical in `cpl-server/deploy/nginx.conf` and staged into `deploy/nginx.conf`
+at build time.
 
-* Routes for proxying game worlds must be set up on your web server, the following is an example of an [Apache](https://www.apache.org/) configuration.
-
-```console
-RewriteEngine on
-
-RewriteCond %{REQUEST_URI} ^/world/login [NC]
-RewriteCond %{HTTP:Upgrade} websocket [NC]
-RewriteCond %{HTTP:Connection} upgrade [NC]
-RewriteRule /(.*) ws://localhost:6111/$1 [P,L]
-ProxyPass /world/login http://localhost:6111
-
-RewriteCond %{REQUEST_URI} ^/world/blizzard [NC]
-RewriteCond %{HTTP:Upgrade} websocket [NC]
-RewriteCond %{HTTP:Connection} upgrade [NC]
-RewriteRule /(.*) ws://localhost:6112/$1 [P,L]
-ProxyPass /world/blizzard http://localhost:6112
-```
-
-* Make sure to use the minified bundle and index.html file generated with the build command. These can be found in "/dist" (the contents can just be merged onto your web server).
-
-* To modify the outputted index.html file, edit the template file "index.ejs" and rebuild.
+See [DEPLOY.md](DEPLOY.md) for the full flow. Do not deploy autonomously.
 
 ## Disclaimer
 
-This project is intended for personal use only.
-
-This project is a work in progress, please report any issues you find [here](https://github.com/wizguin/yukon/issues).
+Club Penguin Live is a fan-run private server. It is not affiliated with, endorsed by,
+or sponsored by The Walt Disney Company. Intended for personal use only.
