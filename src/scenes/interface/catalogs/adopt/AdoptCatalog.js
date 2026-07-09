@@ -214,6 +214,16 @@ export default class AdoptCatalog extends BookContainer {
         adopt8.setOrigin(0.49074074074074076, 0.4777777777777778);
         page7.add(adopt8);
 
+        // adoptBrown
+        const adoptBrown = scene.add.image(770, 700, "adoptcatalog", "adopt");
+        adoptBrown.setOrigin(0.49074074074074076, 0.4777777777777778);
+        page7.add(adoptBrown);
+
+        // adoptRainbow
+        const adoptRainbow = scene.add.image(1010, 700, "adoptcatalog", "adopt");
+        adoptRainbow.setOrigin(0.49074074074074076, 0.4777777777777778);
+        page7.add(adoptRainbow);
+
         // page6
         const page6 = scene.add.container(0, 0);
         page6.visible = false;
@@ -456,6 +466,18 @@ export default class AdoptCatalog extends BookContainer {
         adopt8Button.spriteName = "adopt";
         adopt8Button.callback = () => this.onAdoptClick(8);
         adopt8Button.pixelPerfect = true;
+
+        // adoptBrown (components)
+        const adoptBrownButton = new Button(adoptBrown);
+        adoptBrownButton.spriteName = "adopt";
+        adoptBrownButton.callback = () => this.onAdoptClick(9);
+        adoptBrownButton.pixelPerfect = true;
+
+        // adoptRainbow (components)
+        const adoptRainbowButton = new Button(adoptRainbow);
+        adoptRainbowButton.spriteName = "adopt";
+        adoptRainbowButton.callback = () => this.onAdoptClick(10);
+        adoptRainbowButton.pixelPerfect = true;
 
         // adopt7 (components)
         const adopt7Button = new Button(adopt7);
