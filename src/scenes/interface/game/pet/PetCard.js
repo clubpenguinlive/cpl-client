@@ -244,7 +244,27 @@ export default class PetCard extends BaseWidget {
         const happiness = this.pet.happiness
         const frame = happiness > 75 ? 1 : happiness > 50 ? 2 : happiness > 25 ? 3 : 4
 
-        this.paper.setFrame(`pet/paper/${name}/${frame}`)
+        // Per-color paper art (pet/paper/<color>/1-4) is a CPL construct that is
+        // not guaranteed to exist for every puffle color. Guard against a missing
+        // frame so the card renders without a green missing-texture box.
+        const key = `pet/paper/${name}/${frame}`
+        const atlas = this.scene.textures.get("main")
+
+        if (atlas && atlas.has(key)) {
+            this.paper.setFrame(key)
+            this.paper.setVisible(true)
+        } else {
+            // Fall back to a known-good default frame if present, otherwise hide
+            // the paper image entirely rather than showing a broken texture.
+            const fallback = `pet/paper/blue/${frame}`
+
+            if (atlas && atlas.has(fallback)) {
+                this.paper.setFrame(fallback)
+                this.paper.setVisible(true)
+            } else {
+                this.paper.setVisible(false)
+            }
+        }
     }
 
     getStatFrame(stat) {
