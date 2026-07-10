@@ -50,6 +50,21 @@ export default class AdoptCatalog extends BookContainer {
         closeLeft.setOrigin(0, 0);
         page11.add(closeLeft);
 
+        // page12
+        const page12 = scene.add.container(0, 0);
+        page12.visible = false;
+        this.add(page12);
+
+        // page0012
+        const page0012 = scene.add.image(0, 0, "adoptcatalog", "page/page0012");
+        page0012.setOrigin(0, 0);
+        page12.add(page0012);
+
+        // adoptBrown
+        const adoptBrown = scene.add.image(911, 540, "adoptcatalog", "adopt");
+        adoptBrown.setOrigin(0.49074074074074076, 0.4777777777777778);
+        page12.add(adoptBrown);
+
         // page10
         const page10 = scene.add.container(0, 0);
         page10.visible = false;
@@ -214,11 +229,6 @@ export default class AdoptCatalog extends BookContainer {
         adopt8.setOrigin(0.49074074074074076, 0.4777777777777778);
         page7.add(adopt8);
 
-        // adoptBrown
-        const adoptBrown = scene.add.image(770, 700, "adoptcatalog", "adopt");
-        adoptBrown.setOrigin(0.49074074074074076, 0.4777777777777778);
-        page7.add(adoptBrown);
-
         // adoptRainbow
         const adoptRainbow = scene.add.image(1010, 700, "adoptcatalog", "adopt");
         adoptRainbow.setOrigin(0.49074074074074076, 0.4777777777777778);
@@ -376,7 +386,7 @@ export default class AdoptCatalog extends BookContainer {
         buttons.add(coins);
 
         // lists
-        const pages = [page1, page2, page3, page4, page5, page6, page7, page8, page9, page10, page11];
+        const pages = [page1, page2, page3, page4, page5, page6, page7, page8, page9, page10, page12, page11];
 
         // block (components)
         new Interactive(block);
