@@ -94,6 +94,44 @@
                 },
                 {
                     "type": "Container",
+                    "id": "a7075a87-927f-462e-ab97-990a59f777a5",
+                    "label": "page12",
+                    "visible": false,
+                    "list": [
+                        {
+                            "type": "Image",
+                            "id": "f9d8338f-3059-4367-aa30-a36910bc5907",
+                            "label": "page0012",
+                            "texture": {
+                                "key": "adoptcatalog",
+                                "frame": "page/page0012"
+                            },
+                            "originX": 0,
+                            "originY": 0
+                        },
+                        {
+                            "type": "Image",
+                            "id": "3a5f1c02-9e64-4d7a-9f11-2c7b8d4e1a09",
+                            "label": "adoptBrown",
+                            "components": [
+                                "Button"
+                            ],
+                            "Button.spriteName": "adopt",
+                            "Button.callback": "() => this.onAdoptClick(9)",
+                            "Button.pixelPerfect": true,
+                            "texture": {
+                                "key": "adoptcatalog",
+                                "frame": "adopt"
+                            },
+                            "x": 911,
+                            "y": 540,
+                            "originX": 0.49074074074074076,
+                            "originY": 0.4777777777777778
+                        }
+                    ]
+                },
+                {
+                    "type": "Container",
                     "id": "46085572-d7b7-4434-8539-50980a4e3004",
                     "label": "page10",
                     "visible": false,
@@ -505,25 +543,6 @@
                             },
                             "x": 363,
                             "y": 513,
-                            "originX": 0.49074074074074076,
-                            "originY": 0.4777777777777778
-                        },
-                        {
-                            "type": "Image",
-                            "id": "3a5f1c02-9e64-4d7a-9f11-2c7b8d4e1a09",
-                            "label": "adoptBrown",
-                            "components": [
-                                "Button"
-                            ],
-                            "Button.spriteName": "adopt",
-                            "Button.callback": "() => this.onAdoptClick(9)",
-                            "Button.pixelPerfect": true,
-                            "texture": {
-                                "key": "adoptcatalog",
-                                "frame": "adopt"
-                            },
-                            "x": 770,
-                            "y": 700,
                             "originX": 0.49074074074074076,
                             "originY": 0.4777777777777778
                         },
@@ -1002,6 +1021,7 @@
                 "53d910c3-519a-4b67-ad41-b2795d7fb022",
                 "29f0b132-489c-4a01-bc56-0c2d138a7cc9",
                 "46085572-d7b7-4434-8539-50980a4e3004",
+                "a7075a87-927f-462e-ab97-990a59f777a5",
                 "7050d69c-2aad-4e50-8a79-91fba98d34f8"
             ]
         }
