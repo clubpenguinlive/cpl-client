@@ -217,8 +217,12 @@ export default class StampBook extends BaseContainer {
                 this.drawSymbol(this.grid, style.symbol, x + 38, y + CELL_H / 2, owned ? 0xffffff : 0x9a8f73)
             }
 
-            this.grid.add(this.scene.add.text(x + 72, y + 26, def.name, { fontFamily: FONT, fontSize: '17px', color: owned ? C.blueText : '#9a8f73' }).setOrigin(0, 0.5))
-            this.grid.add(this.scene.add.text(x + 72, y + 52, owned ? 'Earned' : 'Locked', { fontFamily: FONT, fontSize: '13px', color: owned ? '#2f8f43' : '#9a8f73' }).setOrigin(0, 0.5))
+            // Keep the name + status pair tight around the card's vertical centre so the
+            // medallion (drawn at y + CELL_H / 2) reads as centred with its labels. Spreading
+            // the two lines to the card edges made the icon look low against the name.
+            const mid = y + CELL_H / 2
+            this.grid.add(this.scene.add.text(x + 72, mid - 9, def.name, { fontFamily: FONT, fontSize: '17px', color: owned ? C.blueText : '#9a8f73' }).setOrigin(0, 0.5))
+            this.grid.add(this.scene.add.text(x + 72, mid + 9, owned ? 'Earned' : 'Locked', { fontFamily: FONT, fontSize: '13px', color: owned ? '#2f8f43' : '#9a8f73' }).setOrigin(0, 0.5))
         })
 
         // Grid pagination controls (prev/next page), shown below the grid

@@ -17,11 +17,18 @@ export default class MailButton extends BaseContainer {
 
         // button
         const button = scene.add.image(0, 0, "main", "mail-button");
-        button.setDisplaySize(90, 84);
+        // mail-button is a trimmed atlas frame: a 90x98 source whose visible envelope
+        // content is only 90x73, offset 25px down from the top. setDisplaySize scaled the
+        // padded frame, which pushed the envelope ~11px below the icon origin (off the row
+        // baseline shared by the three round toolbar icons) and left the base scale != 1 so
+        // the hover tweens (which reset to scale 1) resized it. Anchor the origin on the
+        // content's centre instead and keep base scale 1: the envelope now sits ~73px tall,
+        // centred on the same baseline as the round buttons.
+        button.setOrigin(0.5, (25 + 73 / 2) / 98);
         this.add(button);
 
         // notification
-        const notification = new MailNotification(scene, 30, -17);
+        const notification = new MailNotification(scene, 30, -33);
         notification.visible = false;
         this.add(notification);
 
