@@ -49,7 +49,11 @@ export default class WidgetManager extends BaseLayer {
 
         const { path, preload } = this.crumbs.widgets[key]
 
-        this.showLoading(this.getString(key))
+        // Show the widget's own localized title if one exists, otherwise a generic
+        // "Loading" label. Passing the raw key to getString would fall back to printing
+        // the internal key (e.g. "ChallengesPanel") to the player while the class loads.
+        const title = this.crumbs.strings[key.toLowerCase()] || this.getString('loading')
+        this.showLoading(title)
 
         const widgetClass = await this.loadWidgetClass(path)
 
