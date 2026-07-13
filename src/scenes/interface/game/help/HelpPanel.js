@@ -50,7 +50,7 @@ const ROWS = [
         icon: { key: 'cpl-clubs-btn' },
         scale: 0.78,
         header: 'CLUBS — click the purple icon, or press N',
-        desc: 'Team up with other penguins. Everyone in a club shares one XP pool and wears a nametag tag.'
+        desc: 'Team up with other penguins. Everyone in a club shares one XP pool and wears a club nametag.'
     }
 ]
 
