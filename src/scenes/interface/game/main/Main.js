@@ -479,6 +479,15 @@ export default class Main extends BaseScene {
         clubsIcon.on('pointerdown', () => this.onClubsKey())
         this.addIconTweens(clubsIcon)
 
+        // Help / FAQ (H) opener, top-left. Sibling to Challenges/Stamps/Clubs, NOT the
+        // bottom-right "?" toolbar button -- that one already opens account Settings
+        // (see help_buttonButton.callback above) and stays as-is.
+        this.input.keyboard.on('keydown-H', () => this.onHelpKey())
+        const helpIcon = this.addHelpIcon(460, 70)
+        helpIcon.setInteractive({ useHandCursor: true })
+        helpIcon.on('pointerdown', () => this.onHelpKey())
+        this.addIconTweens(helpIcon)
+
         // Stamp-earned notifications, persistent while in-world.
         this.stampPopup = new StampPopup(this)
         this.add.existing(this.stampPopup)
@@ -671,6 +680,62 @@ export default class Main extends BaseScene {
         g.beginPath()
         g.arc(cx + 6, cy, 13, Phaser.Math.DegToRad(220), Phaser.Math.DegToRad(140), false)
         g.strokePath()
+        // Layer 6: top gloss
+        g.fillStyle(0xffffff, 0.28)
+        g.fillEllipse(cx, cy - r * 0.42, r * 1.45, r * 0.62)
+        g.generateTexture(key, 90, 84)
+        g.destroy()
+        const icon = this.add.image(x, y, key)
+        icon.setDepth(2)
+        return icon
+    }
+
+    onHelpKey() {
+        // H toggles the Help / FAQ panel
+        const widgets = this.interface.widgets
+        if (widgets.keyActive('HelpPanel')) {
+            const w = widgets.getWidget('HelpPanel')
+            if (w && w.onClose) w.onClose()
+        } else {
+            this.interface.loadWidget('HelpPanel')
+        }
+    }
+
+    // Top-left opener: teal medallion with a white question mark. Deliberately a different
+    // hue from the three system icons (blue/blue/purple) since this is a meta/info button,
+    // not a game mechanic.
+    addHelpIcon(x, y) {
+        const key = 'cpl-help-btn'
+        if (this.textures.exists(key)) {
+            this.textures.remove(key)
+        }
+        const g = this.make.graphics({ add: false })
+        const cx = 45, cy = 42, r = 36
+        // Layer 1: drop shadow
+        g.fillStyle(0x000000, 0.28)
+        g.fillCircle(cx, cy + 5, r + 1)
+        // Layer 2: main circle
+        g.fillStyle(0x2a8f7a, 1)
+        g.fillCircle(cx, cy, r)
+        // Layer 3: inner bottom shadow for depth
+        g.lineStyle(8, 0x000000, 0.18)
+        g.beginPath()
+        g.arc(cx, cy, r - 3, Phaser.Math.DegToRad(30), Phaser.Math.DegToRad(150), false)
+        g.strokePath()
+        // Layer 4: white border
+        g.lineStyle(4, 0xffffff, 1)
+        g.strokeCircle(cx, cy, r)
+        // Layer 5: white question mark (hook + stem + dot)
+        g.lineStyle(8, 0xffffff, 1)
+        g.beginPath()
+        g.arc(cx, cy - 10, 12, Phaser.Math.DegToRad(-160), Phaser.Math.DegToRad(70), false)
+        g.strokePath()
+        g.beginPath()
+        g.moveTo(cx, cy + 2)
+        g.lineTo(cx, cy + 9)
+        g.strokePath()
+        g.fillStyle(0xffffff, 1)
+        g.fillCircle(cx, cy + 23, 5)
         // Layer 6: top gloss
         g.fillStyle(0xffffff, 0.28)
         g.fillEllipse(cx, cy - r * 0.42, r * 1.45, r * 0.62)
