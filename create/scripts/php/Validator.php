@@ -141,12 +141,15 @@
             $response = curl_exec($verify);
             $responseData = json_decode($response);
 
-            // Fail-open: never block registration on a Turnstile failure (the sitekey/domain
-            // config can't be verified from here, and a misconfig must not lock everyone out).
-            // Log the failure reason so the config can be diagnosed and the check re-tightened.
+            // Fail closed: a missing, empty, expired or rejected token blocks registration,
+            // as does an unreachable siteverify. An empty token is covered here too, since
+            // siteverify answers missing-input-response with success:false.
+            // Keep logging the reason so a config problem is still diagnosable.
             if (!$responseData || !$responseData->success) {
                 @file_put_contents('/tmp/turnstile-fail.log',
                     date('c') . ' ' . (is_string($response) ? $response : 'no-response') . "\n", FILE_APPEND);
+
+                $this->setFieldError($this->messages['provide'], [$this->label]);
             }
 
             return $this;
