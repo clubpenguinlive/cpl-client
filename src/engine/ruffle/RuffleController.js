@@ -76,21 +76,29 @@ export default class RuffleController extends BaseScene {
 
     // RoomManager passes the game crumb object: { key, path, music, use_alt_loader }
     bootGame(game) {
-        // Use game.path directly when it's already a .swf (e.g. Pizzatron 3000).
-        // Fall back to the bootstrap convention for games that use the cpj2 loader.
-        const swfPath = (game.path && game.path.endsWith('.swf'))
-            ? game.path
-            : `games/${game.key}/bootstrap.swf`
+        // Crumb paths are relative to the games directory ('mine/bootstrap.swf' lives at
+        // assets/media/flash/games/mine/bootstrap.swf), except for the handful of entries
+        // that already carry the prefix themselves ('games/Pizzatron.swf'). Never decide
+        // this on the '.swf' suffix: every bootstrap path ends in '.swf' too, which is what
+        // previously stripped the games/ prefix off all ten loader games and 404'd them.
+        const crumbPath = game.path || `${game.key}/bootstrap.swf`
+        const swfPath = crumbPath.startsWith('games/') ? crumbPath : `games/${crumbPath}`
+
+        // Games that ship a bootstrap.swf (and the legacy entries with no file extension)
+        // run through the cpj2 boot loader, which fetches the game itself back out of
+        // getPath(). Everything else is a self-contained SWF that Ruffle loads directly.
+        const usesBootLoader = !crumbPath.endsWith('.swf') || crumbPath.endsWith('bootstrap.swf')
+
         this.path = swfPath
         this.music = game.music || 0
         this.gameName = game.key
 
-        if (game.path && game.path.endsWith('.swf')) {
-            // Direct SWF: bypass the cpj2 boot loader and load the SWF straight.
-            this.events.once('update', () => this.bootRoom(`${basePath}${swfPath}`))
-        } else {
+        if (usesBootLoader) {
             // defer until after create() so this.container exists
             this.events.once('update', () => this.boot(game.use_alt_loader))
+        } else {
+            // Direct SWF: bypass the cpj2 boot loader and load the SWF straight.
+            this.events.once('update', () => this.bootRoom(`${basePath}${swfPath}`))
         }
     }
 
