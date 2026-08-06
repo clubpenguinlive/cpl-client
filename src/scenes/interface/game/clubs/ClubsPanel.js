@@ -98,16 +98,28 @@ export default class ClubsPanel extends BaseContainer {
     }
 
     onCreateClub() {
-        const name = window.prompt('Club name (2-32 letters, numbers, spaces):')
-        if (!name || name.trim().length < 2) return
-        const tag = window.prompt('Club tag (2-4 uppercase letters/numbers, shown in chat):')
-        if (!tag || tag.trim().length < 2) return
-        this.network.send('create_club', { name: name.trim(), tag: tag.trim().toUpperCase() })
+        const prompt = this.interface.prompt.input
 
-        // Wait for confirmation and re-render
-        this.network.events.once('club_created', () => {
-            this.renderStatus()
-        })
+        // Sequential styled prompts, same pattern used for pet naming (InputPrompt).
+        // Rejections (name/tag taken, moderation, insufficient coins) come back as
+        // a generic 'error' event, which the network Error plugin already surfaces
+        // as a styled error dialog everywhere in the client.
+        prompt.show('Club name (2-32 letters, numbers, spaces):', 'Next', {}, (rawName) => {
+            const name = rawName.trim()
+            if (name.length < 2) return
+
+            prompt.show('Club tag (2-4 letters/numbers):', 'Create', {}, (rawTag) => {
+                const tag = rawTag.trim().toUpperCase()
+                if (tag.length < 2) return
+
+                prompt.close()
+
+                this.network.send('create_club', { name, tag })
+                this.network.events.once('club_created', () => {
+                    this.renderStatus()
+                })
+            }, 4)
+        }, 32)
     }
 
     onLeave() {

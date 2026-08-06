@@ -113,9 +113,12 @@ export default class InputPrompt extends BaseContainer {
 
     /* START-USER-CODE */
 
-    show(text, buttonText, loadConfig = {}, callback = () => this.close()) {
+    show(text, buttonText, loadConfig = {}, callback = () => this.close(), maxLength = 12) {
         this.text.text = text
         this.button.text.text = buttonText
+
+        this.input.maxLength = maxLength
+        this.input.node.maxLength = maxLength
 
         this.callback = () => {
             if (this.input.text.length) {
