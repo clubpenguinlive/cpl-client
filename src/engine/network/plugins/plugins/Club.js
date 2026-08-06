@@ -15,6 +15,10 @@ export default class Club extends Plugin {
         }
     }
 
+    get client() {
+        return this.world.client
+    }
+
     onClubCreated(args) {
         this.client.club = args.club
         this.client.coins = args.coins
