@@ -129,7 +129,8 @@ export default class ClubsPanel extends BaseContainer {
     }
 
     onClose() {
-        this.visible = false
+        this.interface.removeWidget(this)
+        this.destroy()
     }
 
 }
