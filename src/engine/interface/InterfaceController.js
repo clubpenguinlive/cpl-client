@@ -103,10 +103,44 @@ export default class InterfaceController extends BaseScene {
             return
         }
 
+        // A Scene still finishing its own create() can't be trusted to complete a sleep
+        // transition cleanly. Wait for it to actually finish booting, then retry once it
+        // is RUNNING, rather than putting a half-created Scene to sleep.
+        if (status === Status.CREATING) {
+            scene.events.once('create', () => this.sleepScene(scene, data))
+            return
+        }
+
         this.goingToSleep.add(scene)
 
+        this.armSleepWatchdog(scene, data)
+
         this.scene.sleep(scene, data)
-        scene.events.once('sleep', () => this.goingToSleep.delete(scene))
+    }
+
+    // Phaser's Scene Manager queues scene.sleep() for its next internal update and
+    // silently drops it, with no 'sleep' event, if the Scene's status has drifted away
+    // from CREATING/RUNNING by the time that queued op actually runs. Without a
+    // safety net, goingToSleep would wedge permanently on that Scene and every future
+    // hideLoading()/sleepScene() call for it would silently no-op for the rest of the
+    // session (the classic stuck-loading-spinner bug). Force-clear the guard and retry
+    // if 'sleep' hasn't fired shortly after we asked for it.
+    armSleepWatchdog(scene, data) {
+        const onSleep = () => {
+            clearTimeout(watchdog)
+            this.goingToSleep.delete(scene)
+        }
+
+        scene.events.once('sleep', onSleep)
+
+        const watchdog = setTimeout(() => {
+            scene.events.off('sleep', onSleep)
+            this.goingToSleep.delete(scene)
+
+            // Re-run the full check: the Scene may already be sleeping (nothing left
+            // to do) or may be sleepable again now, in which case this retries cleanly.
+            this.sleepScene(scene, data)
+        }, 2000)
     }
 
     bringToTop(scene = null) {
