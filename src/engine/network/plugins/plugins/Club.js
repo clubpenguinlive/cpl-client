@@ -45,7 +45,7 @@ export default class Club extends Plugin {
 
         penguin.club = args.club
         if (penguin.nameTag) {
-            penguin.nameTag.setText(this.world.penguinLoader.getNameText(penguin))
+            penguin.nameTag.setText(penguin.penguinLoader.getNameText(penguin))
         }
     }
 
@@ -57,7 +57,7 @@ export default class Club extends Plugin {
         const penguin = this.client.penguin
         if (!penguin || !penguin.nameTag) return
         penguin.club = this.client.club
-        penguin.nameTag.setText(this.world.penguinLoader.getNameText(penguin))
+        penguin.nameTag.setText(penguin.penguinLoader.getNameText(penguin))
     }
 
 }
