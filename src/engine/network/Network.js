@@ -27,10 +27,15 @@ export default class Network {
         this.saveUsername = saveUsername
         this.savePassword = savePassword
 
+        // Use the same connection-lost handling as an in-game connection. A login
+        // socket can establish fine and then drop mid-handshake (e.g. a later polling
+        // request getting rate-limited after the initial connect succeeded), which
+        // fires the disconnect event, not connect_error. Silently reconnecting here
+        // left the loading spinner up forever with no recovery path.
         this.connect('Login', () => {
             onConnect()
         }, () => {
-            this.disconnect()
+            this.onConnectionLost()
         })
     }
 
