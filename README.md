@@ -1,9 +1,13 @@
 # cpl-client
 
-The Phaser game client for Club Penguin Live. Builds the browser client and serves
-the PHP account/create flows. Pairs with [cpl-server](https://github.com/clubpenguinlive/cpl-server)
-(the game world backend) and [cpl-assets](https://github.com/clubpenguinlive/cpl-assets)
-(rooms, crumbs, fonts, media).
+[Club Penguin Live](https://clubpenguinlive.net) is a fan-made recreation of the original Club
+Penguin, running on a from-scratch client and server built for the browser.
+
+This repo is the Phaser game client: the browser-side game itself, plus the PHP account/create
+flows served alongside it. It builds and runs on its own, but needs a running
+[cpl-server](https://github.com/clubpenguinlive/cpl-server) (the Socket.IO world backend) to
+actually log in and play, and [cpl-assets](https://github.com/clubpenguinlive/cpl-assets) (rooms,
+crumbs, fonts, media) merged in to build.
 
 ## Built With
 
@@ -88,6 +92,20 @@ config is canonical in `cpl-server/deploy/nginx.conf` and staged into `deploy/ng
 at build time.
 
 See [DEPLOY.md](DEPLOY.md) for the full flow. Do not deploy autonomously.
+
+Self-hosting your own instance against your own backend does not require any of the CPL-specific
+production details above; see [DEPLOY.md](DEPLOY.md) for a generic build-and-run guide.
+
+## Contributing
+
+Issues and pull requests are welcome. For anything beyond a small fix, open an issue first to
+discuss the approach before writing code, since some changes need matching work in cpl-server
+and/or cpl-assets to actually function (see the cross-repo note in `CLAUDE.md`).
+
+## License
+
+MIT, see [LICENSE](LICENSE). This project is a fork of [wizguin/yukon](https://github.com/wizguin/yukon);
+see [NOTICE](NOTICE) for upstream attribution.
 
 ## Disclaimer
 

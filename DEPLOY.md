@@ -1,79 +1,138 @@
-# Deploy workflow (client)
+# Self-hosting cpl-client
 
-**The repo is the source of truth. dev-01 is where you work. prod only runs what it is given.**
+This is a generic self-host guide for running your own instance of the client. It does not
+describe any specific hosting setup, only the pieces the repo actually provides: two Docker
+images, the scripts that build them, and the environment variables they read.
 
-```
-edit + commit + push   ->   overlay onto prod   ->   docker build   ->   swap containers   ->   verify
-       (dev-01)               (git archive)           (on prod host)      (compose up -d)
-```
+The client is one part of a three-repo stack:
 
-## Rules
+- **cpl-client** (this repo): the Phaser game client plus the PHP account/create flows.
+- **[cpl-server](https://github.com/clubpenguinlive/cpl-server)**: the Socket.IO world backend
+  (login server + one or more world servers).
+- **[cpl-assets](https://github.com/clubpenguinlive/cpl-assets)**: room, crumb, and media assets
+  merged into the client at build time.
 
-- **All authoring happens on dev-01** (this clone). Edit, commit, and `git push origin main` here.
-  dev-01 is the only machine that talks to GitHub.
-- **prod is a deploy target, not a dev box.** It never commits, never pushes, and holds no GitHub
-  credentials. It runs whatever files the last deploy overlaid into `~/cpl/cpl-client/`.
-- **Never edit files directly on prod.** Make the change here, commit, deploy. Hand-edits on prod get
-  clobbered by the next overlay.
-- **The DB volume is sacred.** Never `docker compose down -v`. Migrations are additive only.
+You need working copies of all three to run a full instance. This guide covers the client only.
 
-## Prod host
+## What gets built
 
-- **`cpl-prod`** is the single source for the prod address, a Host alias in `~/.ssh/config` on dev-01
-  pointing at the `clubpenguinlive` VM (`10.0.0.43`, Docker Compose stack on HOST-02). The deploy
-  script and these docs reference the alias; if the IP or user changes, edit only the ssh config.
-- The client ships as two images built from this repo:
-  - **`cpl-web`** (nginx + the built client), `Dockerfile.web`, layered on `cpl-assets-base`.
-  - **`cpl-php`** (PHP-FPM 8.3 for the account/create flows), `Dockerfile.php`.
-- The nginx config is canonical in `cpl-server/deploy/nginx.conf` and staged into this repo's
-  `deploy/nginx.conf` by `deploy.sh` before the Docker build.
+`Dockerfile.web` and `Dockerfile.php` both build from this repo as the Docker context.
 
-## Deploy
+- **`cpl-web`**: a multi-stage build. The first stage runs `npm ci && npm run build` (Node 24) to
+  produce `dist/`. The second stage copies `dist/`, the static `assets/`, `create/`, `account/`,
+  `pages/`, and `branding/` trees onto an nginx base image and installs the nginx config at
+  `/etc/nginx/conf.d/default.conf`. Serves the built client on port 80.
+- **`cpl-php`**: PHP-FPM 8.3 with `pdo_mysql` and `mysqli`, serving `create/` and `account/` (the
+  registration and account-management pages) on port 9000. It renders `db-config.php` from
+  environment variables at container start (see below), so the real credentials never need to be
+  committed or baked into the image.
 
-From this repo on dev-01:
+The `Dockerfile.web` build context expects two things that are not tracked in this repo:
 
-```bash
-./deploy.sh
-```
+- A `minigames/` directory at the repo root. This is a separate asset tree of licensed minigame
+  files; you will need to source or build your own if you want minigames to work, or drop the
+  `COPY minigames ./minigames` line from `Dockerfile.web` if you do not need them.
+- An nginx config staged at `deploy/nginx.conf`. Write your own, or adapt the one referenced from
+  [cpl-server](https://github.com/clubpenguinlive/cpl-server)'s `deploy/` directory if you are
+  running the matching server. At minimum it needs to serve the static files above and proxy
+  Socket.IO traffic through to your login/world server processes (see Networking below).
 
-which is, in essence:
+`cpl-assets` also needs to be merged into `assets/` before building; see the README for local dev,
+the same merge applies to a production build.
 
-```bash
-git push origin main                                        # publish to GitHub (source of truth)
-git archive HEAD | ssh cpl-prod "tar -x -C ~/cpl/cpl-client/"  # overlay files onto prod
-# stage build context: cp cpl-server/deploy/nginx.conf and cpl/minigames into cpl-client/
-ssh cpl-prod "docker build -f ~/cpl/cpl-client/Dockerfile.web ... -t .../cpl-web:stable ~/cpl/cpl-client/"
-ssh cpl-prod "docker build -f ~/cpl/cpl-client/Dockerfile.php   -t .../cpl-php:stable ~/cpl/cpl-client/"
-ssh cpl-prod "docker compose -f ~/cpl/cpl-server/deploy/docker-compose.yml up -d --no-deps cpl-web cpl-php"
-```
+## Building the images
 
-The Docker build assembles the client (`npm run build` runs inside the image), so there is no
-`npm`/`pm2` on prod and no build step to run by hand. `docker compose up -d --no-deps` hot-swaps only
-`cpl-web` and `cpl-php`, leaving the world containers and the database untouched. Both briefly restart
-while the new images start.
-
-## First-time provisioning (new / rebuilt target)
-
-The DB credentials live in `db-config.php`, which is gitignored and never shipped by the overlay.
-On a fresh target, create it once in both PHP dirs from the example, then fill in the real password:
+From a checkout of this repo, with `minigames/` and `deploy/nginx.conf` staged as described above:
 
 ```bash
-ssh cpl-prod
-for d in account create; do
-  cp ~/cpl/cpl-client/$d/scripts/php/db-config.example.php \
-     ~/cpl/cpl-client/$d/scripts/php/db-config.php
-done
+docker build -f Dockerfile.web -t cpl-web:latest .
+docker build -f Dockerfile.php -t cpl-php:latest .
 ```
 
-## Verify after deploy
+`Dockerfile.web` takes one build arg, `ASSETS_BASE`, an image name to use as the base layer for
+`cpl-web` (defaults to `ghcr.io/clubpenguinlive/cpl-assets-base:stable`, our own media/fonts base
+image; point it at your own base image or a plain `nginx:latest` if you are supplying those files
+another way).
 
 ```bash
-curl -s -o /dev/null -w '%{http_code}\n' https://play.clubpenguinlive.net   # expect 200
-# full path check (login + world join + CSP):
-node <repo>/.local-scratch/verify_game.js   # from dev-01, expect RESULT: PASS
+docker build -f Dockerfile.web --build-arg ASSETS_BASE=nginx:latest -t cpl-web:latest .
 ```
 
-## Rollback
+## Configuring the backend connection
 
-Redeploy a known-good commit: check it out on dev-01 and run `./deploy.sh`, or rebuild the images on
-prod from a previously overlaid tree. Then reconcile `main` on GitHub to the same commit.
+The client does not hardcode a backend host. Two separate things need to point at your backend:
+
+1. **World server addresses.** The client reads the Socket.IO host and path for each world from
+   crumb data (`game.crumbs.worlds[world]` in `src/engine/network/Network.js`), which comes from
+   cpl-assets, not this repo. Configure your world entries there to point at wherever your
+   cpl-server login and world processes are reachable.
+2. **Reverse proxy routing.** In dev, `webpack.config.js` proxies `/world/login` and
+   `/world/blizzard` to `localhost:6111` / `localhost:6112` (see the `devServer.proxy` block) and
+   `/create/scripts/php` to a local PHP server on port 80. In production your web server needs to
+   do the equivalent: serve the built client and proxy the same paths (with WebSocket upgrade) to
+   your running cpl-server processes and PHP-FPM. This is what the nginx config staged into
+   `deploy/nginx.conf` is for.
+
+## Environment variables
+
+`cpl-php`'s entrypoint (`deploy/entrypoint-php.sh`) renders `db-config.php` for both `create/` and
+`account/` from these variables at container start:
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `DB_HOST` | `mariadb` | MySQL/MariaDB host |
+| `DB_USER` | `yukon` | Database user |
+| `DB_PASSWORD` | (none, required) | Database password |
+| `DB_NAME` | `clubpenguinlive` | Database name |
+
+`account.php` also reads `TURNSTILE_SECRET` from the environment for Cloudflare Turnstile
+(captcha) verification on account actions. If unset, it falls back to an empty string, which will
+fail captcha checks; set it to your own Turnstile secret key, and update the `data-sitekey` values
+in `account/` and `create/` to your own site key.
+
+For local development without Docker, copy `account/scripts/php/db-config.example.php` to
+`db-config.php` in both `account/scripts/php/` and `create/scripts/php/` (gitignored, never
+commit the real file) and fill in your own values directly instead of relying on the entrypoint
+script.
+
+## Running the stack
+
+The two images serve different paths of the same site and are meant to sit behind one web server
+(or reverse proxy) that fans out static/asset requests to `cpl-web` and PHP requests under
+`/create` and `/account` to `cpl-php` on port 9000 (FastCGI). A minimal `docker-compose.yml` might
+look like:
+
+```yaml
+services:
+  cpl-web:
+    image: cpl-web:latest
+    ports:
+      - "80:80"
+  cpl-php:
+    image: cpl-php:latest
+    environment:
+      DB_HOST: mariadb
+      DB_USER: yukon
+      DB_PASSWORD: change-me
+      DB_NAME: clubpenguinlive
+      TURNSTILE_SECRET: your-turnstile-secret
+    depends_on:
+      - mariadb
+  mariadb:
+    image: mariadb:11
+    environment:
+      MARIADB_DATABASE: clubpenguinlive
+      MARIADB_USER: yukon
+      MARIADB_PASSWORD: change-me
+      MARIADB_ROOT_PASSWORD: change-me
+    volumes:
+      - db-data:/var/lib/mysql
+volumes:
+  db-data:
+```
+
+This assumes `cpl-web`'s nginx config is set up to proxy PHP requests to `cpl-php:9000` and
+Socket.IO requests to your cpl-server processes; adapt it to match wherever your services actually
+live. You still need cpl-server running separately (it is not one of these two images) and the
+database schema from cpl-server's migrations applied to `mariadb` before account creation will
+work.
