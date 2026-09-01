@@ -141,7 +141,12 @@ export default class CardJitsu extends GameScene {
         this.container = this.add.dom(760, 480)
         this.container.visible = false
 
-        this.battlesPath = 'assets/media/games/card/battles/'
+        // battle.swf is AS2 and loads these sub-swfs itself via MovieClipLoader, which
+        // resolves relative URLs against the swf's own location (assets/media/games/card/),
+        // not the page. A site-root-relative path here doubles that prefix and 404s every
+        // battle state, leaving Ruffle showing nothing but battle.swf's own background.
+        // Must be an absolute URL so AS2's resolver can't reinterpret it as swf-relative.
+        this.battlesPath = `${window.location.origin}/assets/media/games/card/battles/`
 
         this.events.once('emulator_ready', this.onEmulatorReady, this)
 
