@@ -99,8 +99,10 @@ production details above; see [DEPLOY.md](DEPLOY.md) for a generic build-and-run
 ## Contributing
 
 Issues and pull requests are welcome. For anything beyond a small fix, open an issue first to
-discuss the approach before writing code, since some changes need matching work in cpl-server
-and/or cpl-assets to actually function (see the cross-repo note in `CLAUDE.md`).
+discuss the approach before writing code. Some changes are cross-repo: a new room needs a matching
+server entry in [cpl-server](https://github.com/clubpenguinlive/cpl-server)'s `data/rooms.json`
+and an asset pack in [cpl-assets](https://github.com/clubpenguinlive/cpl-assets), and login or
+economy changes should be smoke-tested against a running cpl-server before you call them done.
 
 ## License
 

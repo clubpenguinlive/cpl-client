@@ -1,7 +1,7 @@
 # cpl-web: nginx + the built client, layered on cpl-assets-base (which carries piefruit media/fonts).
-# Build context = the client-clubpenguinlive repo with two things staged in by deploy.sh:
+# Build context = the cpl-client repo with two things staged in by deploy.sh:
 #   - minigames/        (not tracked here; lives at /opt/yukon/minigames on prod)
-#   - deploy/nginx.conf  (canonical copy lives in server-clubpenguinlive/deploy/)
+#   - deploy/nginx.conf  (canonical copy lives in cpl-server/deploy/)
 ARG ASSETS_BASE=ghcr.io/clubpenguinlive/cpl-assets-base:stable
 
 FROM node:24-bookworm-slim AS build

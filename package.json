@@ -1,6 +1,7 @@
 {
-  "name": "yukon",
+  "name": "cpl-client",
   "version": "1.11.0-beta",
+  "description": "Phaser-based game client for Club Penguin Live, plus the PHP account/create flows served alongside it.",
   "scripts": {
     "dev": "webpack serve",
     "build": "webpack --mode production --env obfuscate=false",
@@ -8,14 +9,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wizguin/yukon.git"
+    "url": "git+https://github.com/clubpenguinlive/cpl-client.git"
   },
   "author": "wizguin",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/wizguin/yukon/issues"
+    "url": "https://github.com/clubpenguinlive/cpl-client/issues"
   },
-  "homepage": "https://github.com/wizguin/yukon#readme",
+  "homepage": "https://github.com/clubpenguinlive/cpl-client#readme",
   "devDependencies": {
     "@babel/core": "^7.28.3",
     "@babel/preset-env": "^7.28.3",
