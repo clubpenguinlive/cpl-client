@@ -17,21 +17,24 @@
     "url": "https://github.com/clubpenguinlive/cpl-client/issues"
   },
   "homepage": "https://github.com/clubpenguinlive/cpl-client#readme",
+  "dependencies": {
+    "core-js": "^3.45.1",
+    "howler": "^2.2.4",
+    "socket.io-client": "^4.8.1"
+  },
   "devDependencies": {
     "@babel/core": "^7.28.3",
     "@babel/preset-env": "^7.28.3",
     "babel-loader": "^9.2.1",
     "compression-webpack-plugin": "^10.0.0",
-    "core-js": "^3.45.1",
     "css-loader": "^7.1.2",
-    "howler": "^2.2.4",
     "html-webpack-plugin": "^5.6.4",
     "javascript-obfuscator": "^4.1.1",
     "phasereditor2d-launcher": "^3.67.0",
     "phasereditor2d-ninepatch-plugin": "^1.2.0",
-    "socket.io-client": "^4.8.1",
     "source-map": "^0.7.6",
     "style-loader": "^4.0.0",
+    "terser-webpack-plugin": "^5.3.14",
     "webpack": "^5.101.3",
     "webpack-cli": "^5.1.4",
     "webpack-dev-server": "^5.2.2",
