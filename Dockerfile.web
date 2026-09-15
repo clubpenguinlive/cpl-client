@@ -4,7 +4,10 @@
 #   - deploy/nginx.conf  (canonical copy lives in cpl-server/deploy/)
 ARG ASSETS_BASE=ghcr.io/clubpenguinlive/cpl-assets-base:stable
 
-FROM node:24-bookworm-slim AS build
+# Pinned, not floating: Babel 8 requires Node ^22.18.0 || >=24.11.0, and a prod host with an
+# older node:24 layer already cached would build against it silently. This stage only emits
+# JS and is discarded, so it never reaches the shipped image.
+FROM node:24.21-bookworm-slim AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci
