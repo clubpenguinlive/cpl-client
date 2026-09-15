@@ -1,0 +1,39 @@
+version: 2
+
+# Groups default to version updates only. The security groups below carry an
+# explicit applies-to so Dependabot consolidates security advisories too,
+# instead of opening one pull request per advisory.
+#
+# Production and development are split because that is the triage axis here:
+# the build toolchain (webpack, babel, postcss) produces most of the alert
+# volume, while anything that ends up in the shipped bundle needs a faster
+# look. Split, not suppressed: a compromised build dependency can still write
+# itself into the bundle, so these get reviewed, just batched.
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    open-pull-requests-limit: 5
+    groups:
+      security-production:
+        applies-to: security-updates
+        dependency-type: "production"
+        patterns:
+          - "*"
+      security-development:
+        applies-to: security-updates
+        dependency-type: "development"
+        patterns:
+          - "*"
+      version-production:
+        applies-to: version-updates
+        dependency-type: "production"
+        patterns:
+          - "*"
+      version-development:
+        applies-to: version-updates
+        dependency-type: "development"
+        patterns:
+          - "*"
